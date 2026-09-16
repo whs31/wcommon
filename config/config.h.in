@@ -1,0 +1,75 @@
+#pragma once
+
+// NOLINTBEGIN(cppcoreguidelines-macro-usage, readability-use-concise-preprocessor-directives)
+
+#cmakedefine RCOMMON_WITH_QT
+
+#if defined(NDEBUG)
+#  define RADAR_NO_DEBUG
+#else
+#  define RADAR_DEBUG
+#endif
+
+#if defined(RADAR_VERSION_ENCODE)
+#  undef RADAR_VERSION_ENCODE
+#endif
+#define RADAR_VERSION_ENCODE(major,minor,patch) (((major) * 1000000) + ((minor) * 1000) + (patch))
+
+#if defined(RADAR_VERSION_DECODE_MAJOR)
+#  undef RADAR_VERSION_DECODE_MAJOR
+#endif
+#define RADAR_VERSION_DECODE_MAJOR(version) ((version) / 1000000)
+
+#if defined(RADAR_VERSION_DECODE_MINOR)
+#  undef RADAR_VERSION_DECODE_MINOR
+#endif
+#define RADAR_VERSION_DECODE_MINOR(version) (((version) % 1000000) / 1000)
+
+#if defined(RADAR_VERSION_DECODE_PATCH)
+#  undef RADAR_VERSION_DECODE_PATCH
+#endif
+#define RADAR_VERSION_DECODE_PATCH(version) ((version) % 1000)
+
+#if defined(RADAR_STRINGIFY_EX)
+#  undef RADAR_STRINGIFY_EX
+#endif
+#define RADAR_STRINGIFY_EX(x) #x
+
+#if defined(RADAR_STRINGIFY)
+#  undef RADAR_STRINGIFY
+#endif
+#define RADAR_STRINGIFY(x) RADAR_STRINGIFY_EX(x)
+
+#if defined(RADAR_CONCAT_EX)
+#  undef RADAR_CONCAT_EX
+#endif
+#define RADAR_CONCAT_EX(a,b) a##b
+
+#if defined(RADAR_CONCAT)
+#  undef RADAR_CONCAT
+#endif
+#define RADAR_CONCAT(a,b) RADAR_CONCAT_EX(a,b)
+
+#if defined(RADAR_CONCAT3_EX)
+#  undef RADAR_CONCAT3_EX
+#endif
+#define RADAR_CONCAT3_EX(a,b,c) a##b##c
+
+#if defined(RADAR_CONCAT3)
+#  undef RADAR_CONCAT3
+#endif
+#define RADAR_CONCAT3(a,b,c) RADAR_CONCAT3_EX(a,b,c)
+
+#ifdef __cplusplus
+#  define RADAR_C_DECL extern "C"
+#  define RADAR_EXTERN_C_BEGIN extern "C" {
+#  define RADAR_EXTERN_C_END }
+#else
+#  define RADAR_C_DECL
+#  define RADAR_EXTERN_C_BEGIN
+#  define RADAR_EXTERN_C_END
+#endif
+
+#define RADAR_C_FORWARD_DECLARE(TYPE) RADAR_EXTERN_C_BEGIN TYPE; RADAR_EXTERN_C_END
+
+// NOLINTEND(cppcoreguidelines-macro-usage, readability-use-concise-preprocessor-directives)

@@ -1,138 +1,143 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.20)
 
-include_guard(GLOBAL)
+message(DEBUG "Using ${CMAKE_TOOLCHAIN_FILE}")
 
-message(STATUS "Using toolchain file: ${CMAKE_TOOLCHAIN_FILE}")
-
-project(rolly
-  VERSION 2.10.2
-  DESCRIPTION "Radar open-source library"
-  HOMEPAGE_URL "whs31.github.io/rolly"
-  LANGUAGES C CXX
+project(rcommon
+  VERSION 3.0.0
+  DESCRIPTION "Radar common utility library"
+  HOMEPAGE_URL "http://gitlab.uav.radar-mms.com/developers/v2/support/rcommon"
+  LANGUAGES CXX
 )
-set(PROJECT_NAMESPACE ${PROJECT_NAME}::)
-set(PROJECT_FULL_NAME ${PROJECT_NAMESPACE}${PROJECT_NAME})
 
-option(ROLLY_TESTS "Enable integration tests" OFF)
-option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
-option(ROLLY_QT "Link with Qt" OFF)
+option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+option(RCOMMON_WITH_QT "Enable Qt integration" OFF)
 
-if ("${CMAKE_GENERATOR}" MATCHES "^Visual Studio")
-  set(CMAKE_GENERATOR_PLATFORM "x64" CACHE STRING "" FORCE)
-endif ()
-
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-message(STATUS "[${PROJECT_FULL_NAME}] c++ standard: ${ROLLY_CXX_STANDARD}")
+include(CTest)
+include(CMakePackageConfigHelpers)
+include(GNUInstallDirs)
 
-# <-- dependencies -->
 find_package(fmt REQUIRED)
-find_package(ipaddress REQUIRED)
 find_package(nlohmann_json REQUIRED)
+find_package(spdlog REQUIRED)
+if(RCOMMON_WITH_QT)
+  find_package(Qt6 REQUIRED COMPONENTS Core Gui Network Positioning)
+endif()
 
-if (ROLLY_QT)
-  message(WARNING "-- [${PROJECT_FULL_NAME}] linking with qt enabled! remember to disable it before push")
-  find_package(Qt6
-    COMPONENTS
-    Core
-    Quick
-    REQUIRED
-  )
-  set(CMAKE_AUTOMOC ON)
-endif ()
+add_subdirectory(config)
 
 add_library(${PROJECT_NAME})
-add_library(${PROJECT_FULL_NAME} ALIAS ${PROJECT_NAME})
+add_library("radar::mms::common" ALIAS ${PROJECT_NAME})
+add_library(${PROJECT_NAME}_json INTERFACE)
+add_library("radar::mms::common::json" ALIAS ${PROJECT_NAME}_json)
+
+set_target_properties(${PROJECT_NAME}_json PROPERTIES EXPORT_NAME json)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
-  CXX_STANDARD 17
+  CXX_STANDARD 23
   CXX_STANDARD_REQUIRED ON
   CXX_EXTENSIONS OFF
+  DEFINE_SYMBOL RADAR_COMMON_LIBRARY
+  EXPORT_NAME ${PROJECT_NAME}
+  LINKER_LANGUAGE CXX
   POSITION_INDEPENDENT_CODE ON
 )
 
-target_sources(${PROJECT_NAME}
-  PRIVATE
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/contracts.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/lockfile.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/paths.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/rtti.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/string_util.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/uuid.cc
+include(GenerateExportHeader)
+generate_export_header(${PROJECT_NAME}
+  EXPORT_FILE_NAME "${CMAKE_CURRENT_BINARY_DIR}/radar/mms/common/detail/export.h"
+  EXPORT_MACRO_NAME RADAR_COMMON_API
+  STATIC_DEFINE RADAR_COMMON_STATIC_LIBRARY
+)
 
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/crypto/md5.cc
+file(GLOB_RECURSE RCOMMON_PUBLIC_HEADERS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/include/radar/mms/common/*.h")
+file(GLOB RCOMMON_PRIVATE_SOURCES CONFIGURE_DEPENDS
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/private/*.h"
+)
+
+target_sources(${PROJECT_NAME} PRIVATE ${RCOMMON_PUBLIC_HEADERS} ${RCOMMON_PRIVATE_SOURCES})
+
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+  PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
+  radar::mms::common::config
+
   fmt::fmt
-  ipaddress::ipaddress
+  spdlog::spdlog
+)
+
+target_link_libraries(${PROJECT_NAME}_json INTERFACE
+  radar::mms::common
   nlohmann_json::nlohmann_json
 )
-if (ROLLY_QT)
-  target_link_libraries(${PROJECT_NAME}
-    PUBLIC
-    Qt::Core
-    Qt::Quick
-    Qt::Qml
-  )
+
+if(RCOMMON_WITH_QT)
+  target_link_libraries(${PROJECT_NAME} PUBLIC Qt6::Core Qt6::Gui Qt6::Network)
+  target_link_libraries(${PROJECT_NAME}_json INTERFACE Qt6::Positioning)
+  set_target_properties(${PROJECT_NAME} PROPERTIES AUTOMOC ON)
+endif()
+
+if(WIN32)
+  target_link_libraries(${PROJECT_NAME} PRIVATE ws2_32)
+endif()
+
+if (NOT BUILD_SHARED_LIBS)
+  target_compile_definitions(${PROJECT_NAME} PUBLIC RCOMMON_STATIC_LIBRARY)
 endif ()
 
-# <-- msvc-specific options -->
-if (MSVC)
-  target_include_directories(${PROJECT_NAME} PUBLIC ${FMT_INCLUDE_DIR})
-endif ()
-
-target_include_directories(${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>$<INSTALL_INTERFACE:include> PRIVATE src)
-
-if (BUILD_SHARED_LIBS)
-  message(STATUS "[${PROJECT_FULL_NAME}] adding shared export symbols: ROLLY_LIBRARY")
-  target_compile_definitions(${PROJECT_NAME} PRIVATE -DROLLY_LIBRARY=1)
-else ()
-  message(STATUS "[${PROJECT_FULL_NAME}] adding static export symbols: ROLLY_STATIC_LIBRARY")
-  target_compile_definitions(${PROJECT_NAME} PRIVATE -DROLLY_STATIC_LIBRARY=1)
-endif ()
-
-target_compile_options(${PROJECT_NAME} PRIVATE
-  $<$<CXX_COMPILER_ID:GNU>:-Wno-deprecated-declarations>
-  $<$<CXX_COMPILER_ID:Clang>:-Wno-deprecated-declarations>
-  $<$<CXX_COMPILER_ID:MSVC>:/wd4996>
-)
-
-if (ROLLY_TESTS)
-  enable_testing()
+if (BUILD_TESTING)
   add_subdirectory(tests)
-  add_subdirectory(bin)
 endif ()
 
-# -- installation --
-message(STATUS "[${PROJECT_FULL_NAME}] tests status: ${ROLLY_TESTS}")
-message(STATUS "[${PROJECT_FULL_NAME}] installing ${PROJECT_NAME} in namespace ${PROJECT_NAMESPACE}")
-include(GNUInstallDirs)
-
-install(TARGETS ${PROJECT_NAME}
-  EXPORT ${PROJECT_NAME}
+install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_json
+  EXPORT ${PROJECT_NAME}Targets
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
-install(DIRECTORY $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/rll> $<INSTALL_INTERFACE:include/rll> ; DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(
+  DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/radar/mms/common"
+  DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/radar/mms"
+  FILES_MATCHING PATTERN "*.h"
+)
+install(
+  FILES "${CMAKE_CURRENT_BINARY_DIR}/radar/mms/common/detail/export.h"
+  DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/radar/mms/common/detail"
+)
+install(
+  FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/RCommonQtDependencies.cmake"
+  DESTINATION "cmake_modules"
+)
+install(EXPORT ${PROJECT_NAME}Targets
+  FILE RCommonTargets.cmake
+  NAMESPACE radar::mms::common::
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/RCommon"
+)
 
-# -- misc --
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-if (NOT WIN32)
-  message(STATUS "[${PROJECT_FULL_NAME}] copying ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json to the root folder ${CMAKE_CURRENT_SOURCE_DIR}")
-  file(CREATE_LINK
-    ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json
-    ${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json
-    SYMBOLIC
-  )
-endif ()
-
-message(STATUS "[${PROJECT_FULL_NAME}] configuring ${PROJECT_NAME} done!")
-unset(ROLLY_TESTS CACHE)
-unset(ROLLY_QT CACHE)
+configure_package_config_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/RCommonConfig.cmake.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/RCommonConfig.cmake"
+  INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/RCommon"
+)
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/RCommonConfigVersion.cmake"
+  COMPATIBILITY SameMajorVersion
+)
+install(
+  FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/RCommonConfig.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/RCommonConfigVersion.cmake"
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/RCommon"
+)

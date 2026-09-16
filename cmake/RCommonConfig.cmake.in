@@ -1,0 +1,26 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+find_dependency(fmt REQUIRED)
+find_dependency(spdlog REQUIRED)
+
+if(@RCOMMON_WITH_QT@)
+  find_dependency(Qt6 REQUIRED COMPONENTS Core Gui Network)
+endif()
+
+if("json" IN_LIST RCommon_FIND_COMPONENTS)
+  find_dependency(nlohmann_json REQUIRED)
+  if(@RCOMMON_WITH_QT@)
+    find_dependency(Qt6 REQUIRED COMPONENTS Positioning)
+  endif()
+  set(RCommon_json_FOUND TRUE)
+endif()
+
+include("${CMAKE_CURRENT_LIST_DIR}/RCommonTargets.cmake")
+
+if(NOT TARGET radar::mms::common)
+  add_library(radar::mms::common ALIAS radar::mms::common::rcommon)
+endif()
+
+check_required_components(RCommon)
