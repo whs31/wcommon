@@ -1,8 +1,34 @@
 * text=auto
 
+*.cpp text eol=lf
+*.cc text eol=lf
+*.c text eol=lf
+*.h text eol=lf
+*.hpp text eol=lf
+*.cmake text eol=lf
+CMakeLists.txt text eol=lf
+
+*.py text eol=lf
+*.sh text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.toml text eol=lf
+*.proto text eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.gz binary
+
 *.yml linguist-detectable=true
-*.json linguist-detectable=true
 *.sh linguist-detectable=true
 *.toml linguist-detectable=true
-*.csv linguist-detectable=true
-*.md linguist-detectable=true
+*.proto linguist-detectable=true
+*.cmake linguist-detectable=true

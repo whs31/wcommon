@@ -1,15 +1,11 @@
-name = 'Rolly'
-author = 'Dmitry Riazantsev <riazantsev.dl@edu.spbstu.ru>'
-description = 'Radar core library'
-cpp = 20
-github = 'whs31/rolly'
-license = ['MIT', 'https://github.com/whs31/rolly/blob/main/LICENSE']
+name = 'RCommon'
+author = 'whs31 <whs31@github.io>'
+description = 'Radar common utility library'
+cpp = 23
 show_includes = true
-changelog = true
-logo = 'images/logo.svg'
-favicon = 'images/favicon.ico'
-navbar = ['namespaces', 'annotated']
+navbar = ['all']
 theme = 'dark'
+inline_namespaces = ['radar::mms::common']
 
 [warnings]
 enabled = true
@@ -18,60 +14,35 @@ undocumented = true
 
 [sources]
 extract_all = true
-recursive_paths = ['../include', '../src']
-patterns = ['*.h', '*.hpp', '*.dox', '*.md']
-strip_paths = ['../include']
-
-[images]
-paths = ['images']
-
+recursive_paths = [
+    '../.doc/pages',
+    '../include',
+]
+patterns = ['*.h', '*.md']
+strip_paths = [
+    '../.doc',
+    '../include',
+]
 
 [macros]
-'___concept___(...)' = 'typename'
-'___sfinae_requirement___(...)' = ''
-'RLL_API' = ''
-'___requires___(...)' = ''
-'___inline___' = 'inline'
-# 'TOML_ABI_NAMESPACE_START(...)'       = 'static_assert(true)'
-# 'TOML_ABI_NAMESPACE_BOOL(...)'        = 'static_assert(true)'
+'NLOHMANN_JSON_NAMESPACE_BEGIN' = 'namespace nlohmann {'
+'NLOHMANN_JSON_NAMESPACE_END' = '}'
+'RADAR_COMMON_NAMESPACE_BEGIN' = 'namespace radar { namespace mms { namespace common {'
+'RADAR_COMMON_NAMESPACE_END' = '} } }'
+'RADAR_COMMON_API' = ''
+'RCOMMON_WITH_QT' = '1'
+'__DOXYGEN__' = '1'
+'Q_ENUM' = ''
+'Q_GADGET' = ''
+'Q_PROPERTY(...)' = ''
+'Q_DECLARE_METATYPE(...)' = ''
+'Q_DECLARE_METATYPE_TEMPLATE_1ARG(...)' = ''
 
-# [tagfiles]
-# 'tagfiles/qt5-core.tag.xml' = 'https://doc.qt.io/qt-5'
-# 'tagfiles/qt5-gui.tag.xml' = 'https://doc.qt.io/qt-5'
-# 'tagfiles/qt5-quick.tag.xml' = 'https://doc.qt.io/qt-5'
-# 'tagfiles/qt5-qml.tag.xml' = 'https://doc.qt.io/qt-5'
+[tagfiles]
+'tagfiles/qtcore.tag.xml' = 'https://doc.qt.io/qt-6'
+'tagfiles/qtgui.tag.xml' = 'https://doc.qt.io/qt-6'
+'tagfiles/qtnetwork.tag.xml' = 'https://doc.qt.io/qt-6'
+'tagfiles/qtpositioning.tag.xml' = 'https://doc.qt.io/qt-6'
 
 [code_blocks]
-macros = ['RLL_[A-Z0-9_]+?']
-
-# [badges]
-# '1. TOML v1.0.0'  = [
-#     'badge-TOML.svg',
-#     'https://toml.io/en/v1.0.0'
-# ]
-# '2. Mentioned in Awesome C++' = [
-#     'badge-awesome.svg',
-#     'https://github.com/fffaraz/awesome-cpp'
-# ]
-# '3. Gitter'        = [
-#     'badge-gitter.svg',
-#     'https://gitter.im/marzer/tomlplusplus'
-#  ]
-
-# [autolinks]
-# '(?:toml::)?date[_-]times?'         = 'structtoml_1_1date__time.html'
-# '(?:toml::)?default[_ ]formatters?' = 'classtoml_1_1default__formatter.html'
-# '(?:toml::)?json[_ ]formatters?'    = 'classtoml_1_1json__formatter.html'
-# '(?:toml::)?node[_ ]views?'         = 'classtoml_1_1node__view.html'
-# '(?:toml::)?parse[_ ]errors?'       = 'classtoml_1_1parse__error.html'
-# '(?:toml::)?parse[_ ]results?'      = 'classtoml_1_1parse__result.html'
-# '(?:toml::)?path[_ ]components?'    = 'classtoml_1_1path__component.html'
-# '(?:toml::)?source[_ ]positions?'   = 'structtoml_1_1source__position.html'
-# '(?:toml::)?source[_ ]regions?'     = 'structtoml_1_1source__region.html'
-# '(?:toml::)?time[_ ]offsets?'       = 'structtoml_1_1time__offset.html'
-# '(?:toml::)?toml[_ ]formatters?'    = 'classtoml_1_1toml__formatter.html'
-# '(?:toml::)?yaml[_ ]formatters?'    = 'classtoml_1_1yaml__formatter.html'
-# 'toml::dates?'                      = 'structtoml_1_1date.html'
-# 'toml::keys?'                       = 'classtoml_1_1key.html'
-# 'toml::times?'                      = 'structtoml_1_1time.html'
-# 'toml::values?'                     = 'classtoml_1_1value.html'
+macros = ['RADAR_COMMON_[A-Z0-9_]+?', 'Q[A-Z0-9_]+?']

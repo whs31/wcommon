@@ -1,98 +1,222 @@
-#include <rll/memory.h>
-#include <catch2/catch_all.hpp>
+#include <radar/mms/common/memory.h>
+#include <radar/mms/common/pimpl.h>
 
-using namespace rll;
+#include <array>
+#include <memory>
+#include <type_traits>
+#include <utility>
 
-struct A {
-  virtual ~A() {}
+#include <catch2/catch_test_macros.hpp>
 
-  virtual std::string_view name() const { return "A"; }
-};
+using namespace radar::mms;
 
-struct B : public A {
-  virtual ~B() {}
+namespace
+{
+  struct Base
+  {
+    int value = 0;
+  };
 
-  virtual std::string_view name() const override { return "B"; }
-};
+  struct Derived : Base
+  {};
 
-TEST_CASE("Memory", "[memory]") {
-  SECTION("ObserverPtr") {
-    SECTION("Constructor") {
-      observer_ptr<int> ptr;
-      REQUIRE(ptr.get() == nullptr);
+  struct Widget
+  {
+    int value = 0;
 
-      int value = 42;
-      observer_ptr<int> ptr2(&value);
-      REQUIRE(ptr2.get() == &value);
+    [[nodiscard]] int get() const noexcept { return this->value; }
 
-      observer_ptr<int> ptr3 = ptr2;
-      REQUIRE(ptr3.get() == &value);
+    void set(int const new_value) noexcept { this->value = new_value; }
+  };
 
-      observer_ptr<int> ptr4(std::move(ptr2));
-      REQUIRE(ptr4.get() == &value);
-      REQUIRE(ptr2.get() != nullptr);
-      REQUIRE(ptr4.ref() == 42);
-      REQUIRE(*ptr4 == 42);
-    }
+  inline auto deleted_value = 0;
 
-    SECTION("Dereference") {
-      int value = 42;
-      observer_ptr<int> ptr(&value);
-      REQUIRE(ptr.ref() == 42);
-      REQUIRE(*ptr == 42);
-    }
-
-    SECTION("Swap") {
-      int value1 = 42;
-      int value2 = 43;
-      observer_ptr<int> ptr1(&value1);
-      observer_ptr<int> ptr2(&value2);
-      ptr1.swap(ptr2);
-      REQUIRE(ptr1.get() == &value2);
-      REQUIRE(ptr2.get() == &value1);
-    }
-
-    SECTION("Reset") {
-      int value = 42;
-      observer_ptr<int> ptr(&value);
-      ptr.reset();
-      REQUIRE(ptr.get() == nullptr);
-    }
-
-    SECTION("Release") {
-      int value = 42;
-      observer_ptr<int> ptr(&value);
-      REQUIRE(ptr.release() == &value);
-      REQUIRE(ptr.get() == nullptr);
-    }
-
-    SECTION("Hash") {
-      int value = 42;
-      observer_ptr<int> ptr(&value);
-      REQUIRE(std::hash<observer_ptr<int>> {}(ptr) == std::hash<int*> {}(&value));
-    }
-
-    SECTION("Equal") {
-      int value = 42;
-      observer_ptr<int> ptr1(&value);
-      observer_ptr<int> ptr2(&value);
-      REQUIRE(ptr1 == ptr2);
-    }
-
-    SECTION("NotEqual") {
-      int value1 = 42;
-      int value2 = 43;
-      observer_ptr<int> ptr1(&value1);
-      observer_ptr<int> ptr2(&value2);
-      REQUIRE(ptr1 != ptr2);
-    }
-
-    SECTION("FromUniquePtr") {
-      auto const ptr = std::make_unique<int>(42);
-      REQUIRE(*ptr == 42);
-
-      auto obs = observer_ptr<int>(ptr);
-      REQUIRE(obs.ref() == 42);
-    }
+  int delete_int(int const* const value) noexcept
+  {
+    deleted_value = *value;
+    delete value;
+    return 0;
   }
+
+  struct UniqueOwner
+  {
+    DECLARE_PRIVATE(UniqueOwner)
+
+    explicit UniqueOwner(int value);
+
+    [[nodiscard]] int value() const noexcept;
+    void set_value(int value) noexcept;
+  };
+
+  struct UniqueOwner::UniqueOwnerPrivate : Widget
+  {};
+
+  UniqueOwner::UniqueOwner(int const value)
+    : d(std::make_unique<UniqueOwnerPrivate>(UniqueOwnerPrivate {value}))
+  {}
+
+  int UniqueOwner::value() const noexcept { return this->d->get(); }
+
+  void UniqueOwner::set_value(int const value) noexcept { this->d->set(value); }
+
+  struct SharedOwner
+  {
+    DECLARE_PRIVATE_SHARED(SharedOwner)
+
+    explicit SharedOwner(std::shared_ptr<SharedOwnerPrivate> impl);
+
+    [[nodiscard]] int value() const noexcept;
+    void set_value(int value) noexcept;
+  };
+
+  struct SharedOwner::SharedOwnerPrivate : Widget
+  {};
+
+  SharedOwner::SharedOwner(std::shared_ptr<SharedOwnerPrivate> impl)
+    : d(std::move(impl))
+  {}
+
+  int SharedOwner::value() const noexcept { return this->d->get(); }
+
+  void SharedOwner::set_value(int const value) noexcept { this->d->set(value); }
+
+  template <typename To, typename From>
+  concept CanObserverCast = requires(From& from) { observer_cast<To>(from); };
+}  // namespace
+
+TEST_CASE("Memory classes have the intended type traits", "[memory]")
+{
+  STATIC_CHECK(std::is_same_v<Owner<int*>, int*>);
+  STATIC_CHECK(std::is_same_v<decltype(std::declval<Pimpl<Widget> const&>().get()), Widget const*>);
+  STATIC_CHECK(
+    std::is_same_v<decltype(std::declval<SharedPimpl<Widget> const&>().get()), Widget const*>
+  );
+  STATIC_CHECK(CanObserverCast<int, int>);
+  STATIC_CHECK(CanObserverCast<int, int*>);
+  STATIC_CHECK(CanObserverCast<int, std::unique_ptr<int>>);
+  STATIC_CHECK(CanObserverCast<int const, int const>);
+  STATIC_CHECK_FALSE(CanObserverCast<int, int const>);
+}
+
+TEST_CASE("observer_ptr observes, resets, releases and swaps raw pointers", "[memory]")
+{
+  auto values = std::array {Base {1}, Base {2}};
+
+  auto first = observer_ptr<Base> {&values[0]};
+  auto second = make_observer(&values[1]);
+  auto empty = observer_ptr<Base> {};
+
+  REQUIRE(first);
+  REQUIRE_FALSE(empty);
+  REQUIRE(first != nullptr);
+  REQUIRE(nullptr != first);
+  REQUIRE(empty == nullptr);
+  REQUIRE(nullptr == empty);
+  REQUIRE(first.get() == &values[0]);
+  REQUIRE(first->value == 1);
+  REQUIRE(first.ref().value == 1);
+  REQUIRE(first != second);
+  REQUIRE(first < second);
+  REQUIRE(first <= second);
+  REQUIRE(second > first);
+  REQUIRE(second >= first);
+
+  first.swap(second);
+  REQUIRE(first.get() == &values[1]);
+  REQUIRE(second.get() == &values[0]);
+
+  auto* released = first.release();
+  REQUIRE(released == &values[1]);
+  REQUIRE_FALSE(first);
+
+  first.reset(&values[0]);
+  REQUIRE(first == second);
+}
+
+TEST_CASE("observer_ptr converts from compatible observers and owners", "[memory]")
+{
+  auto derived = Derived {};
+  auto const derived_observer = observer_ptr<Derived> {&derived};
+  auto const base_observer = observer_ptr<Base> {derived_observer};
+  REQUIRE(base_observer.get() == &derived);
+
+  auto const owned = std::make_unique<Derived>();
+  auto const owning_observer = observer_ptr<Base> {owned};
+  REQUIRE(owning_observer.get() == owned.get());
+}
+
+TEST_CASE("observer_ptr ordering follows the standard pointer total order", "[memory]")
+{
+  auto first_owner = std::make_unique<int>(1);
+  auto second_owner = std::make_unique<int>(2);
+  auto const first = make_observer(first_owner.get());
+  auto const second = make_observer(second_owner.get());
+  auto const less = std::less<> {}(first.get(), second.get());
+
+  REQUIRE((first < second) == less);
+  REQUIRE((first > second) == not less);
+  REQUIRE((first <= second) == less);
+  REQUIRE((first >= second) == not less);
+}
+
+TEST_CASE("observer_ptr reports null dereferences in debug builds", "[memory]")
+{
+#ifdef RADAR_DEBUG
+  auto empty = observer_ptr<int> {};
+  auto const const_empty = observer_ptr<int> {};
+
+  REQUIRE_THROWS_AS(empty.ref(), NullPointerError);
+  REQUIRE_THROWS_AS(const_empty.ref(), NullPointerError);
+  REQUIRE_THROWS_AS(*empty, NullPointerError);
+  REQUIRE_THROWS_AS(empty.operator->(), NullPointerError);
+#else
+  SUCCEED("Null checks are intentionally disabled in release builds");
+#endif
+}
+
+TEST_CASE("observer_cast accepts object and pointer-like lvalues", "[memory]")
+{
+  auto value = 42;
+  auto* pointer = &value;
+  auto owner = std::make_unique<int>(17);
+  auto const const_value = 23;
+
+  REQUIRE(observer_cast<int>(value).get() == &value);
+  REQUIRE(observer_cast<int>(pointer).get() == &value);
+  REQUIRE(observer_cast<int>(owner).get() == owner.get());
+  REQUIRE(observer_cast<int const>(const_value).get() == &const_value);
+}
+
+TEST_CASE("Deleter adapts C-style cleanup functions for unique_ptr", "[memory]")
+{
+  using IntDeleter = Deleter<int, int const*, delete_int>;
+
+  deleted_value = 0;
+  {
+    auto const value = std::unique_ptr<int, IntDeleter> {new int {42}};
+    REQUIRE(*value == 42);
+  }
+
+  REQUIRE(deleted_value == 42);
+}
+
+TEST_CASE("Pimpl wrappers propagate constness to their implementations", "[pimpl]")
+{
+  auto unique_owner = UniqueOwner {7};
+  auto const& const_unique_owner = unique_owner;
+
+  REQUIRE(const_unique_owner.value() == 7);
+  unique_owner.set_value(11);
+  REQUIRE(const_unique_owner.value() == 11);
+
+  auto shared_impl = std::make_shared<SharedOwner::SharedOwnerPrivate>(
+    SharedOwner::SharedOwnerPrivate {3}
+  );
+  auto shared_owner = SharedOwner {shared_impl};
+  auto const& const_shared_owner = shared_owner;
+
+  REQUIRE(const_shared_owner.value() == 3);
+  shared_owner.set_value(13);
+  REQUIRE(shared_impl->value == 13);
+  REQUIRE(const_shared_owner.value() == 13);
 }

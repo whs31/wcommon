@@ -1,84 +1,86 @@
-import os
 from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 from conan.tools.build import check_min_cppstd
-from conan.tools.files import rmdir, copy
 
 
-class RollyRecipe(ConanFile):
-    name = "rolly"
-    version = "2.10.2"
-    description = "Radar open-source library"
-    author = "whs31 <whs31@github.io>"
-    topics = ("coreutils", "utility")
+class RCommonRecipe(ConanFile):
+  name = "rcommon"
+  version = "3.0.0"
+  description = "Radar common utility library"
+  author = "whs31 <whs31@github.io>"
+  settings = "os", "arch", "compiler", "build_type"
+  license = "MIT"
+  url = "http://gitlab.uav.radar-mms.com/developers/v2/support/rcommon"
+  exports = "CMakeLists.txt"
+  exports_sources = "CMakeLists.txt", "cmake/*", "config/*", "src/*", "include/*", "tests/*"
+  options = {
+    "shared": [True, False],
+    "fPIC": [True, False],
+    "test": [True, False],
+    "with_qt": [True, False],
+  }
+  default_options = {
+    "shared": True,
+    "fPIC": True,
+    "test": False,
+    "with_qt": False,
+  }
 
-    settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "test": [True, False]}
-    default_options = {"shared": True, "test": False}
-    exports = "CMakeLists.txt", "conanfile.py"
-    exports_sources = "*", "!build/*"
+  user = "radar"
+  channel = "dev"
+  python_requires = "conan_helpers/1.0@radar/dev"
+  python_requires_extend = "conan_helpers.Base"
+  cmake_package_prune = ("lib/cmake", "lib/pkgconfig", "res", "share")
 
-    user = "radar"
-    channel = "dev"
+  def config_options(self):
+    if self.settings.os == "Windows":
+      del self.options.fPIC
 
-    python_requires = "conan_helpers/0.1@radar/dev"
-    python_requires_extend = "conan_helpers.Base"
+  def configure(self):
+    if self.options.shared:
+      self.options.rm_safe("fPIC")
 
-    @property
-    def _min_cppstd(self):
-        return "17"
+  def validate(self):
+    check_min_cppstd(self, "23")
 
-    def requirements(self):
-        self.req("fmt", transitive_headers=True, transitive_libs=True, force=True)
-        self.req("ipaddress", transitive_headers=True, transitive_libs=True)
-        self.req("nlohmann_json", transitive_headers=True, transitive_libs=True)
-        if self.options.test:
-            self.req("catch2")
+  def requirements(self):
+    self.req(
+      "spdlog",
+      options={"shared": True},
+      transitive_headers=True,
+      transitive_libs=True,
+    )
+    self.req("fmt", transitive_headers=True, transitive_libs=True)
+    self.req("nlohmann_json", transitive_headers=True)
+    if self.options.test:
+      self.req("catch2", test=True)
 
-    def build_requirements(self):
-        self.req("cmake", tool=True)
+  def configure_cmake_toolchain(self, toolchain):
+    toolchain.shared = self.options.shared
+    toolchain.cache_variables["BUILD_TESTING"] = bool(self.options.test)
+    toolchain.cache_variables["RCOMMON_WITH_QT"] = bool(self.options.with_qt)
 
-    def layout(self):
-        cmake_layout(self)
+  def package_info(self):
+    self.cpp_info.set_property("cmake_file_name", "RCommon")
+    if self.options.with_qt:
+      self.cpp_info.set_property(
+        "cmake_build_modules",
+        ["cmake_modules/RCommonQtDependencies.cmake"],
+      )
+    common = self.cpp_info.components["common"]
+    common.set_property("cmake_target_name", "radar::mms::common")
+    common.libs = ["rcommon"]
+    if not self.options.shared:
+      common.defines = ["RADAR_COMMON_STATIC_LIBRARY"]
+    if self.settings.os == "Windows":
+      common.system_libs = ["ws2_32"]
+    common.requires = [
+      "spdlog::spdlog",
+      "fmt::fmt",
+    ]
 
-    def validate(self):
-        if self.settings.get_safe("compiler.cppstd"):
-            check_min_cppstd(self, self._min_cppstd)
-
-    def configure(self):
-        self.options["fmt/*"].shared = self.options.shared
-
-    def generate(self):
-        deps = CMakeDeps(self)
-        deps.generate()
-        tc = CMakeToolchain(self)
-        tc.cache_variables["BUILD_SHARED_LIBS"] = self.options.shared
-        tc.cache_variables["ROLLY_TESTS"] = self.options.test
-        tc.generate()
-
-    def build(self):
-        cmake = CMake(self)
-        cmake.configure()
-        cmake.build()
-
-    def package(self):
-        cmake = CMake(self)
-        cmake.install()
-        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
-        rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
-        rmdir(self, os.path.join(self.package_folder, "res"))
-        rmdir(self, os.path.join(self.package_folder, "share"))
-
-    def package_info(self):
-        self.cpp_info.set_property("cmake_file_name", "rolly")
-        self.cpp_info.set_property("cmake_target_name", "rolly::rolly")
-        self.cpp_info.libs = ["rolly"]
-        self.cpp_info.requires = [
-            "fmt::fmt",
-            "ipaddress::ipaddress",
-            "nlohmann_json::nlohmann_json",
-        ]
-        if self.options.test:
-            self.cpp_info.requires.append("catch2::catch2")
-        if not self.options.shared:
-            self.cpp_info.defines = ["ROLLY_STATIC_LIBRARY"]
+    json = self.cpp_info.components["json"]
+    json.set_property("cmake_target_name", "radar::mms::common::json")
+    json.requires = [
+      "common",
+      "nlohmann_json::nlohmann_json",
+    ]

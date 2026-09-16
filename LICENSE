@@ -21,11 +21,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 -- NOTE: Third party dependency used by this software --
+The MIT License above applies only to the original code of this project.
+The following third-party components are governed by their respective licenses.
 This software depends on the following libraries:
     - fmt lib (MIT License)
+    - spdlog (MIT License)
+    - Catch2 (BSL-1.0 License)
 
 and users must comply to its licenses:
     - https://raw.githubusercontent.com/fmtlib/fmt/master/LICENSE
+    - https://github.com/gabime/spdlog/blob/v1.x/LICENSE
     - https://github.com/catchorg/Catch2/blob/devel/LICENSE.txt
 
 -- END NOTE --
