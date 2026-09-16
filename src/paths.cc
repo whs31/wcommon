@@ -1,13 +1,13 @@
-#include <rll/paths.h>
+#include <radar/mms/common/paths.h>
 
-#include <cstdlib>
 #include <array>
+#include <cerrno>
+#include <cstdlib>
+#include <string>
+#include <system_error>
 #include <vector>
-#include <stdexcept>
-#include <rll/string_util.h>
-#ifdef RLL_OS_WINDOWS
-#  include <windows.h>
-#  include <winerror.h>
+
+#ifdef _WIN32
 #  if defined(_MSC_VER)
 #    if defined(__amd64__) || defined(__amd64) || defined(__x86_64__) || defined(__x86_64) \
       || defined(_M_X64) || defined(_M_AMD64)
@@ -17,162 +17,277 @@
 #      define _X86_
 #    elif defined(__arm__) || defined(_M_ARM) || defined(_M_ARMT)
 #      define _ARM_
-#    endif  // __amd64__
-#  endif    // _MSC_VER
+#    endif
+#  endif
 #  include <shlobj.h>
+#  include <windows.h>
 #else
 #  include <unistd.h>
 #endif
 
-namespace {
-  [[nodiscard]] [[maybe_unused]]
-  std::string trim(std::string_view const name, std::string_view const repl) {
-    auto str = std::string();
-    str.reserve(name.length());
-    auto parts = rll::split(name);
-    auto current_part = parts.begin();
-    auto const replace = not repl.empty();
-    while(current_part != parts.end()) {
-      auto const value = rll::to_lower(*current_part);
-      str.append(value);
-      ++current_part;
-      if(replace && current_part != parts.end())
-        str.append(repl);
+namespace
+{
+  template <typename Fn>
+  [[nodiscard]] std::filesystem::path checked_path(Fn&& fn, std::error_code& ec) noexcept
+  {
+    try {
+      auto path = fn();
+      ec.clear();
+      return path;
+    } catch(radar::mms::common::PathError const&) {
+      ec = std::make_error_code(std::errc::io_error);
+      return {};
+    } catch(std::system_error const& e) {
+      ec = e.code();
+      return {};
+    } catch(std::exception const&) {
+      ec = std::make_error_code(std::errc::io_error);
+      return {};
+    } catch(...) {
+      ec = std::make_error_code(std::errc::io_error);
+      return {};
     }
-    return str;
   }
+
+  void validate_path_component(std::string_view const value, char const* const name)
+  {
+    auto const path = std::filesystem::path(value);
+    if(value.empty() or value == "." or value == ".." or value.contains('/') or value.contains('\\')
+       or value.contains('\0') or path.has_root_path() or path.has_parent_path())
+      throw radar::mms::common::PathError("{} must be a single non-empty path component", name);
+  }
+
+#ifdef _WIN32
+  [[nodiscard]] std::filesystem::path known_folder_path(::KNOWNFOLDERID const& id)
+  {
+    auto* buffer = ::PWSTR();
+    auto const result = ::SHGetKnownFolderPath(id, 0, nullptr, &buffer);
+    if(FAILED(result)) {
+      ::CoTaskMemFree(buffer);
+      throw radar::mms::common::PathError(
+        "failed to get known folder path: {}",
+        std::system_error(result, std::system_category()).what()
+      );
+    }
+
+    auto path = std::filesystem::path(buffer);
+    ::CoTaskMemFree(buffer);
+    return path;
+  }
+
+  [[nodiscard]] radar::mms::common::PathError last_path_error(
+    char const* operation,
+    std::errc const fallback
+  )
+  {
+    auto const error = ::GetLastError();
+    if(error != 0)
+      return radar::mms::common::PathError(
+        "failed to {}: {}",
+        operation,
+        std::system_error(static_cast<int>(error), std::system_category()).what()
+      );
+    return radar::mms::common::
+      PathError("failed to {}: {}", operation, std::make_error_code(fallback).message());
+  }
+#endif
+
+#ifdef __linux__
+  [[nodiscard]] std::filesystem::path xdg_home_path(
+    char const* const variable,
+    std::filesystem::path const& fallback
+  )
+  {
+    if(auto const* value = std::getenv(variable); value != nullptr and *value != '\0') {
+      if(auto path = std::filesystem::path(value); path.is_absolute())
+        return path;
+    }
+    auto const home = radar::mms::common::user_home_path();
+    if(not home.is_absolute())
+      throw radar::mms::common::PathError(
+        "failed to get XDG base directory: $HOME is not absolute"
+      );
+    return home / fallback;
+  }
+#endif
 }  // namespace
 
-#define RLL_PATHS_NOEXCEPT_IMPL(NAME)                                                              \
-std::filesystem::path NAME (std::error_code& ec) noexcept {                                        \
-  try {                                                                                            \
-    return NAME ();                                                                                \
-  } catch(std::exception const& e) {                                                               \
-    ec = std::make_error_code(std::errc::io_error);                                                \
-    return {};                                                                                     \
-  }                                                                                                \
+RADAR_COMMON_NAMESPACE_BEGIN
+
+std::filesystem::path user_home_path(std::error_code& ec) noexcept
+{
+  return checked_path([] { return user_home_path(); }, ec);
 }
 
-#define RLL_PATHS_NOEXCEPT_IMPL_2(NAME)                                                            \
-std::filesystem::path NAME (                                                                       \
-  std::string_view const app_dir,                                                                  \
-  std::string_view const app_name,                                                                 \
-  std::error_code& ec                                                                              \
-) noexcept {                                                                                       \
-  try {                                                                                            \
-    return NAME (app_dir, app_name);                                                               \
-  } catch(std::exception const& e) {                                                               \
-    ec = std::make_error_code(std::errc::io_error);                                                \
-    return {};                                                                                     \
-  }                                                                                                \
+std::filesystem::path application_file_path(std::error_code& ec) noexcept
+{
+  return checked_path([] { return application_file_path(); }, ec);
 }
 
-namespace rll::oslayer {
-#ifdef RLL_OS_WINDOWS
-  namespace win {
-    static std::filesystem::path known_folder_path(::KNOWNFOLDERID id) {
-      auto* buf = ::PWSTR();
-      auto const result = ::SHGetKnownFolderPath(id, 0, nullptr, &buf);
-      if(FAILED(result)) {
-        ::CoTaskMemFree(buf);
-        throw std::system_error(std::make_error_code(static_cast<std::errc>(result)));
-      }
-      auto const path = std::filesystem::path(buf);
-      ::CoTaskMemFree(buf);
-      return path;
-    }
-  }  // namespace win
-#endif
-}  // namespace rll::oslayer
+std::filesystem::path application_dir_path(std::error_code& ec) noexcept
+{
+  return checked_path([] { return application_dir_path(); }, ec);
+}
 
-namespace rll {
-  RLL_PATHS_NOEXCEPT_IMPL(user_home_path)
-  RLL_PATHS_NOEXCEPT_IMPL(application_file_path)
-  RLL_PATHS_NOEXCEPT_IMPL(application_dir_path)
-  RLL_PATHS_NOEXCEPT_IMPL_2(application_data_dir_path)
-  RLL_PATHS_NOEXCEPT_IMPL_2(application_local_data_dir_path)
+std::filesystem::path application_data_dir_path(
+  std::string_view const app_dir,
+  std::string_view const app_name,
+  std::error_code& ec
+) noexcept
+{
+  return checked_path([&] { return application_data_dir_path(app_dir, app_name); }, ec);
+}
 
-#ifdef RLL_OS_WINDOWS
-  namespace win32 {
-    RLL_PATHS_NOEXCEPT_IMPL(appdata_dir_path)
-    RLL_PATHS_NOEXCEPT_IMPL(local_appdata_dir_path)
+std::filesystem::path application_local_data_dir_path(
+  std::string_view const app_dir,
+  std::string_view const app_name,
+  std::error_code& ec
+) noexcept
+{
+  return checked_path([&] { return application_local_data_dir_path(app_dir, app_name); }, ec);
+}
 
-    std::filesystem::path appdata_dir_path() {
-      return oslayer::win::known_folder_path(FOLDERID_RoamingAppData);
-    }
-
-    std::filesystem::path local_appdata_dir_path() {
-      return oslayer::win::known_folder_path(FOLDERID_LocalAppData);
-    }
-  }  // namespace win32
-#endif
-
-#ifdef RLL_OS_LINUX
-  namespace nix_ {
-    RLL_PATHS_NOEXCEPT_IMPL(xdg_runtime_dir_path)
-
-    std::filesystem::path xdg_runtime_dir_path() {
-      auto* const xdg_runtime_dir_c = std::getenv("XDG_RUNTIME_DIR");
-      if(not xdg_runtime_dir_c)
-        throw std::runtime_error("failed to get XDG_RUNTIME_DIR: $XDG_RUNTIME_DIR is not set");
-      return {xdg_runtime_dir_c};
-    }
-  }  // namespace nix_
-#endif
-
-  std::filesystem::path user_home_path() {
-#ifdef RLL_OS_WINDOWS
-    auto buf = std::array<wchar_t, MAX_PATH>();
-    auto const result =
-      ::SHGetFolderPathW(nullptr, CSIDL_PROFILE, nullptr, SHGFP_TYPE_CURRENT, buf.data());
-    if(FAILED(result))
-      throw std::system_error(std::make_error_code(static_cast<std::errc>(result)));
-    return {buf.data()};
-#else
-    auto* const home_c = std::getenv("HOME");
-    if(not home_c)
-      throw std::runtime_error("failed to get home directory: $HOME is not set");
-    return {home_c};
-#endif
+#ifdef _WIN32
+namespace win32
+{
+  std::filesystem::path appdata_dir_path(std::error_code& ec) noexcept
+  {
+    return checked_path([] { return appdata_dir_path(); }, ec);
   }
 
-  std::filesystem::path application_file_path() {
-#ifdef RLL_OS_WINDOWS
-    auto buf = std::array<wchar_t, MAX_PATH>();
-    if(auto const size = ::GetModuleFileNameW(nullptr, buf.data(), buf.size() - 1); size == 0)
-      throw std::system_error(std::make_error_code(std::errc::no_such_file_or_directory));
-    return {buf.data()};
+  std::filesystem::path local_appdata_dir_path(std::error_code& ec) noexcept
+  {
+    return checked_path([] { return local_appdata_dir_path(); }, ec);
+  }
+
+  std::filesystem::path appdata_dir_path() { return known_folder_path(FOLDERID_RoamingAppData); }
+
+  std::filesystem::path local_appdata_dir_path()
+  {
+    return known_folder_path(FOLDERID_LocalAppData);
+  }
+}  // namespace win32
+#endif
+
+#ifdef __linux__
+namespace nix_
+{
+  std::filesystem::path xdg_config_home_path()
+  {
+    return xdg_home_path("XDG_CONFIG_HOME", ".config");
+  }
+
+  std::filesystem::path xdg_data_home_path()
+  {
+    return xdg_home_path("XDG_DATA_HOME", ".local/share");
+  }
+
+  std::filesystem::path xdg_state_home_path()
+  {
+    return xdg_home_path("XDG_STATE_HOME", ".local/state");
+  }
+
+  std::filesystem::path xdg_cache_home_path() { return xdg_home_path("XDG_CACHE_HOME", ".cache"); }
+
+  std::filesystem::path xdg_runtime_dir_path(std::error_code& ec) noexcept
+  {
+    return checked_path([] { return xdg_runtime_dir_path(); }, ec);
+  }
+
+  std::filesystem::path xdg_runtime_dir_path()
+  {
+    auto const* runtime_dir = std::getenv("XDG_RUNTIME_DIR");
+    if(runtime_dir == nullptr or *runtime_dir == '\0')
+      throw PathError("failed to get XDG_RUNTIME_DIR: $XDG_RUNTIME_DIR is not set");
+    auto path = std::filesystem::path(runtime_dir);
+    if(not path.is_absolute())
+      throw PathError("failed to get XDG_RUNTIME_DIR: $XDG_RUNTIME_DIR is not absolute");
+    return path;
+  }
+}  // namespace nix_
+#endif
+
+std::filesystem::path user_home_path()
+{
+#ifdef _WIN32
+  auto buffer = std::array<wchar_t, MAX_PATH> {};
+  auto const
+    result = ::SHGetFolderPathW(nullptr, CSIDL_PROFILE, nullptr, SHGFP_TYPE_CURRENT, buffer.data());
+  if(FAILED(result))
+    throw PathError(
+      "failed to get home directory: {}",
+      std::system_error(result, std::system_category()).what()
+    );
+  return {buffer.data()};
 #else
-    auto buf = std::vector<char>(1'024);
-    auto const len = ::readlink("/proc/self/exe", buf.data(), buf.size() - 1);
+  auto const* home = std::getenv("HOME");
+  if(home == nullptr or *home == '\0')
+    throw PathError("failed to get home directory: $HOME is not set or empty");
+  return {home};
+#endif
+}
+
+std::filesystem::path application_file_path()
+{
+#ifdef _WIN32
+  auto buffer = std::vector<wchar_t>(MAX_PATH);
+  while(true) {
+    auto const
+      size = ::GetModuleFileNameW(nullptr, buffer.data(), static_cast<DWORD>(buffer.size()));
+    if(size == 0)
+      throw last_path_error("get application file path", std::errc::no_such_file_or_directory);
+    if(size < buffer.size() - 1)
+      return {buffer.data()};
+    buffer.resize(buffer.size() * 2);
+  }
+#else
+  auto buffer = std::vector<char>(1'024);
+  while(true) {
+    auto const len = ::readlink("/proc/self/exe", buffer.data(), buffer.size());
     if(len == -1)
-      throw std::system_error(std::make_error_code(std::errc::no_such_file_or_directory));
-    buf[len] = '\0';
-    return {buf.data()};
-#endif
+      throw PathError(
+        "failed to get application file path: {}",
+        std::system_error(errno, std::generic_category()).what()
+      );
+    if(static_cast<std::size_t>(len) < buffer.size())
+      return {std::string {buffer.data(), static_cast<std::size_t>(len)}};
+    buffer.resize(buffer.size() * 2);
   }
+#endif
+}
 
-  std::filesystem::path application_dir_path() { return application_file_path().parent_path(); }
+std::filesystem::path application_dir_path() { return application_file_path().parent_path(); }
 
-  std::filesystem::path application_data_dir_path(
-    [[maybe_unused]] std::string_view const app_dir,
-    [[maybe_unused]] std::string_view const app_name
-  ) {
-#ifdef RLL_OS_WINDOWS
-    return win32::appdata_dir_path() / app_dir / app_name;
+std::filesystem::path application_data_dir_path(
+  [[maybe_unused]] std::string_view const app_dir,
+  std::string_view const app_name
+)
+{
+  validate_path_component(app_dir, "app_dir");
+  validate_path_component(app_name, "app_name");
+#ifdef _WIN32
+  return win32::appdata_dir_path() / app_dir / app_name;
+#elifdef __linux__
+  return nix_::xdg_data_home_path() / app_name;
 #else
-    return user_home_path() / ".local" / app_name;
+  return user_home_path() / ".local" / app_name;
 #endif
-  }
+}
 
-  std::filesystem::path application_local_data_dir_path(
-    [[maybe_unused]] std::string_view const app_dir,
-    [[maybe_unused]] std::string_view const app_name
-  ) {
-#ifdef RLL_OS_WINDOWS
-    return win32::local_appdata_dir_path() / app_dir / app_name;
+std::filesystem::path application_local_data_dir_path(
+  [[maybe_unused]] std::string_view const app_dir,
+  std::string_view const app_name
+)
+{
+  validate_path_component(app_dir, "app_dir");
+  validate_path_component(app_name, "app_name");
+#ifdef _WIN32
+  return win32::local_appdata_dir_path() / app_dir / app_name;
+#elifdef __linux__
+  return nix_::xdg_data_home_path() / app_name;
 #else
-    return user_home_path() / ".local" / app_name;
+  return user_home_path() / ".local" / app_name;
 #endif
-  }
-}  // namespace rll
+}
+
+RADAR_COMMON_NAMESPACE_END
