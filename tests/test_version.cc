@@ -1,105 +1,88 @@
-#include <rll/all.h>
+#include <radar/mms/common/version.h>
 
-#include <catch2/catch_all.hpp>
+#include <array>
+#include <compare>
+#include <limits>
+#include <sstream>
+#include <string_view>
+#include <unordered_set>
 
-using namespace rll;
-using namespace std::string_view_literals;
+#include <fmt/format.h>
 
-TEST_CASE("Version", "[version]") {
-  SECTION("DefaultConstructor") {
-    auto constexpr v = version();
+#include <catch2/catch_test_macros.hpp>
 
-    REQUIRE(v.major == 0);
-    REQUIRE(v.minor == 1);
-    REQUIRE(v.patch == 0);
-    REQUIRE(v.prerelease_type == prerelease::none);
-    REQUIRE_FALSE(v.prerelease_number.has_value());
-  }
+using namespace radar::mms;
 
-  SECTION("Constructor") {
-    auto constexpr v = version(1, 2, 3, prerelease::rc);
+TEST_CASE("Version parses and formats semantic versions", "[version]")
+{
+  auto const version = Version("0.8.1-alpha.1+zstd.1.5.0");
 
-    REQUIRE(v.major == 1);
-    REQUIRE(v.minor == 2);
-    REQUIRE(v.patch == 3);
-    REQUIRE(v.prerelease_type == prerelease::rc);
-    REQUIRE_FALSE(v.prerelease_number.has_value());
-  }
-
-  SECTION("ConstructorWithPrerelease") {
-    auto constexpr v = version(1, 2, 3, prerelease::rc, 4);
-
-    REQUIRE(v.major == 1);
-    REQUIRE(v.minor == 2);
-    REQUIRE(v.patch == 3);
-    REQUIRE(v.prerelease_type == prerelease::rc);
-    REQUIRE(v.prerelease_number.has_value());
-    REQUIRE(*v.prerelease_number == 4);
-  }
-
-  SECTION("Parse") {
-    auto constexpr v = version("1.2.3-alpha.4");
-
-    REQUIRE(v.major == 1);
-    REQUIRE(v.minor == 2);
-    REQUIRE(v.patch == 3);
-    REQUIRE(v.prerelease_type == prerelease::alpha);
-    REQUIRE(v.prerelease_number.has_value());
-    REQUIRE(*v.prerelease_number == 4);
-    REQUIRE(v.to_string() == "1.2.3-alpha.4");
-  }
-
-  SECTION("ParseFail") { REQUIRE_THROWS(version("1.2.3-asd")); }
+  CHECK(version.major() == 0);
+  CHECK(version.minor() == 8);
+  CHECK(version.patch() == 1);
+  CHECK(version.pre().as_str() == "alpha.1");
+  CHECK(version.build().as_str() == "zstd.1.5.0");
+  CHECK(version.to_string() == "0.8.1-alpha.1+zstd.1.5.0");
+  STATIC_CHECK(Version(1, 2, 3).major() == 1);
 }
 
-TEST_CASE("VersionRange", "[version.range]") {
-  constexpr auto r1 = ">1.2.3-alpha.3"sv;
-  constexpr auto r2 = ">=1.2.3 < 2.0.0"sv;
-  constexpr auto r3 = ">=1.2.3-alpha.7 <2.0.0"sv;
-  constexpr auto r4 = ">1.2.3 <2.0.0-alpha.10"sv;
-  constexpr auto r5 = ">1.2.3 <2.0.0-alpha.1 || <=2.0.0-alpha.5"sv;
-  constexpr auto r6 = "<=2.0.0-alpha.4"sv;
-  constexpr auto r7 = ">=2.0.0-alpha"sv;
-  constexpr auto r8 = "<2.0.0-alpha"sv;
-
-  constexpr version v1 {"1.2.3-alpha.7"};
-  constexpr version v2 {"3.4.5-alpha.9"};
-  constexpr version v3 {"3.4.5"};
-  constexpr version v4 {"1.2.3-alpha.4"};
-  constexpr version v5 {"2.0.0-alpha.5"};
-  constexpr version v6 {"2.0.0-alpha.0"};
-
-  SECTION("Satisfies") {
-    REQUIRE(satisfies(v1, r1));
-    REQUIRE(not satisfies(v2, r1));
-    REQUIRE(satisfies(v3, r1));
-    REQUIRE(satisfies(v4, r1));
-    REQUIRE(not satisfies(v1, r2));
-    REQUIRE(satisfies(v1, r3));
-    REQUIRE(satisfies(v5, r4));
-    REQUIRE(not satisfies(v1, r4));
-    REQUIRE(satisfies(v5, r5));
-    REQUIRE(not satisfies(v5, r6));
-    REQUIRE(satisfies(v5, r7));
-    REQUIRE(satisfies(v6, r7));
-    REQUIRE(not satisfies(v5, r8));
-    REQUIRE(not satisfies(v6, r8));
+TEST_CASE("Version rejects malformed and overflowing input", "[version]")
+{
+  for(auto const text : {
+        std::string_view {},
+        std::string_view {"1.0"},
+        std::string_view {"1.0.0.0"},
+        std::string_view {"1.01.0"},
+        std::string_view {"1.0.0-"},
+        std::string_view {"1.0.0+"},
+        std::string_view {"1.0.0-alpha_1"},
+        std::string_view {"1.0.0-alpha.01"},
+        std::string_view {"18446744073709551616.0.0"},
+        std::string_view {"1.2.3\0suffix", 12},
+      }) {
+    CAPTURE(text);
+    CHECK_THROWS_AS(Version(text), VersionError);
   }
+}
 
-  SECTION("Satisfies with prerelease") {
-    REQUIRE(satisfies(v1, r1, version_range_option::include_prerelease));
-    REQUIRE(satisfies(v2, r1, version_range_option::include_prerelease));
-    REQUIRE(satisfies(v3, r1, version_range_option::include_prerelease));
-    REQUIRE(satisfies(v4, r1, version_range_option::include_prerelease));
-    REQUIRE(not satisfies(v1, r2, version_range_option::include_prerelease));
-    REQUIRE(satisfies(v1, r3, version_range_option::include_prerelease));
-    REQUIRE(satisfies(v5, r4, version_range_option::include_prerelease));
-    REQUIRE(not satisfies(v1, r4, version_range_option::include_prerelease));
-    REQUIRE(satisfies(v5, r5, version_range_option::include_prerelease));
-    REQUIRE(not satisfies(v5, r6, version_range_option::include_prerelease));
-    REQUIRE(satisfies(v5, r7, version_range_option::include_prerelease));
-    REQUIRE(satisfies(v6, r7, version_range_option::include_prerelease));
-    REQUIRE(not satisfies(v5, r8, version_range_option::include_prerelease));
-    REQUIRE(not satisfies(v6, r8, version_range_option::include_prerelease));
-  }
+TEST_CASE("Version validates identifiers", "[version]")
+{
+  CHECK(Prerelease("alpha.1").as_str() == "alpha.1");
+  CHECK(BuildMetadata("001.sha-abcdef").as_str() == "001.sha-abcdef");
+  CHECK_THROWS_AS(Prerelease("alpha..1"), VersionError);
+  CHECK_THROWS_AS(Prerelease("01"), VersionError);
+  CHECK_THROWS_AS(BuildMetadata("build..1"), VersionError);
+  CHECK_THROWS_AS(BuildMetadata("sha_abcdef"), VersionError);
+}
+
+TEST_CASE("Version follows SemVer precedence and has a stable total order", "[version]")
+{
+  auto const ordered = std::array {
+    Version("1.0.0-alpha"),
+    Version("1.0.0-alpha.1"),
+    Version("1.0.0-alpha.beta"),
+    Version("1.0.0-beta"),
+    Version("1.0.0-beta.2"),
+    Version("1.0.0-beta.11"),
+    Version("1.0.0-rc.1"),
+    Version("1.0.0"),
+  };
+  for(auto i = std::size_t {1}; i < ordered.size(); ++i)
+    CHECK(ordered[i - 1].cmp_precedence(ordered[i]) == std::strong_ordering::less);
+
+  auto const build_a = Version("1.0.0+a");
+  auto const build_b = Version("1.0.0+b");
+  CHECK(build_a.cmp_precedence(build_b) == std::strong_ordering::equal);
+  CHECK(build_a < build_b);
+}
+
+TEST_CASE("Version supports literals streams fmt and hash", "[version]")
+{
+  auto const version = "1.2.3-alpha.1+build.5"_version;
+  auto stream = std::ostringstream();
+  stream << version;
+
+  CHECK(stream.str() == "1.2.3-alpha.1+build.5");
+  CHECK(fmt::format("{}", version) == stream.str());
+  CHECK(std::unordered_set<Version> {version, Version(stream.str())}.size() == 1);
 }
