@@ -1,74 +1,74 @@
 alias v := version
+alias fmt := format
 
 default:
     @echo "Usage: just <command> [options]"
     @just --list
+
+[doc("Formats C/C++ code")]
+[windows]
+format:
+    powershell -NoProfile -ExecutionPolicy Bypass -File scripts/format.ps1
+
+[unix]
+[doc("Formats C/C++ code")]
+format:
+    sh scripts/format.sh
+
+[windows]
+clean:
+    powershell -NoProfile -ExecutionPolicy Bypass -File scripts/clean.ps1
+
+[unix]
+clean:
+    sh scripts/clean.sh
+
+[doc('Show or change the library version')]
+version *ARGS='--show':
+    @bash scripts/version.sh {{ ARGS }}
 
 graph:
     conan graph info . --format=html > graph.html
     mkdir -p docs
     mv graph.html docs
 
-version *ARGS='--show':
-    @wucc version {{ ARGS }}
+[doc("Generates documentation HTML")]
+doc:
+    cd .doc && poxy
 
-set unstable := true
-set script-interpreter := ['uv', 'run', '--script']
+[unix]
+[doc("Runs all project checks")]
+check build_dir='build/Debug':
+    bash scripts/checks/clang-tidy.sh "{{ build_dir }}"
 
-[script]
-clean:
-    # /// [script]
-    # requires-python = ">=3.11"
-    # ///
-    import os
-    import shutil
-
-    if os.path.exists("target"):
-        shutil.rmtree("target")
-    if os.path.exists("build"):
-        shutil.rmtree("build")
-    if os.path.exists("CMakeUserPresets.json"):
-        os.remove("CMakeUserPresets.json")
-
-[positional-arguments]
-[script]
-build *ARGS:
-    # /// script
-    # requires-python = ">=3.11"
-    # dependencies=["just-utils", "termcolor", "pyyaml"]
-    #
-    # [tool.uv.sources]
-    # just-utils = { git = "https://github.com/whs31/just-utils", branch = "main" }
-    # ///
-    import os
-    import sys
-    import argparse
-    from pathlib import Path
-    from termcolor import cprint, colored
-    from just_utils import ConanFileMetadata, Conan, Manifest, default_cmake_parser, clean_build_directory
-
-    parser = default_cmake_parser(["test"])
-    args, conan_args = parser.parse_known_args()
-
-    meta = ConanFileMetadata(Path('.').parent / "conanfile.py")
-    meta.pretty_print(args.verbose)
-
-    def print_arg(name, value, color="yellow"):
-        arg = colored(f"{value}", color, attrs=["bold"])
-        print(f"{name:<25}: {arg:<25}")
-
-    print_arg("build_type", args.build, "green")
-    print_arg("verbose", args.verbose, "cyan")
-    print_arg("configure", args.configure, "cyan")
-    print_arg("clean", args.clean, "red")
-    print()
-    cprint(f"conan args: {' '.join(conan_args)}", "magenta")
-
-    conan = Conan(meta.name, args.build, args.verbose)
-    if args.clean:
-        conan.clean()
-    conan.run("install" if args.configure else "build", {
-      "test": args.test
-    }, conan_args)
-    conan.fix_presets()
-    cprint("done", "green")
+[unix]
+[doc("Builds and tests Conan configurations with and without Qt")]
+ci:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    for with_qt in False True; do
+      output_folder="build/ci-qt-${with_qt,,}"
+      conan build . \
+        --build=missing \
+        -cc core:non_interactive=True \
+        -s:h build_type=Debug \
+        -s:b build_type=Debug \
+        -o "&:shared=True" \
+        -o "&:test=True" \
+        -o "&:with_qt=$with_qt" \
+        -of "$output_folder"
+      ctest --test-dir "$output_folder/build/Debug" --output-on-failure
+      bash scripts/checks/cmake-package.sh "$output_folder/build/Debug"
+      mapfile -t libraries < <(find "$output_folder/build/Debug" -type f -name 'librcommon.so*')
+      test "${#libraries[@]}" -gt 0
+      linkage="$(ldd "${libraries[0]}")"
+      if [[ "$with_qt" == "True" ]]; then
+        grep -Fq "libQt6Core" <<< "$linkage"
+        grep -Fq "libQt6Gui" <<< "$linkage"
+        grep -Fq "libQt6Network" <<< "$linkage"
+      else
+        ! grep -Fq "libQt6Core" <<< "$linkage"
+        ! grep -Fq "libQt6Gui" <<< "$linkage"
+        ! grep -Fq "libQt6Network" <<< "$linkage"
+      fi
+    done

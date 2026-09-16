@@ -1,0 +1,15 @@
+repos:
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v19.1.6
+    hooks:
+      - id: clang-format
+        files: \.(cpp|cc|cxx|c|hpp|h|hxx)$
+        args: [--style=file, --fallback-style=Google]
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        files: \.(cpp|cc|cxx|c|hpp|h|hxx)$
+      - id: end-of-file-fixer
+        files: \.(cpp|cc|cxx|c|hpp|h|hxx)$
+      - id: check-added-large-files

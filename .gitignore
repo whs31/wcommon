@@ -1,53 +1,44 @@
+# IDE
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea
+
 # Build artifacts
-cmake-build-*
-build*/
-cmake-visual-studio-*
+/build/
+/build-*/
+/cmake-build-*/
+/cmake-visual-studio-*/
+/.cache/
+compile_commands.json
 
 # Misc
-logs*/
+__pycache__
+/logs/
+/logs-*/
 doc/html
-.doc/html
 doc/doxy.log
-*~
+.doc/html/
+.doc/doxy.log
+imgui.ini
 
 # Qt artifacts
 *.user
 *.autosave
+settings/userSettings.json
+settings/*.cfg
 moc_*
 ui_*
 *.moc
 *.o
 *.prl
+*.h~
 
-# Doxygen generated
-src/html/
-src/latex/
-!docs/images
-!docs/src
-docs/*
-
-# Conan 
+# Conan (deps folder must have separate .gitignore)
 CMakeUserPresets.json
 conan_provider.cmake
-
-# Rust
-Cargo.lock
-target
 
 # DLL exports
 .export
 
-# IDE
-.cache
-.idea/*
-.vscode/*
-settings/userSettings.json
-settings/*.cfg
-compile_commands.json
-
-# Misc
-__pycache__
-.venv
-m.css
-/html/*
-/latex/*
+*~
