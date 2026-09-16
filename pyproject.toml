@@ -1,6 +1,9 @@
 [project]
-name = "rolly"
+name = "rcommon"
 requires-python = ">=3.13"
-dependencies = [
-    'black'
-]
+
+[tool.ruff]
+indent-width = 2
+
+[tool.ruff.format]
+indent-style = "space"
