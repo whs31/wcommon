@@ -23,4 +23,13 @@ if(NOT TARGET radar::mms::common)
   add_library(radar::mms::common ALIAS radar::mms::common::rcommon)
 endif()
 
+if(@RCOMMON_WITH_QT@)
+  set_and_check(RCommon_METATYPES_FILE
+    "${PACKAGE_PREFIX_DIR}/@CMAKE_INSTALL_LIBDIR@/metatypes/qt6rcommon_metatypes.json"
+  )
+  target_sources(radar::mms::common::rcommon INTERFACE
+    "$<$<BOOL:$<TARGET_PROPERTY:QT_CONSUMES_METATYPES>>:${RCommon_METATYPES_FILE}>"
+  )
+endif()
+
 check_required_components(RCommon)

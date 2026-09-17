@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.20)
 message(DEBUG "Using ${CMAKE_TOOLCHAIN_FILE}")
 
 project(rcommon
-  VERSION 3.0.0
+  VERSION 3.0.1
   DESCRIPTION "Radar common utility library"
   HOMEPAGE_URL "http://gitlab.uav.radar-mms.com/developers/v2/support/rcommon"
   LANGUAGES CXX
@@ -85,6 +85,12 @@ if(RCOMMON_WITH_QT)
   target_link_libraries(${PROJECT_NAME} PUBLIC Qt6::Core Qt6::Gui Qt6::Network)
   target_link_libraries(${PROJECT_NAME}_json INTERFACE Qt6::Positioning)
   set_target_properties(${PROJECT_NAME} PROPERTIES AUTOMOC ON)
+
+  qt_extract_metatypes(${PROJECT_NAME} OUTPUT_FILES RCOMMON_METATYPES_FILE)
+  install(
+    FILES ${RCOMMON_METATYPES_FILE}
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/metatypes
+  )
 endif()
 
 if(WIN32)
