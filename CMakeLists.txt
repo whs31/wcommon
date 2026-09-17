@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.20)
 message(DEBUG "Using ${CMAKE_TOOLCHAIN_FILE}")
 
 project(rcommon
-  VERSION 3.0.1
+  VERSION 3.0.2
   DESCRIPTION "Radar common utility library"
   HOMEPAGE_URL "http://gitlab.uav.radar-mms.com/developers/v2/support/rcommon"
   LANGUAGES CXX

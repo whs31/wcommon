@@ -182,7 +182,7 @@ class RADAR_COMMON_API SockAddr
 #endif
 
  public:
-  enum class Family : std::uint8_t
+  enum class Family
   {
     Ipv4,
     Ipv6,
