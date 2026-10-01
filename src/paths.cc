@@ -52,8 +52,10 @@ namespace
   void validate_path_component(std::string_view const value, char const* const name)
   {
     auto const path = std::filesystem::path(value);
-    if(value.empty() or value == "." or value == ".." or value.contains('/') or value.contains('\\')
-       or value.contains('\0') or path.has_root_path() or path.has_parent_path())
+    if(
+      value.empty() or value == "." or value == ".." or value.contains('/') or value.contains('\\')
+      or value.contains('\0') or path.has_root_path() or path.has_parent_path()
+    )
       throw radar::mms::common::PathError("{} must be a single non-empty path component", name);
   }
 

@@ -65,9 +65,11 @@ namespace
     }
 
     auto written = DWORD();
-    if(::WriteFile(handle, contents.data(), static_cast<DWORD>(contents.size()), &written, nullptr)
-         == 0
-       or written != static_cast<DWORD>(contents.size())) {
+    if(
+      ::WriteFile(handle, contents.data(), static_cast<DWORD>(contents.size()), &written, nullptr)
+        == 0
+      or written != static_cast<DWORD>(contents.size())
+    ) {
       auto error = ::GetLastError();
       if(error == ERROR_SUCCESS)
         error = ERROR_WRITE_FAULT;
