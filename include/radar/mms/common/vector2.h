@@ -27,7 +27,7 @@
 RADAR_COMMON_NAMESPACE_BEGIN
 
 /**
- * @brief Two-dimensional displacement vector backed by floats.
+ * @brief Two-dimensional displacement vector backed by doubles.
  * @details The API follows the usual split from euclid-style geometry:
  * vectors represent offsets and directions, while Point2 represents positions.
  * @note Qt properties, conversions, and metatype registration are available
@@ -43,17 +43,17 @@ class RADAR_COMMON_API Vector2
 #ifdef RCOMMON_WITH_QT
   Q_GADGET
 
-  Q_PROPERTY(float x READ x CONSTANT FINAL)
-  Q_PROPERTY(float y READ y CONSTANT FINAL)
-  Q_PROPERTY(float length READ length CONSTANT FINAL)
-  Q_PROPERTY(float lengthSquared READ length_squared CONSTANT FINAL)
+  Q_PROPERTY(double x READ x CONSTANT FINAL)
+  Q_PROPERTY(double y READ y CONSTANT FINAL)
+  Q_PROPERTY(double length READ length CONSTANT FINAL)
+  Q_PROPERTY(double lengthSquared READ length_squared CONSTANT FINAL)
   Q_PROPERTY(QString string READ to_qstring CONSTANT FINAL)
 #endif
 
  public:
   constexpr Vector2() noexcept = default;
 
-  constexpr Vector2(float const x, float const y) noexcept
+  constexpr Vector2(double const x, double const y) noexcept
     : m_x(x)
     , m_y(y)
   {}
@@ -68,28 +68,28 @@ class RADAR_COMMON_API Vector2
   explicit Vector2(QVector2D const& vector) noexcept;
 #endif
 
-  [[nodiscard]] constexpr float x() const noexcept { return this->m_x; }
+  [[nodiscard]] constexpr double x() const noexcept { return this->m_x; }
 
-  [[nodiscard]] constexpr float y() const noexcept { return this->m_y; }
+  [[nodiscard]] constexpr double y() const noexcept { return this->m_y; }
 
-  [[nodiscard]] constexpr float length_squared() const noexcept
+  [[nodiscard]] constexpr double length_squared() const noexcept
   {
     return this->m_x * this->m_x + this->m_y * this->m_y;
   }
 
-  [[nodiscard]] float length() const noexcept { return std::sqrt(this->length_squared()); }
+  [[nodiscard]] double length() const noexcept { return std::sqrt(this->length_squared()); }
 
   [[nodiscard]] Angle angle() const noexcept
   {
     return Angle::from_radians(std::atan2(this->m_y, this->m_x));
   }
 
-  [[nodiscard]] constexpr float dot(Vector2 const& other) const noexcept
+  [[nodiscard]] constexpr double dot(Vector2 const& other) const noexcept
   {
     return this->m_x * other.m_x + this->m_y * other.m_y;
   }
 
-  [[nodiscard]] constexpr float cross(Vector2 const& other) const noexcept
+  [[nodiscard]] constexpr double cross(Vector2 const& other) const noexcept
   {
     return this->m_x * other.m_y - this->m_y * other.m_x;
   }
@@ -136,12 +136,12 @@ class RADAR_COMMON_API Vector2
 
   [[nodiscard]] static constexpr Vector2 zero() noexcept { return {}; }
 
-  [[nodiscard]] static constexpr Vector2 splat(float const value) noexcept
+  [[nodiscard]] static constexpr Vector2 splat(double const value) noexcept
   {
     return {value, value};
   }
 
-  [[nodiscard]] static constexpr Vector2 from_xy(float const x, float const y) noexcept
+  [[nodiscard]] static constexpr Vector2 from_xy(double const x, double const y) noexcept
   {
     return {x, y};
   }
@@ -184,14 +184,14 @@ class RADAR_COMMON_API Vector2
     return *this;
   }
 
-  constexpr Vector2& operator*=(float const rhs) noexcept
+  constexpr Vector2& operator*=(double const rhs) noexcept
   {
     this->m_x *= rhs;
     this->m_y *= rhs;
     return *this;
   }
 
-  constexpr Vector2& operator/=(float const rhs) noexcept
+  constexpr Vector2& operator/=(double const rhs) noexcept
   {
     this->m_x /= rhs;
     this->m_y /= rhs;
@@ -199,8 +199,8 @@ class RADAR_COMMON_API Vector2
   }
 
  private:
-  float m_x = 0.0F;
-  float m_y = 0.0F;
+  double m_x = 0.0;
+  double m_y = 0.0;
 };
 
 [[nodiscard]] constexpr Vector2 operator+(Vector2 lhs, Vector2 const rhs) noexcept
@@ -215,18 +215,18 @@ class RADAR_COMMON_API Vector2
   return lhs;
 }
 
-[[nodiscard]] constexpr Vector2 operator*(Vector2 lhs, float const rhs) noexcept
+[[nodiscard]] constexpr Vector2 operator*(Vector2 lhs, double const rhs) noexcept
 {
   lhs *= rhs;
   return lhs;
 }
 
-[[nodiscard]] constexpr Vector2 operator*(float const lhs, Vector2 const rhs) noexcept
+[[nodiscard]] constexpr Vector2 operator*(double const lhs, Vector2 const rhs) noexcept
 {
   return rhs * lhs;
 }
 
-[[nodiscard]] constexpr Vector2 operator/(Vector2 lhs, float const rhs) noexcept
+[[nodiscard]] constexpr Vector2 operator/(Vector2 lhs, double const rhs) noexcept
 {
   lhs /= rhs;
   return lhs;
@@ -241,8 +241,8 @@ struct std::hash<radar::mms::common::Vector2>
 {
   [[nodiscard]] std::size_t operator()(radar::mms::common::Vector2 const vector) const noexcept
   {
-    auto hash = std::hash<float> {}(vector.x());
-    hash ^= std::hash<float> {}(vector.y()) + 0x9e3779b9u + (hash << 6) + (hash >> 2);
+    auto hash = std::hash<double> {}(vector.x());
+    hash ^= std::hash<double> {}(vector.y()) + 0x9e3779b9u + (hash << 6) + (hash >> 2);
     return hash;
   }
 };

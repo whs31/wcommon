@@ -14,7 +14,7 @@ inline void to_json(nlohmann::json& json, Vector3 const vector)
 inline void from_json(nlohmann::json const& json, Vector3& vector)
 {
   vector = Vector3::
-    from_xyz(json.at("x").get<float>(), json.at("y").get<float>(), json.at("z").get<float>());
+    from_xyz(json.at("x").get<double>(), json.at("y").get<double>(), json.at("z").get<double>());
 }
 
 RADAR_COMMON_NAMESPACE_END

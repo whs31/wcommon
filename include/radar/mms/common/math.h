@@ -57,7 +57,11 @@ constexpr T abs(T const& v)
  * @ingroup core_math
  * @see rem_euclid
  */
-constexpr float fmod(float const x, float const y) { return x - y * floor(x / y); }
+template <std::floating_point T>
+[[nodiscard]] constexpr T fmod(T const x, T const y)
+{
+  return x - y * floor(x / y);
+}
 
 /**
  * @brief Converts degrees to radians.

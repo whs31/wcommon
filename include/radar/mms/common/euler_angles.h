@@ -40,12 +40,12 @@ class RADAR_COMMON_API EulerAngles
   Q_PROPERTY(Angle roll READ roll CONSTANT FINAL)
   Q_PROPERTY(Angle pitch READ pitch CONSTANT FINAL)
   Q_PROPERTY(Angle yaw READ yaw CONSTANT FINAL)
-  Q_PROPERTY(float rollRadians READ roll_radians CONSTANT FINAL)
-  Q_PROPERTY(float pitchRadians READ pitch_radians CONSTANT FINAL)
-  Q_PROPERTY(float yawRadians READ yaw_radians CONSTANT FINAL)
-  Q_PROPERTY(float rollDegrees READ roll_degrees CONSTANT FINAL)
-  Q_PROPERTY(float pitchDegrees READ pitch_degrees CONSTANT FINAL)
-  Q_PROPERTY(float yawDegrees READ yaw_degrees CONSTANT FINAL)
+  Q_PROPERTY(double rollRadians READ roll_radians CONSTANT FINAL)
+  Q_PROPERTY(double pitchRadians READ pitch_radians CONSTANT FINAL)
+  Q_PROPERTY(double yawRadians READ yaw_radians CONSTANT FINAL)
+  Q_PROPERTY(double rollDegrees READ roll_degrees CONSTANT FINAL)
+  Q_PROPERTY(double pitchDegrees READ pitch_degrees CONSTANT FINAL)
+  Q_PROPERTY(double yawDegrees READ yaw_degrees CONSTANT FINAL)
   Q_PROPERTY(QString string READ to_qstring CONSTANT FINAL)
 #endif
 
@@ -68,18 +68,18 @@ class RADAR_COMMON_API EulerAngles
   }
 
   [[nodiscard]] static constexpr EulerAngles from_radians(
-    float const roll,
-    float const pitch,
-    float const yaw
+    double const roll,
+    double const pitch,
+    double const yaw
   ) noexcept
   {
     return {Angle::from_radians(roll), Angle::from_radians(pitch), Angle::from_radians(yaw)};
   }
 
   [[nodiscard]] static constexpr EulerAngles from_degrees(
-    float const roll,
-    float const pitch,
-    float const yaw
+    double const roll,
+    double const pitch,
+    double const yaw
   ) noexcept
   {
     return {Angle::from_degrees(roll), Angle::from_degrees(pitch), Angle::from_degrees(yaw)};
@@ -93,17 +93,17 @@ class RADAR_COMMON_API EulerAngles
 
   [[nodiscard]] constexpr Angle yaw() const noexcept { return this->m_yaw; }
 
-  [[nodiscard]] constexpr float roll_radians() const noexcept { return this->m_roll.radians(); }
+  [[nodiscard]] constexpr double roll_radians() const noexcept { return this->m_roll.radians(); }
 
-  [[nodiscard]] constexpr float pitch_radians() const noexcept { return this->m_pitch.radians(); }
+  [[nodiscard]] constexpr double pitch_radians() const noexcept { return this->m_pitch.radians(); }
 
-  [[nodiscard]] constexpr float yaw_radians() const noexcept { return this->m_yaw.radians(); }
+  [[nodiscard]] constexpr double yaw_radians() const noexcept { return this->m_yaw.radians(); }
 
-  [[nodiscard]] constexpr float roll_degrees() const noexcept { return this->m_roll.degrees(); }
+  [[nodiscard]] constexpr double roll_degrees() const noexcept { return this->m_roll.degrees(); }
 
-  [[nodiscard]] constexpr float pitch_degrees() const noexcept { return this->m_pitch.degrees(); }
+  [[nodiscard]] constexpr double pitch_degrees() const noexcept { return this->m_pitch.degrees(); }
 
-  [[nodiscard]] constexpr float yaw_degrees() const noexcept { return this->m_yaw.degrees(); }
+  [[nodiscard]] constexpr double yaw_degrees() const noexcept { return this->m_yaw.degrees(); }
 
   [[nodiscard]] bool is_finite() const noexcept
   {

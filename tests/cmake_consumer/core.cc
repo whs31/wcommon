@@ -2,6 +2,6 @@
 
 int main()
 {
-  auto const angle = radar::mms::common::Angle::from_degrees(180.0F);
+  auto const angle = radar::mms::common::Angle::from_degrees(180.0);
   return angle.to_string().empty() ? 1 : 0;
 }

@@ -13,7 +13,7 @@ inline void to_json(nlohmann::json& json, Vector2 const vector)
 
 inline void from_json(nlohmann::json const& json, Vector2& vector)
 {
-  vector = Vector2::from_xy(json.at("x").get<float>(), json.at("y").get<float>());
+  vector = Vector2::from_xy(json.at("x").get<double>(), json.at("y").get<double>());
 }
 
 RADAR_COMMON_NAMESPACE_END

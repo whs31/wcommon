@@ -30,7 +30,7 @@ RADAR_COMMON_NAMESPACE_BEGIN
  * second, kilometers per hour, and miles per hour.
  *
  * @code {.cpp}
- * auto cruise = radar::mms::common::Velocity::from_kmph(90.0F);
+ * auto cruise = radar::mms::common::Velocity::from_kmph(90.0);
  * auto text = cruise.to_string(); // "25 m/s"
  * @endcode
  *
@@ -42,9 +42,9 @@ class RADAR_COMMON_API Velocity
 #ifdef RCOMMON_WITH_QT
   Q_GADGET
 
-  Q_PROPERTY(float metersPerSecond READ as_mps CONSTANT FINAL)
-  Q_PROPERTY(float kilometersPerHour READ as_kmph CONSTANT FINAL)
-  Q_PROPERTY(float milesPerHour READ as_mph CONSTANT FINAL)
+  Q_PROPERTY(double metersPerSecond READ as_mps CONSTANT FINAL)
+  Q_PROPERTY(double kilometersPerHour READ as_kmph CONSTANT FINAL)
+  Q_PROPERTY(double milesPerHour READ as_mph CONSTANT FINAL)
   Q_PROPERTY(QString string READ to_qstring CONSTANT FINAL)
 #endif
 
@@ -57,14 +57,14 @@ class RADAR_COMMON_API Velocity
   /**
    * @brief Creates a velocity from meters per second.
    */
-  explicit constexpr Velocity(float const meters_per_second) noexcept
+  explicit constexpr Velocity(double const meters_per_second) noexcept
     : m_mps(meters_per_second)
   {}
 
   /**
    * @brief Creates a velocity from meters per second.
    */
-  [[nodiscard]] static constexpr Velocity from_mps(float const meters_per_second) noexcept
+  [[nodiscard]] static constexpr Velocity from_mps(double const meters_per_second) noexcept
   {
     return Velocity(meters_per_second);
   }
@@ -72,7 +72,7 @@ class RADAR_COMMON_API Velocity
   /**
    * @brief Creates a velocity from kilometers per hour.
    */
-  [[nodiscard]] static constexpr Velocity from_kmph(float const kilometers_per_hour) noexcept
+  [[nodiscard]] static constexpr Velocity from_kmph(double const kilometers_per_hour) noexcept
   {
     return from_mps((kilometers_per_hour / METER_KILOMETER_FACTOR) / SECONDS_HOURS_FACTOR);
   }
@@ -80,7 +80,7 @@ class RADAR_COMMON_API Velocity
   /**
    * @brief Creates a velocity from miles per hour.
    */
-  [[nodiscard]] static constexpr Velocity from_mph(float const miles_per_hour) noexcept
+  [[nodiscard]] static constexpr Velocity from_mph(double const miles_per_hour) noexcept
   {
     return from_mps((miles_per_hour / METER_MILE_FACTOR) / SECONDS_HOURS_FACTOR);
   }
@@ -88,12 +88,12 @@ class RADAR_COMMON_API Velocity
   /**
    * @brief Returns meters per second.
    */
-  [[nodiscard]] constexpr float as_mps() const noexcept { return this->m_mps; }
+  [[nodiscard]] constexpr double as_mps() const noexcept { return this->m_mps; }
 
   /**
    * @brief Returns kilometers per hour.
    */
-  [[nodiscard]] constexpr float as_kmph() const noexcept
+  [[nodiscard]] constexpr double as_kmph() const noexcept
   {
     return (this->m_mps * METER_KILOMETER_FACTOR) * SECONDS_HOURS_FACTOR;
   }
@@ -101,7 +101,7 @@ class RADAR_COMMON_API Velocity
   /**
    * @brief Returns miles per hour.
    */
-  [[nodiscard]] constexpr float as_mph() const noexcept
+  [[nodiscard]] constexpr double as_mph() const noexcept
   {
     return this->m_mps * METER_MILE_FACTOR * SECONDS_HOURS_FACTOR;
   }
@@ -119,7 +119,10 @@ class RADAR_COMMON_API Velocity
   [[nodiscard]] QString to_qstring() const;
 #endif
 
-  [[nodiscard]] constexpr explicit operator float() const noexcept { return this->m_mps; }
+  [[nodiscard]] constexpr explicit operator float() const noexcept
+  {
+    return static_cast<float>(this->m_mps);
+  }
 
   [[nodiscard]] constexpr explicit operator double() const noexcept { return this->m_mps; }
 
@@ -138,7 +141,7 @@ class RADAR_COMMON_API Velocity
     return *this;
   }
 
-  constexpr Velocity& operator+=(float const rhs) noexcept
+  constexpr Velocity& operator+=(double const rhs) noexcept
   {
     this->m_mps += rhs;
     return *this;
@@ -150,26 +153,26 @@ class RADAR_COMMON_API Velocity
     return *this;
   }
 
-  constexpr Velocity& operator-=(float const rhs) noexcept
+  constexpr Velocity& operator-=(double const rhs) noexcept
   {
     this->m_mps -= rhs;
     return *this;
   }
 
-  constexpr Velocity& operator*=(float const rhs) noexcept
+  constexpr Velocity& operator*=(double const rhs) noexcept
   {
     this->m_mps *= rhs;
     return *this;
   }
 
-  constexpr Velocity& operator/=(float const rhs) noexcept
+  constexpr Velocity& operator/=(double const rhs) noexcept
   {
     this->m_mps /= rhs;
     return *this;
   }
 
  private:
-  float m_mps = 0.0F;
+  double m_mps = 0.0;
 };
 
 [[nodiscard]] constexpr Velocity operator+(Velocity lhs, Velocity const rhs) noexcept
@@ -178,13 +181,13 @@ class RADAR_COMMON_API Velocity
   return lhs;
 }
 
-[[nodiscard]] constexpr Velocity operator+(Velocity lhs, float const rhs) noexcept
+[[nodiscard]] constexpr Velocity operator+(Velocity lhs, double const rhs) noexcept
 {
   lhs += rhs;
   return lhs;
 }
 
-[[nodiscard]] constexpr Velocity operator+(float const lhs, Velocity const rhs) noexcept
+[[nodiscard]] constexpr Velocity operator+(double const lhs, Velocity const rhs) noexcept
 {
   return Velocity::from_mps(lhs + rhs.as_mps());
 }
@@ -195,29 +198,29 @@ class RADAR_COMMON_API Velocity
   return lhs;
 }
 
-[[nodiscard]] constexpr Velocity operator-(Velocity lhs, float const rhs) noexcept
+[[nodiscard]] constexpr Velocity operator-(Velocity lhs, double const rhs) noexcept
 {
   lhs -= rhs;
   return lhs;
 }
 
-[[nodiscard]] constexpr Velocity operator-(float const lhs, Velocity const rhs) noexcept
+[[nodiscard]] constexpr Velocity operator-(double const lhs, Velocity const rhs) noexcept
 {
   return Velocity::from_mps(lhs - rhs.as_mps());
 }
 
-[[nodiscard]] constexpr Velocity operator*(Velocity lhs, float const rhs) noexcept
+[[nodiscard]] constexpr Velocity operator*(Velocity lhs, double const rhs) noexcept
 {
   lhs *= rhs;
   return lhs;
 }
 
-[[nodiscard]] constexpr Velocity operator*(float const lhs, Velocity const rhs) noexcept
+[[nodiscard]] constexpr Velocity operator*(double const lhs, Velocity const rhs) noexcept
 {
   return Velocity::from_mps(lhs * rhs.as_mps());
 }
 
-[[nodiscard]] constexpr Velocity operator/(Velocity lhs, float const rhs) noexcept
+[[nodiscard]] constexpr Velocity operator/(Velocity lhs, double const rhs) noexcept
 {
   lhs /= rhs;
   return lhs;
@@ -230,7 +233,7 @@ class RADAR_COMMON_API Velocity
  */
 [[nodiscard]] constexpr Velocity operator""_mps(long double const meters_per_second) noexcept
 {
-  return Velocity::from_mps(static_cast<float>(meters_per_second));
+  return Velocity::from_mps(static_cast<double>(meters_per_second));
 }
 
 /**
@@ -240,7 +243,7 @@ class RADAR_COMMON_API Velocity
  */
 [[nodiscard]] constexpr Velocity operator""_mps(unsigned long long const meters_per_second) noexcept
 {
-  return Velocity::from_mps(static_cast<float>(meters_per_second));
+  return Velocity::from_mps(static_cast<double>(meters_per_second));
 }
 
 /**
@@ -250,7 +253,7 @@ class RADAR_COMMON_API Velocity
  */
 [[nodiscard]] constexpr Velocity operator""_kmph(long double const kilometers_per_hour) noexcept
 {
-  return Velocity::from_kmph(static_cast<float>(kilometers_per_hour));
+  return Velocity::from_kmph(static_cast<double>(kilometers_per_hour));
 }
 
 /**
@@ -262,7 +265,7 @@ class RADAR_COMMON_API Velocity
   unsigned long long const kilometers_per_hour
 ) noexcept
 {
-  return Velocity::from_kmph(static_cast<float>(kilometers_per_hour));
+  return Velocity::from_kmph(static_cast<double>(kilometers_per_hour));
 }
 
 /**
@@ -272,7 +275,7 @@ class RADAR_COMMON_API Velocity
  */
 [[nodiscard]] constexpr Velocity operator""_mph(long double const miles_per_hour) noexcept
 {
-  return Velocity::from_mph(static_cast<float>(miles_per_hour));
+  return Velocity::from_mph(static_cast<double>(miles_per_hour));
 }
 
 /**
@@ -282,7 +285,7 @@ class RADAR_COMMON_API Velocity
  */
 [[nodiscard]] constexpr Velocity operator""_mph(unsigned long long const miles_per_hour) noexcept
 {
-  return Velocity::from_mph(static_cast<float>(miles_per_hour));
+  return Velocity::from_mph(static_cast<double>(miles_per_hour));
 }
 
 RADAR_COMMON_API std::ostream& operator<<(std::ostream& os, Velocity velocity);
@@ -294,7 +297,7 @@ struct std::hash<radar::mms::common::Velocity>
 {
   [[nodiscard]] std::size_t operator()(radar::mms::common::Velocity const velocity) const noexcept
   {
-    return std::hash<float> {}(velocity.as_mps());
+    return std::hash<double> {}(velocity.as_mps());
   }
 };
 

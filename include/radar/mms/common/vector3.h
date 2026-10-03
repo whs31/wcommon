@@ -28,7 +28,7 @@
 RADAR_COMMON_NAMESPACE_BEGIN
 
 /**
- * @brief Three-dimensional displacement vector backed by floats.
+ * @brief Three-dimensional displacement vector backed by doubles.
  * @note Qt properties, conversions, and metatype registration are available
  * only when rcommon is built with `with_qt=True`.
  * @ingroup core_measurements
@@ -40,18 +40,18 @@ class RADAR_COMMON_API Vector3
 #ifdef RCOMMON_WITH_QT
   Q_GADGET
 
-  Q_PROPERTY(float x READ x CONSTANT FINAL)
-  Q_PROPERTY(float y READ y CONSTANT FINAL)
-  Q_PROPERTY(float z READ z CONSTANT FINAL)
-  Q_PROPERTY(float length READ length CONSTANT FINAL)
-  Q_PROPERTY(float lengthSquared READ length_squared CONSTANT FINAL)
+  Q_PROPERTY(double x READ x CONSTANT FINAL)
+  Q_PROPERTY(double y READ y CONSTANT FINAL)
+  Q_PROPERTY(double z READ z CONSTANT FINAL)
+  Q_PROPERTY(double length READ length CONSTANT FINAL)
+  Q_PROPERTY(double lengthSquared READ length_squared CONSTANT FINAL)
   Q_PROPERTY(QString string READ to_qstring CONSTANT FINAL)
 #endif
 
  public:
   constexpr Vector3() noexcept = default;
 
-  constexpr Vector3(float const x, float const y, float const z) noexcept
+  constexpr Vector3(double const x, double const y, double const z) noexcept
     : m_x(x)
     , m_y(y)
     , m_z(z)
@@ -59,7 +59,7 @@ class RADAR_COMMON_API Vector3
 
   // The default z intentionally preserves the implicit Vector2-to-Vector3 conversion.
   // NOLINTNEXTLINE(google-explicit-constructor)
-  constexpr Vector3(Vector2 const vector, float const z = 0.0F) noexcept
+  constexpr Vector3(Vector2 const vector, double const z = 0.0) noexcept
     : m_x(vector.x())
     , m_y(vector.y())
     , m_z(z)
@@ -80,22 +80,22 @@ class RADAR_COMMON_API Vector3
   explicit Vector3(QVector3D const& vector) noexcept;
 #endif
 
-  [[nodiscard]] constexpr float x() const noexcept { return this->m_x; }
+  [[nodiscard]] constexpr double x() const noexcept { return this->m_x; }
 
-  [[nodiscard]] constexpr float y() const noexcept { return this->m_y; }
+  [[nodiscard]] constexpr double y() const noexcept { return this->m_y; }
 
-  [[nodiscard]] constexpr float z() const noexcept { return this->m_z; }
+  [[nodiscard]] constexpr double z() const noexcept { return this->m_z; }
 
   [[nodiscard]] constexpr Vector2 xy() const noexcept { return {this->m_x, this->m_y}; }
 
-  [[nodiscard]] constexpr float length_squared() const noexcept
+  [[nodiscard]] constexpr double length_squared() const noexcept
   {
     return this->m_x * this->m_x + this->m_y * this->m_y + this->m_z * this->m_z;
   }
 
-  [[nodiscard]] float length() const noexcept { return std::sqrt(this->length_squared()); }
+  [[nodiscard]] double length() const noexcept { return std::sqrt(this->length_squared()); }
 
-  [[nodiscard]] constexpr float dot(Vector3 const& other) const noexcept
+  [[nodiscard]] constexpr double dot(Vector3 const& other) const noexcept
   {
     return this->m_x * other.m_x + this->m_y * other.m_y + this->m_z * other.m_z;
   }
@@ -144,15 +144,15 @@ class RADAR_COMMON_API Vector3
 
   [[nodiscard]] static constexpr Vector3 zero() noexcept { return {}; }
 
-  [[nodiscard]] static constexpr Vector3 splat(float const value) noexcept
+  [[nodiscard]] static constexpr Vector3 splat(double const value) noexcept
   {
     return {value, value, value};
   }
 
   [[nodiscard]] static constexpr Vector3 from_xyz(
-    float const x,
-    float const y,
-    float const z
+    double const x,
+    double const y,
+    double const z
   ) noexcept
   {
     return {x, y, z};
@@ -160,7 +160,7 @@ class RADAR_COMMON_API Vector3
 
   [[nodiscard]] static constexpr Vector3 from_vector2(
     Vector2 const vector,
-    float const z = 0.0F
+    double const z = 0.0
   ) noexcept
   {
     return {vector, z};
@@ -209,7 +209,7 @@ class RADAR_COMMON_API Vector3
     return *this;
   }
 
-  constexpr Vector3& operator*=(float const rhs) noexcept
+  constexpr Vector3& operator*=(double const rhs) noexcept
   {
     this->m_x *= rhs;
     this->m_y *= rhs;
@@ -217,7 +217,7 @@ class RADAR_COMMON_API Vector3
     return *this;
   }
 
-  constexpr Vector3& operator/=(float const rhs) noexcept
+  constexpr Vector3& operator/=(double const rhs) noexcept
   {
     this->m_x /= rhs;
     this->m_y /= rhs;
@@ -226,9 +226,9 @@ class RADAR_COMMON_API Vector3
   }
 
  private:
-  float m_x = 0.0F;
-  float m_y = 0.0F;
-  float m_z = 0.0F;
+  double m_x = 0.0;
+  double m_y = 0.0;
+  double m_z = 0.0;
 };
 
 [[nodiscard]] constexpr Vector3 operator+(Vector3 lhs, Vector3 const rhs) noexcept
@@ -243,18 +243,18 @@ class RADAR_COMMON_API Vector3
   return lhs;
 }
 
-[[nodiscard]] constexpr Vector3 operator*(Vector3 lhs, float const rhs) noexcept
+[[nodiscard]] constexpr Vector3 operator*(Vector3 lhs, double const rhs) noexcept
 {
   lhs *= rhs;
   return lhs;
 }
 
-[[nodiscard]] constexpr Vector3 operator*(float const lhs, Vector3 const rhs) noexcept
+[[nodiscard]] constexpr Vector3 operator*(double const lhs, Vector3 const rhs) noexcept
 {
   return rhs * lhs;
 }
 
-[[nodiscard]] constexpr Vector3 operator/(Vector3 lhs, float const rhs) noexcept
+[[nodiscard]] constexpr Vector3 operator/(Vector3 lhs, double const rhs) noexcept
 {
   lhs /= rhs;
   return lhs;
@@ -269,9 +269,9 @@ struct std::hash<radar::mms::common::Vector3>
 {
   [[nodiscard]] std::size_t operator()(radar::mms::common::Vector3 const vector) const noexcept
   {
-    auto hash = std::hash<float> {}(vector.x());
-    hash ^= std::hash<float> {}(vector.y()) + 0x9e3779b9u + (hash << 6) + (hash >> 2);
-    hash ^= std::hash<float> {}(vector.z()) + 0x9e3779b9u + (hash << 6) + (hash >> 2);
+    auto hash = std::hash<double> {}(vector.x());
+    hash ^= std::hash<double> {}(vector.y()) + 0x9e3779b9u + (hash << 6) + (hash >> 2);
+    hash ^= std::hash<double> {}(vector.z()) + 0x9e3779b9u + (hash << 6) + (hash >> 2);
     return hash;
   }
 };

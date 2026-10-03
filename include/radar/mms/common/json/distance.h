@@ -13,7 +13,7 @@ inline void to_json(nlohmann::json& json, Distance const distance)
 
 inline void from_json(nlohmann::json const& json, Distance& distance)
 {
-  distance = Distance::from_meters(json.at("meters").get<float>());
+  distance = Distance::from_meters(json.at("meters").get<double>());
 }
 
 RADAR_COMMON_NAMESPACE_END
