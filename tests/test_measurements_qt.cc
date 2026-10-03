@@ -15,10 +15,10 @@ TEST_CASE(
   "[measurements][qt]"
 )
 {
-  REQUIRE(Angle::from_degrees(45.0F).to_qstring() == QString("45 deg"));
-  REQUIRE(Distance::from_meters(1'500.0F).to_qstring() == QString("1.5 km"));
-  REQUIRE(Velocity::from_mps(25.0F).to_qstring() == QString("25 m/s"));
-  REQUIRE(EulerAngles::from_degrees(1.0F, 2.0F, 3.0F).to_qstring().contains("yaw 3 deg"));
+  REQUIRE(Angle::from_degrees(45.0).to_qstring() == QString("45 deg"));
+  REQUIRE(Distance::from_meters(1'500.0).to_qstring() == QString("1.5 km"));
+  REQUIRE(Velocity::from_mps(25.0).to_qstring() == QString("25 m/s"));
+  REQUIRE(EulerAngles::from_degrees(1.0, 2.0, 3.0).to_qstring().contains("yaw 3 deg"));
 
   REQUIRE(QMetaType::fromType<Angle>().isValid());
   REQUIRE(QMetaType::fromType<Distance>().isValid());

@@ -10,8 +10,8 @@ std::string Vector2::to_string() const { return fmt::format("({}, {})", this->m_
 
 #ifdef RCOMMON_WITH_QT
 Vector2::Vector2(QPointF const point) noexcept
-  : m_x(static_cast<float>(point.x()))
-  , m_y(static_cast<float>(point.y()))
+  : m_x(static_cast<double>(point.x()))
+  , m_y(static_cast<double>(point.y()))
 {}
 
 Vector2::Vector2(QVector2D const& vector) noexcept
@@ -21,7 +21,10 @@ Vector2::Vector2(QVector2D const& vector) noexcept
 
 QPointF Vector2::to_qpointf() const noexcept { return {this->m_x, this->m_y}; }
 
-QVector2D Vector2::to_qvector2d() const noexcept { return {this->m_x, this->m_y}; }
+QVector2D Vector2::to_qvector2d() const noexcept
+{
+  return {static_cast<float>(this->m_x), static_cast<float>(this->m_y)};
+}
 
 QString Vector2::to_qstring() const { return QString::fromStdString(this->to_string()); }
 

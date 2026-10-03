@@ -28,7 +28,7 @@
 RADAR_COMMON_NAMESPACE_BEGIN
 
 /**
- * @brief Three-dimensional point backed by floats.
+ * @brief Three-dimensional point backed by doubles.
  * @note Qt properties, conversions, and metatype registration are available
  * only when rcommon is built with `with_qt=True`.
  * @ingroup core_measurements
@@ -40,16 +40,16 @@ class RADAR_COMMON_API Point3
 #ifdef RCOMMON_WITH_QT
   Q_GADGET
 
-  Q_PROPERTY(float x READ x CONSTANT FINAL)
-  Q_PROPERTY(float y READ y CONSTANT FINAL)
-  Q_PROPERTY(float z READ z CONSTANT FINAL)
+  Q_PROPERTY(double x READ x CONSTANT FINAL)
+  Q_PROPERTY(double y READ y CONSTANT FINAL)
+  Q_PROPERTY(double z READ z CONSTANT FINAL)
   Q_PROPERTY(QString string READ to_qstring CONSTANT FINAL)
 #endif
 
  public:
   constexpr Point3() noexcept = default;
 
-  constexpr Point3(float const x, float const y, float const z) noexcept
+  constexpr Point3(double const x, double const y, double const z) noexcept
     : m_x(x)
     , m_y(y)
     , m_z(z)
@@ -57,7 +57,7 @@ class RADAR_COMMON_API Point3
 
   // The default z intentionally preserves the implicit Point2-to-Point3 conversion.
   // NOLINTNEXTLINE(google-explicit-constructor)
-  constexpr Point3(Point2 const point, float const z = 0.0F) noexcept
+  constexpr Point3(Point2 const point, double const z = 0.0) noexcept
     : m_x(point.x())
     , m_y(point.y())
     , m_z(z)
@@ -84,11 +84,11 @@ class RADAR_COMMON_API Point3
   explicit Point3(QVector3D const& vector) noexcept;
 #endif
 
-  [[nodiscard]] constexpr float x() const noexcept { return this->m_x; }
+  [[nodiscard]] constexpr double x() const noexcept { return this->m_x; }
 
-  [[nodiscard]] constexpr float y() const noexcept { return this->m_y; }
+  [[nodiscard]] constexpr double y() const noexcept { return this->m_y; }
 
-  [[nodiscard]] constexpr float z() const noexcept { return this->m_z; }
+  [[nodiscard]] constexpr double z() const noexcept { return this->m_z; }
 
   [[nodiscard]] constexpr Point2 xy() const noexcept { return {this->m_x, this->m_y}; }
 
@@ -112,7 +112,7 @@ class RADAR_COMMON_API Point3
   [[nodiscard]] QVector3D to_qvector3d() const noexcept;
 #endif
 
-  [[nodiscard]] float distance_to(Point3 const& other) const noexcept
+  [[nodiscard]] double distance_to(Point3 const& other) const noexcept
   {
     return Vector3(other.m_x - this->m_x, other.m_y - this->m_y, other.m_z - this->m_z).length();
   }
@@ -127,9 +127,9 @@ class RADAR_COMMON_API Point3
   [[nodiscard]] static constexpr Point3 zero() noexcept { return {}; }
 
   [[nodiscard]] static constexpr Point3 from_xyz(
-    float const x,
-    float const y,
-    float const z
+    double const x,
+    double const y,
+    double const z
   ) noexcept
   {
     return {x, y, z};
@@ -137,7 +137,7 @@ class RADAR_COMMON_API Point3
 
   [[nodiscard]] static constexpr Point3 from_point2(
     Point2 const point,
-    float const z = 0.0F
+    double const z = 0.0
   ) noexcept
   {
     return {point, z};
@@ -184,9 +184,9 @@ class RADAR_COMMON_API Point3
   }
 
  private:
-  float m_x = 0.0F;
-  float m_y = 0.0F;
-  float m_z = 0.0F;
+  double m_x = 0.0;
+  double m_y = 0.0;
+  double m_z = 0.0;
 };
 
 [[nodiscard]] constexpr Point3 operator+(Point3 lhs, Vector3 const rhs) noexcept
@@ -221,9 +221,9 @@ struct std::hash<radar::mms::common::Point3>
 {
   [[nodiscard]] std::size_t operator()(radar::mms::common::Point3 const point) const noexcept
   {
-    auto hash = std::hash<float> {}(point.x());
-    hash ^= std::hash<float> {}(point.y()) + 0x9e3779b9u + (hash << 6) + (hash >> 2);
-    hash ^= std::hash<float> {}(point.z()) + 0x9e3779b9u + (hash << 6) + (hash >> 2);
+    auto hash = std::hash<double> {}(point.x());
+    hash ^= std::hash<double> {}(point.y()) + 0x9e3779b9u + (hash << 6) + (hash >> 2);
+    hash ^= std::hash<double> {}(point.z()) + 0x9e3779b9u + (hash << 6) + (hash >> 2);
     return hash;
   }
 };

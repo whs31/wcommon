@@ -17,11 +17,11 @@ inline void from_json(nlohmann::json const& json, Angle& angle)
 {
   auto const units = json.at("units").get<std::string>();
   if(units == "degrees") {
-    angle = Angle::from_degrees(json.at("angle").get<float>());
+    angle = Angle::from_degrees(json.at("angle").get<double>());
     return;
   }
   if(units == "radians") {
-    angle = Angle::from_radians(json.at("angle").get<float>());
+    angle = Angle::from_radians(json.at("angle").get<double>());
     return;
   }
   throw Error(

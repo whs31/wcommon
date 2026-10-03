@@ -34,9 +34,9 @@ RADAR_COMMON_NAMESPACE_BEGIN
  * available only when rcommon is built with `with_qt=True`.
  *
  * @code {.cpp}
- * auto heading = radar::mms::common::Angle::from_degrees(350.0F);
- * auto target = radar::mms::common::Angle::from_degrees(10.0F);
- * auto halfway = heading.lerp(target, 0.5F); // 0 degrees
+ * auto heading = radar::mms::common::Angle::from_degrees(350.0);
+ * auto target = radar::mms::common::Angle::from_degrees(10.0);
+ * auto halfway = heading.lerp(target, 0.5); // 0 degrees
  * @endcode
  *
  * @ingroup core_measurements
@@ -48,8 +48,8 @@ class RADAR_COMMON_API Angle
 #ifdef RCOMMON_WITH_QT
   Q_GADGET
 
-  Q_PROPERTY(float radians READ radians CONSTANT FINAL)
-  Q_PROPERTY(float degrees READ degrees CONSTANT FINAL)
+  Q_PROPERTY(double radians READ radians CONSTANT FINAL)
+  Q_PROPERTY(double degrees READ degrees CONSTANT FINAL)
   Q_PROPERTY(bool isFinite READ is_finite CONSTANT FINAL)
   Q_PROPERTY(QString string READ to_qstring CONSTANT FINAL)
 #endif
@@ -63,15 +63,8 @@ class RADAR_COMMON_API Angle
   /**
    * @brief Creates an angle from radians.
    */
-  explicit constexpr Angle(float const radians) noexcept
-    : m_radians(radians)
-  {}
-
-  /**
-   * @brief Creates an angle from radians.
-   */
   explicit constexpr Angle(double const radians) noexcept
-    : m_radians(static_cast<float>(radians))
+    : m_radians(radians)
   {}
 
   constexpr Angle(Angle const&) = default;
@@ -83,24 +76,24 @@ class RADAR_COMMON_API Angle
   /**
    * @brief Returns radians.
    */
-  [[nodiscard]] constexpr float radians() const noexcept { return this->m_radians; }
+  [[nodiscard]] constexpr double radians() const noexcept { return this->m_radians; }
 
   /**
    * @brief Returns degrees.
    */
-  [[nodiscard]] constexpr float degrees() const noexcept { return to_degrees(this->m_radians); }
+  [[nodiscard]] constexpr double degrees() const noexcept { return to_degrees(this->m_radians); }
 
   /**
    * @brief Returns the angle wrapped into `[0, 2*pi)`.
    */
   [[nodiscard]] constexpr Angle positive() const noexcept
   {
-    constexpr auto two_pi = std::numbers::pi_v<float> * 2.0F;
+    constexpr auto two_pi = std::numbers::pi_v<double> * 2.0;
     auto radians = fmod(this->m_radians, two_pi);
-    if(radians < 0.0F)
+    if(radians < 0.0)
       radians += two_pi;
-    if(approx_eq(radians, two_pi, std::numeric_limits<float>::epsilon() * 3.0F))
-      radians = 0.0F;
+    if(approx_eq(radians, two_pi, std::numeric_limits<double>::epsilon() * 3.0))
+      radians = 0.0;
     return from_radians(radians);
   }
 
@@ -116,7 +109,7 @@ class RADAR_COMMON_API Angle
 
     auto ret = pi();
     ret -= inner;
-    if(is_null(ret.m_radians, std::numeric_limits<float>::epsilon()))
+    if(is_null(ret.m_radians, std::numeric_limits<double>::epsilon()))
       return zero();
     return ret;
   }
@@ -128,9 +121,9 @@ class RADAR_COMMON_API Angle
    */
   [[nodiscard]] constexpr Angle angle_to(Angle const& other) const noexcept
   {
-    constexpr auto max = std::numbers::pi_v<float> * 2.0F;
+    constexpr auto max = std::numbers::pi_v<double> * 2.0;
     auto const d = fmod(other.radians() - this->radians(), max);
-    return from_radians(fmod(2.0F * d, max) - d);
+    return from_radians(fmod(2.0 * d, max) - d);
   }
 
   /**
@@ -142,7 +135,7 @@ class RADAR_COMMON_API Angle
   [[nodiscard]] Angle lerp(Angle const& other, T const t) const noexcept
   {
     auto delta = this->angle_to(other);
-    delta *= static_cast<float>(t);
+    delta *= static_cast<double>(t);
 
     auto result = *this;
     result += delta;
@@ -154,17 +147,17 @@ class RADAR_COMMON_API Angle
    */
   [[nodiscard]] bool is_finite() const noexcept { return std::isfinite(this->m_radians); }
 
-  [[nodiscard]] float sin() const noexcept { return std::sin(this->m_radians); }
+  [[nodiscard]] double sin() const noexcept { return std::sin(this->m_radians); }
 
-  [[nodiscard]] float cos() const noexcept { return std::cos(this->m_radians); }
+  [[nodiscard]] double cos() const noexcept { return std::cos(this->m_radians); }
 
-  [[nodiscard]] float tan() const noexcept { return std::tan(this->m_radians); }
+  [[nodiscard]] double tan() const noexcept { return std::tan(this->m_radians); }
 
-  [[nodiscard]] float asin() const noexcept { return std::asin(this->m_radians); }
+  [[nodiscard]] double asin() const noexcept { return std::asin(this->m_radians); }
 
-  [[nodiscard]] float acos() const noexcept { return std::acos(this->m_radians); }
+  [[nodiscard]] double acos() const noexcept { return std::acos(this->m_radians); }
 
-  [[nodiscard]] float atan() const noexcept { return std::atan(this->m_radians); }
+  [[nodiscard]] double atan() const noexcept { return std::atan(this->m_radians); }
 
   /**
    * @brief Returns a compact string in degrees.
@@ -182,7 +175,7 @@ class RADAR_COMMON_API Angle
   /**
    * @brief Creates an angle from radians.
    */
-  [[nodiscard]] static constexpr Angle from_radians(float const radians) noexcept
+  [[nodiscard]] static constexpr Angle from_radians(double const radians) noexcept
   {
     return Angle(radians);
   }
@@ -190,7 +183,7 @@ class RADAR_COMMON_API Angle
   /**
    * @brief Creates an angle from degrees.
    */
-  [[nodiscard]] static constexpr Angle from_degrees(float const degrees) noexcept
+  [[nodiscard]] static constexpr Angle from_degrees(double const degrees) noexcept
   {
     return Angle(to_radians(degrees));
   }
@@ -199,30 +192,33 @@ class RADAR_COMMON_API Angle
 
   [[nodiscard]] static constexpr Angle pi() noexcept
   {
-    return from_radians(std::numbers::pi_v<float>);
+    return from_radians(std::numbers::pi_v<double>);
   }
 
   [[nodiscard]] static constexpr Angle tau() noexcept
   {
-    return from_radians(std::numbers::pi_v<float> * 2.0F);
+    return from_radians(std::numbers::pi_v<double> * 2.0);
   }
 
   [[nodiscard]] static constexpr Angle frac_pi_2() noexcept
   {
-    return from_radians(std::numbers::pi_v<float> / 2.0F);
+    return from_radians(std::numbers::pi_v<double> / 2.0);
   }
 
   [[nodiscard]] static constexpr Angle frac_pi_3() noexcept
   {
-    return from_radians(std::numbers::pi_v<float> / 3.0F);
+    return from_radians(std::numbers::pi_v<double> / 3.0);
   }
 
   [[nodiscard]] static constexpr Angle frac_pi_4() noexcept
   {
-    return from_radians(std::numbers::pi_v<float> / 4.0F);
+    return from_radians(std::numbers::pi_v<double> / 4.0);
   }
 
-  [[nodiscard]] constexpr explicit operator float() const noexcept { return this->m_radians; }
+  [[nodiscard]] constexpr explicit operator float() const noexcept
+  {
+    return static_cast<float>(this->m_radians);
+  }
 
   [[nodiscard]] constexpr explicit operator double() const noexcept { return this->m_radians; }
 
@@ -240,7 +236,7 @@ class RADAR_COMMON_API Angle
     return *this;
   }
 
-  constexpr Angle& operator+=(float const rhs) noexcept
+  constexpr Angle& operator+=(double const rhs) noexcept
   {
     this->m_radians += rhs;
     return *this;
@@ -252,26 +248,26 @@ class RADAR_COMMON_API Angle
     return *this;
   }
 
-  constexpr Angle& operator-=(float const rhs) noexcept
+  constexpr Angle& operator-=(double const rhs) noexcept
   {
     this->m_radians -= rhs;
     return *this;
   }
 
-  constexpr Angle& operator*=(float const rhs) noexcept
+  constexpr Angle& operator*=(double const rhs) noexcept
   {
     this->m_radians *= rhs;
     return *this;
   }
 
-  constexpr Angle& operator/=(float const rhs) noexcept
+  constexpr Angle& operator/=(double const rhs) noexcept
   {
     this->m_radians /= rhs;
     return *this;
   }
 
  private:
-  float m_radians = 0.0F;
+  double m_radians = 0.0;
 };
 
 [[nodiscard]] constexpr Angle operator+(Angle lhs, Angle const rhs) noexcept
@@ -280,13 +276,13 @@ class RADAR_COMMON_API Angle
   return lhs;
 }
 
-[[nodiscard]] constexpr Angle operator+(Angle lhs, float const rhs) noexcept
+[[nodiscard]] constexpr Angle operator+(Angle lhs, double const rhs) noexcept
 {
   lhs += rhs;
   return lhs;
 }
 
-[[nodiscard]] constexpr Angle operator+(float const lhs, Angle const rhs) noexcept
+[[nodiscard]] constexpr Angle operator+(double const lhs, Angle const rhs) noexcept
 {
   return Angle::from_radians(lhs + rhs.radians());
 }
@@ -297,29 +293,29 @@ class RADAR_COMMON_API Angle
   return lhs;
 }
 
-[[nodiscard]] constexpr Angle operator-(Angle lhs, float const rhs) noexcept
+[[nodiscard]] constexpr Angle operator-(Angle lhs, double const rhs) noexcept
 {
   lhs -= rhs;
   return lhs;
 }
 
-[[nodiscard]] constexpr Angle operator-(float const lhs, Angle const rhs) noexcept
+[[nodiscard]] constexpr Angle operator-(double const lhs, Angle const rhs) noexcept
 {
   return Angle::from_radians(lhs - rhs.radians());
 }
 
-[[nodiscard]] constexpr Angle operator*(Angle lhs, float const rhs) noexcept
+[[nodiscard]] constexpr Angle operator*(Angle lhs, double const rhs) noexcept
 {
   lhs *= rhs;
   return lhs;
 }
 
-[[nodiscard]] constexpr Angle operator*(float const lhs, Angle const rhs) noexcept
+[[nodiscard]] constexpr Angle operator*(double const lhs, Angle const rhs) noexcept
 {
   return Angle::from_radians(lhs * rhs.radians());
 }
 
-[[nodiscard]] constexpr Angle operator/(Angle lhs, float const rhs) noexcept
+[[nodiscard]] constexpr Angle operator/(Angle lhs, double const rhs) noexcept
 {
   lhs /= rhs;
   return lhs;
@@ -332,7 +328,7 @@ class RADAR_COMMON_API Angle
  */
 [[nodiscard]] constexpr Angle operator""_deg(long double const degrees) noexcept
 {
-  return Angle::from_degrees(static_cast<float>(degrees));
+  return Angle::from_degrees(static_cast<double>(degrees));
 }
 
 /**
@@ -342,7 +338,7 @@ class RADAR_COMMON_API Angle
  */
 [[nodiscard]] constexpr Angle operator""_deg(unsigned long long const degrees) noexcept
 {
-  return Angle::from_degrees(static_cast<float>(degrees));
+  return Angle::from_degrees(static_cast<double>(degrees));
 }
 
 /**
@@ -352,7 +348,7 @@ class RADAR_COMMON_API Angle
  */
 [[nodiscard]] constexpr Angle operator""_rad(long double const radians) noexcept
 {
-  return Angle::from_radians(static_cast<float>(radians));
+  return Angle::from_radians(static_cast<double>(radians));
 }
 
 /**
@@ -362,7 +358,7 @@ class RADAR_COMMON_API Angle
  */
 [[nodiscard]] constexpr Angle operator""_rad(unsigned long long const radians) noexcept
 {
-  return Angle::from_radians(static_cast<float>(radians));
+  return Angle::from_radians(static_cast<double>(radians));
 }
 
 /**
@@ -370,14 +366,14 @@ class RADAR_COMMON_API Angle
  * @ingroup core_math
  * @relates Angle
  */
-[[nodiscard]] constexpr float to_degrees(Angle const angle) noexcept { return angle.degrees(); }
+[[nodiscard]] constexpr double to_degrees(Angle const angle) noexcept { return angle.degrees(); }
 
 /**
  * @brief Returns @p angle in radians.
  * @ingroup core_math
  * @relates Angle
  */
-[[nodiscard]] constexpr float to_radians(Angle const angle) noexcept { return angle.radians(); }
+[[nodiscard]] constexpr double to_radians(Angle const angle) noexcept { return angle.radians(); }
 
 RADAR_COMMON_API std::ostream& operator<<(std::ostream& os, Angle angle);
 
@@ -388,7 +384,7 @@ struct std::hash<radar::mms::common::Angle>
 {
   [[nodiscard]] std::size_t operator()(radar::mms::common::Angle const angle) const noexcept
   {
-    return std::hash<float> {}(angle.radians());
+    return std::hash<double> {}(angle.radians());
   }
 };
 

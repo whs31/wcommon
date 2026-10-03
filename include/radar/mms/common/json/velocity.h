@@ -13,7 +13,7 @@ inline void to_json(nlohmann::json& json, Velocity const velocity)
 
 inline void from_json(nlohmann::json const& json, Velocity& velocity)
 {
-  velocity = Velocity::from_mps(json.at("mps").get<float>());
+  velocity = Velocity::from_mps(json.at("mps").get<double>());
 }
 
 RADAR_COMMON_NAMESPACE_END

@@ -6,6 +6,6 @@ using namespace radar::mms;
 
 TEST_CASE("Umbrella header exports the public API", "[headers]")
 {
-  STATIC_CHECK(SECONDS_HOURS_FACTOR == 3'600.0F);
+  STATIC_CHECK(SECONDS_HOURS_FACTOR == 3'600.0);
   SUCCEED();
 }

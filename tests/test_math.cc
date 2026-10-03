@@ -12,10 +12,10 @@ using namespace radar::mms;
 
 TEST_CASE("Measurement constants preserve their unit relationships", "[constants][math]")
 {
-  STATIC_CHECK(SECONDS_HOURS_FACTOR == 3'600.0F);
-  STATIC_CHECK(METER_MILLIMETER_FACTOR == 1'000.0F);
-  STATIC_CHECK(approx_eq(METER_FEET_FACTOR * 0.3048F, 1.0F, 1e-6F));
-  STATIC_CHECK(EARTH_RADIUS_KM * 1'000.0F == EARTH_RADIUS);
+  STATIC_CHECK(SECONDS_HOURS_FACTOR == 3'600.0);
+  STATIC_CHECK(METER_MILLIMETER_FACTOR == 1'000.0);
+  STATIC_CHECK(approx_eq(METER_FEET_FACTOR * 0.3048, 1.0, 1e-12));
+  STATIC_CHECK(approx_eq(EARTH_RADIUS_KM * 1'000.0, EARTH_RADIUS, 1e-6));
 }
 
 TEST_CASE("floor supports constexpr values", "[math]")

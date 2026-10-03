@@ -9,7 +9,7 @@
 
 int main()
 {
-  auto const angle = radar::mms::common::Angle::from_degrees(180.0F);
+  auto const angle = radar::mms::common::Angle::from_degrees(180.0);
   auto const json = nlohmann::json(angle);
   auto const duration = std::chrono::seconds(42);
   auto success = json.get<radar::mms::common::Angle>() == angle

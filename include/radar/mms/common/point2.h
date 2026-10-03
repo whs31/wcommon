@@ -26,7 +26,7 @@
 RADAR_COMMON_NAMESPACE_BEGIN
 
 /**
- * @brief Two-dimensional point backed by floats.
+ * @brief Two-dimensional point backed by doubles.
  * @details Point2 represents a position. Subtracting two points yields a
  * Vector2; adding or subtracting a vector translates the point.
  * @note Qt properties, conversions, and metatype registration are available
@@ -41,15 +41,15 @@ class RADAR_COMMON_API Point2
 #ifdef RCOMMON_WITH_QT
   Q_GADGET
 
-  Q_PROPERTY(float x READ x CONSTANT FINAL)
-  Q_PROPERTY(float y READ y CONSTANT FINAL)
+  Q_PROPERTY(double x READ x CONSTANT FINAL)
+  Q_PROPERTY(double y READ y CONSTANT FINAL)
   Q_PROPERTY(QString string READ to_qstring CONSTANT FINAL)
 #endif
 
  public:
   constexpr Point2() noexcept = default;
 
-  constexpr Point2(float const x, float const y) noexcept
+  constexpr Point2(double const x, double const y) noexcept
     : m_x(x)
     , m_y(y)
   {}
@@ -69,9 +69,9 @@ class RADAR_COMMON_API Point2
   explicit Point2(QVector2D const& vector) noexcept;
 #endif
 
-  [[nodiscard]] constexpr float x() const noexcept { return this->m_x; }
+  [[nodiscard]] constexpr double x() const noexcept { return this->m_x; }
 
-  [[nodiscard]] constexpr float y() const noexcept { return this->m_y; }
+  [[nodiscard]] constexpr double y() const noexcept { return this->m_y; }
 
   [[nodiscard]] constexpr Vector2 to_vector2() const noexcept { return {this->m_x, this->m_y}; }
 
@@ -85,7 +85,7 @@ class RADAR_COMMON_API Point2
   [[nodiscard]] QVector2D to_qvector2d() const noexcept;
 #endif
 
-  [[nodiscard]] float distance_to(Point2 const& other) const noexcept
+  [[nodiscard]] double distance_to(Point2 const& other) const noexcept
   {
     return Vector2(other.m_x - this->m_x, other.m_y - this->m_y).length();
   }
@@ -104,7 +104,7 @@ class RADAR_COMMON_API Point2
 
   [[nodiscard]] static constexpr Point2 zero() noexcept { return {}; }
 
-  [[nodiscard]] static constexpr Point2 from_xy(float const x, float const y) noexcept
+  [[nodiscard]] static constexpr Point2 from_xy(double const x, double const y) noexcept
   {
     return {x, y};
   }
@@ -143,8 +143,8 @@ class RADAR_COMMON_API Point2
   }
 
  private:
-  float m_x = 0.0F;
-  float m_y = 0.0F;
+  double m_x = 0.0;
+  double m_y = 0.0;
 };
 
 [[nodiscard]] constexpr Point2 operator+(Point2 lhs, Vector2 const rhs) noexcept
@@ -179,8 +179,8 @@ struct std::hash<radar::mms::common::Point2>
 {
   [[nodiscard]] std::size_t operator()(radar::mms::common::Point2 const point) const noexcept
   {
-    auto hash = std::hash<float> {}(point.x());
-    hash ^= std::hash<float> {}(point.y()) + 0x9e3779b9u + (hash << 6) + (hash >> 2);
+    auto hash = std::hash<double> {}(point.x());
+    hash ^= std::hash<double> {}(point.y()) + 0x9e3779b9u + (hash << 6) + (hash >> 2);
     return hash;
   }
 };
