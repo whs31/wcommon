@@ -49,6 +49,7 @@
 #include <radar/mms/common/check.h>
 #include <radar/mms/common/concepts.h>
 #include <radar/mms/common/constants.h>
+#include <radar/mms/common/curve.h>
 #include <radar/mms/common/distance.h>
 #include <radar/mms/common/error.h>
 #include <radar/mms/common/euler_angles.h>
