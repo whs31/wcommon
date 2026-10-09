@@ -37,6 +37,7 @@ source_files+=(
   "$repo_root/tests/test_linear_algebra_json.cc"
   "$repo_root/tests/test_measurements_json.cc"
   "$repo_root/tests/test_network_json.cc"
+  "$repo_root/tests/test_quantities_json.cc"
 )
 if grep -Fq -- 'test_json_qt.cc' "$build_dir/compile_commands.json"; then
   source_files+=("$repo_root/tests/test_json_qt.cc")

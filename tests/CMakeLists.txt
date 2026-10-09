@@ -9,6 +9,7 @@ set(RCOMMON_QT_TEST_SOURCES
   "${CMAKE_CURRENT_SOURCE_DIR}/test_memory_qt.cc"
   "${CMAKE_CURRENT_SOURCE_DIR}/test_measurements_qt.cc"
   "${CMAKE_CURRENT_SOURCE_DIR}/test_network_qt.cc"
+  "${CMAKE_CURRENT_SOURCE_DIR}/test_quantities_qt.cc"
 )
 list(REMOVE_ITEM RCOMMON_TEST_SOURCES
   "${CMAKE_CURRENT_SOURCE_DIR}/test_main.cc"
