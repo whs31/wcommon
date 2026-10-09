@@ -50,6 +50,30 @@ class SystemError : public Error
 };
 
 /**
+ * @brief Error thrown when a caller-supplied value violates an API precondition.
+ * @details For example, a lookup table with unordered arguments or a random bound of zero.
+ * @ingroup core_errors
+ * @see NumericError
+ */
+class InvalidArgumentError final : public Error
+{
+ public:
+  using Error::Error;
+};
+
+/**
+ * @brief Error thrown when a computation has no finite, well-defined result.
+ * @details For example, inverting a singular matrix or normalizing a zero quaternion.
+ * @ingroup core_errors
+ * @see InvalidArgumentError
+ */
+class NumericError final : public Error
+{
+ public:
+  using Error::Error;
+};
+
+/**
  * @brief Error thrown for code paths that are intentionally not implemented yet.
  * @ingroup core_errors
  * @see RADAR_NOT_IMPLEMENTED

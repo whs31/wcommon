@@ -280,4 +280,140 @@ template <Number T>
   return (value - min) / (max - min);
 }
 
+/**
+ * @brief Checks whether a floating-point value is neither infinite nor NaN.
+ * @details Unlike `std::isfinite`, it is usable in constant expressions on every compiler.
+ * @note Inside a class with an `is_finite()` member, e.g. Vector3, the member hides this
+ * function; call it as `common::is_finite(value)` there.
+ * @tparam T Floating-point type.
+ * @param value Value to check.
+ * @ingroup core_math
+ * @see positive
+ * @see nonnegative
+ * @see in_closed_range
+ */
+template <std::floating_point T>
+[[nodiscard]] constexpr bool is_finite(T const value) noexcept
+{
+  // NaN fails every comparison, and an infinity exceeds the largest finite value
+  return abs(value) <= std::numeric_limits<T>::max();
+}
+
+/**
+ * @brief Checks whether a quantity has a finite SI magnitude.
+ * @ingroup core_math
+ * @see Quantity
+ */
+template <Quantity T>
+[[nodiscard]] constexpr bool is_finite(T const value) noexcept
+{
+  return is_finite(static_cast<double>(value));
+}
+
+/**
+ * @brief Checks whether a value is finite and greater than zero.
+ * @details A NaN never passes. This avoids the common pitfall of writing `not (x <= 0)`, which
+ * is `true` for NaN.
+ * @tparam T Floating-point type.
+ * @param value Value to check.
+ * @ingroup core_math
+ * @see nonnegative
+ */
+template <std::floating_point T>
+[[nodiscard]] constexpr bool positive(T const value) noexcept
+{
+  return is_finite(value) and value > T {0};
+}
+
+/**
+ * @brief Checks whether a quantity is finite and greater than zero.
+ * @ingroup core_math
+ * @see Quantity
+ */
+template <Quantity T>
+[[nodiscard]] constexpr bool positive(T const value) noexcept
+{
+  return positive(static_cast<double>(value));
+}
+
+/**
+ * @brief Checks whether a value is finite and not less than zero.
+ * @tparam T Floating-point type.
+ * @param value Value to check.
+ * @ingroup core_math
+ * @see positive
+ */
+template <std::floating_point T>
+[[nodiscard]] constexpr bool nonnegative(T const value) noexcept
+{
+  return is_finite(value) and value >= T {0};
+}
+
+/**
+ * @brief Checks whether a quantity is finite and not less than zero.
+ * @ingroup core_math
+ * @see Quantity
+ */
+template <Quantity T>
+[[nodiscard]] constexpr bool nonnegative(T const value) noexcept
+{
+  return nonnegative(static_cast<double>(value));
+}
+
+/**
+ * @brief Checks whether a value is finite and inside the closed range `[lo, hi]`.
+ * @details The bounds take the type of the checked value, so bounds of another arithmetic type
+ * need no casts, e.g. `in_closed_range(float_soc, 0.0, 1.0)`.
+ * @tparam T Floating-point type.
+ * @param value Value to check.
+ * @param lo Lower bound.
+ * @param hi Upper bound.
+ * @ingroup core_math
+ * @see clamp
+ */
+template <std::floating_point T>
+[[nodiscard]] constexpr bool in_closed_range(
+  T const value,
+  std::type_identity_t<T> const lo,
+  std::type_identity_t<T> const hi
+) noexcept
+{
+  return is_finite(value) and value >= lo and value <= hi;
+}
+
+/**
+ * @brief Checks whether a quantity is finite and inside the closed range `[lo, hi]`.
+ * @details For example, `in_closed_range(pitch, -90_deg, 90_deg)`.
+ * @ingroup core_math
+ * @see Quantity
+ */
+template <Quantity T>
+[[nodiscard]] constexpr bool in_closed_range(
+  T const value,
+  std::type_identity_t<T> const lo,
+  std::type_identity_t<T> const hi
+) noexcept
+{
+  return in_closed_range(
+    static_cast<double>(value),
+    static_cast<double>(lo),
+    static_cast<double>(hi)
+  );
+}
+
+/**
+ * @brief Rounds a value to the nearest multiple of `step`.
+ * @details Halfway cases round away from zero. A `step` that is not positive leaves the value
+ * unchanged.
+ * @tparam T Floating-point type.
+ * @param value Value to round.
+ * @param step Quantization step.
+ * @ingroup core_math
+ */
+template <std::floating_point T>
+[[nodiscard]] constexpr T quantized(T const value, std::type_identity_t<T> const step) noexcept
+{
+  return step > T {0} ? std::round(value / step) * step : value;
+}
+
 RADAR_COMMON_NAMESPACE_END

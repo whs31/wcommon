@@ -7,10 +7,12 @@
 #include <limits>
 #include <ostream>
 #include <string>
+#include <string_view>
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
+#include <radar/mms/common/concepts.h>
 #include <radar/mms/common/config.h>
 #include <radar/mms/common/detail/export.h>
 #include <radar/mms/common/detail/namespace.h>
@@ -374,6 +376,22 @@ class RADAR_COMMON_API Angle
  * @relates Angle
  */
 [[nodiscard]] constexpr double to_radians(Angle const angle) noexcept { return angle.radians(); }
+
+/**
+ * @brief Quantity traits of Angle: stored in `rad`.
+ * @ingroup core_measurements
+ * @see Quantity
+ */
+template <>
+struct QuantityTraits<Angle>
+{
+  static constexpr std::string_view si_symbol = "rad";
+
+  [[nodiscard]] static constexpr Angle from_si(double const radians) noexcept
+  {
+    return Angle::from_radians(radians);
+  }
+};
 
 RADAR_COMMON_API std::ostream& operator<<(std::ostream& os, Angle angle);
 

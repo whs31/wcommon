@@ -6,10 +6,12 @@
 #include <iosfwd>
 #include <ostream>
 #include <string>
+#include <string_view>
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
+#include <radar/mms/common/concepts.h>
 #include <radar/mms/common/config.h>
 #include <radar/mms/common/constants.h>
 #include <radar/mms/common/detail/export.h>
@@ -371,6 +373,22 @@ class RADAR_COMMON_API Distance
 {
   return Distance::from_kilometers(static_cast<double>(kilometers));
 }
+
+/**
+ * @brief Quantity traits of Distance: stored in `m`.
+ * @ingroup core_measurements
+ * @see Quantity
+ */
+template <>
+struct QuantityTraits<Distance>
+{
+  static constexpr std::string_view si_symbol = "m";
+
+  [[nodiscard]] static constexpr Distance from_si(double const meters) noexcept
+  {
+    return Distance::from_meters(meters);
+  }
+};
 
 RADAR_COMMON_API std::ostream& operator<<(std::ostream& os, Distance distance);
 

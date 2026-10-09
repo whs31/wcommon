@@ -5,10 +5,12 @@
 #include <iosfwd>
 #include <ostream>
 #include <string>
+#include <string_view>
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
+#include <radar/mms/common/concepts.h>
 #include <radar/mms/common/config.h>
 #include <radar/mms/common/constants.h>
 #include <radar/mms/common/detail/export.h>
@@ -287,6 +289,22 @@ class RADAR_COMMON_API Velocity
 {
   return Velocity::from_mph(static_cast<double>(miles_per_hour));
 }
+
+/**
+ * @brief Quantity traits of Velocity: stored in `m/s`.
+ * @ingroup core_measurements
+ * @see Quantity
+ */
+template <>
+struct QuantityTraits<Velocity>
+{
+  static constexpr std::string_view si_symbol = "m/s";
+
+  [[nodiscard]] static constexpr Velocity from_si(double const meters_per_second) noexcept
+  {
+    return Velocity::from_mps(meters_per_second);
+  }
+};
 
 RADAR_COMMON_API std::ostream& operator<<(std::ostream& os, Velocity velocity);
 
