@@ -16,8 +16,9 @@ Every quantity derives from `QuantityBase` and has the same operations:
 - `to_string()`, `std::ostream` output, `fmt` formatting and `std::hash`;
 - a Qt gadget with one property per unit plus `isFinite` and `string`, when built
   `with_qt=True`;
-- a JSON adapter in `radar/mms/common/json/<quantity>.h`, which stores the SI magnitude under the
-  unit name, e.g. `{"kilograms": 2.5}`.
+- a JSON adapter in `radar/mms/common/json/<quantity>.h` and a glaze adapter in
+  `radar/mms/common/glaze/<quantity>.h`, which both store the SI magnitude under the unit name,
+  e.g. `{"kilograms": 2.5}`.
 
 Each quantity is standard layout and trivially copyable, and its object representation is exactly
 one `double` in the SI unit. Reflection and recording can treat it as an `F64` in that unit.

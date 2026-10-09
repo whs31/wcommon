@@ -3,6 +3,8 @@
 // NOLINTBEGIN(cppcoreguidelines-macro-usage, readability-use-concise-preprocessor-directives)
 
 #cmakedefine RCOMMON_WITH_QT
+#cmakedefine RCOMMON_WITH_NLOHMANN
+#cmakedefine RCOMMON_WITH_GLAZE
 
 #if defined(NDEBUG)
 #  define RADAR_NO_DEBUG

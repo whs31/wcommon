@@ -9,12 +9,21 @@ if(@RCOMMON_WITH_QT@)
   find_dependency(Qt6 REQUIRED COMPONENTS Core Gui Network)
 endif()
 
-if("json" IN_LIST RCommon_FIND_COMPONENTS)
+# A component is found only if the package was built with it.
+if("json" IN_LIST RCommon_FIND_COMPONENTS AND @RCOMMON_WITH_NLOHMANN@)
   find_dependency(nlohmann_json REQUIRED)
   if(@RCOMMON_WITH_QT@)
     find_dependency(Qt6 REQUIRED COMPONENTS Positioning)
   endif()
   set(RCommon_json_FOUND TRUE)
+endif()
+
+if("glaze" IN_LIST RCommon_FIND_COMPONENTS AND @RCOMMON_WITH_GLAZE@)
+  find_dependency(glaze REQUIRED)
+  if(@RCOMMON_WITH_QT@)
+    find_dependency(Qt6 REQUIRED COMPONENTS Positioning)
+  endif()
+  set(RCommon_glaze_FOUND TRUE)
 endif()
 
 include("${CMAKE_CURRENT_LIST_DIR}/RCommonTargets.cmake")

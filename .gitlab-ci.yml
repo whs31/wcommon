@@ -38,6 +38,7 @@ build:windows:
       -s:h build_type="$CONAN_BUILD_TYPE"
       -s:b build_type="$CONAN_BUILD_TYPE"
       -o "&:with_qt=False"
+      -o "&:with_nlohmann=True"
       $CONAN_WINDOWS_BUILD_ARGS
 
 test:linux:
@@ -47,6 +48,7 @@ test:linux:
   parallel:
     matrix:
       - RCOMMON_WITH_QT: ["False", "True"]
+        RCOMMON_WITH_ADAPTERS: ["False", "True"]
   script:
     - >
       conan build .
@@ -58,6 +60,8 @@ test:linux:
       -o "&:shared=True"
       -o "&:test=True"
       -o "&:with_qt=$RCOMMON_WITH_QT"
+      -o "&:with_nlohmann=$RCOMMON_WITH_ADAPTERS"
+      -o "&:with_glaze=$RCOMMON_WITH_ADAPTERS"
     - |
       mapfile -t RCOMMON_LIBRARIES < <(find "$BUILD_DIR" -type f -name 'librcommon.so*')
       test "${#RCOMMON_LIBRARIES[@]}" -gt 0
@@ -72,7 +76,7 @@ test:linux:
         ! grep -Fq "libQt6Network" <<< "$RCOMMON_LINKAGE"
       fi
     - bash scripts/checks/cmake-package.sh "$BUILD_DIR"
-    - ctest --test-dir "$BUILD_DIR" --output-on-failure --output-junit "$CI_PROJECT_DIR/test-linux-$RCOMMON_WITH_QT.xml"
+    - ctest --test-dir "$BUILD_DIR" --output-on-failure --output-junit "$CI_PROJECT_DIR/test-linux-$RCOMMON_WITH_QT-$RCOMMON_WITH_ADAPTERS.xml"
   artifacts:
     when: always
     reports:

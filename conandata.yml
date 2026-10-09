@@ -2,6 +2,7 @@ requirements:
   spdlog: '[^1.17.0]'
   fmt: '[^12.1.0]'
   nlohmann_json: '[>=3.12.0]'
+  glaze: '[^8.4.0]'
 
 test_requirements:
   catch2: '[>=3.15]'
