@@ -139,6 +139,44 @@ template <typename T>
 }
 
 /**
+ * @brief Returns true if quantities are approximately equal within a given epsilon.
+ * @details Compares the SI magnitudes using formula `|a - b| <= epsilon`. The default epsilon is
+ * `std::numeric_limits<double>::epsilon()` in the SI unit.
+ * @tparam T Quantity type.
+ * @param a First quantity.
+ * @param b Second quantity.
+ * @param epsilon Largest difference treated as equal.
+ * @ingroup core_math
+ * @see Quantity
+ */
+template <Quantity T>
+[[nodiscard]] constexpr bool approx_eq(
+  T a,
+  T b,
+  T epsilon = QuantityTraits<T>::from_si(std::numeric_limits<double>::epsilon())
+)
+{
+  return approx_eq(static_cast<double>(a), static_cast<double>(b), static_cast<double>(epsilon));
+}
+
+/**
+ * @brief Returns true if the quantity is approximately zero within a given epsilon.
+ * @tparam T Quantity type.
+ * @param a Quantity.
+ * @param epsilon Largest magnitude treated as zero.
+ * @ingroup core_math
+ * @see Quantity
+ */
+template <Quantity T>
+[[nodiscard]] constexpr bool is_null(
+  T a,
+  T epsilon = QuantityTraits<T>::from_si(std::numeric_limits<double>::epsilon())
+)
+{
+  return is_null(static_cast<double>(a), static_cast<double>(epsilon));
+}
+
+/**
  * @brief Calculates Euclidean division, the matching method for rem_euclid().
  * @details Returns the quotient that pairs with `rem_euclid(a, b)` so that
  * `a == div_euclid(a, b) * b + rem_euclid(a, b)` for nonzero `b`.
@@ -240,6 +278,49 @@ template <Number T>
     return a + (b - a) * t;
   else
     return static_cast<T>(a + (static_cast<double>(b) - a) * t);
+}
+
+/**
+ * @brief Restricts a quantity to a closed range.
+ * @details If `min` is greater than `max`, the bounds are swapped before the quantity is clamped.
+ * @tparam T Quantity type.
+ * @param value Quantity to clamp.
+ * @param min Lower bound.
+ * @param max Upper bound.
+ * @return `value` constrained to `[min, max]`.
+ * @ingroup core_math
+ * @see Quantity
+ */
+template <Quantity T>
+[[nodiscard]] constexpr T clamp(T value, std::type_identity_t<T> min, std::type_identity_t<T> max)
+{
+  return QuantityTraits<T>::from_si(
+    clamp(static_cast<double>(value), static_cast<double>(min), static_cast<double>(max))
+  );
+}
+
+/**
+ * @brief Linearly interpolates between two quantities.
+ * @details For an Angle the interpolation is linear in radians. Use Angle::lerp() to interpolate
+ * along the shortest arc instead.
+ * @tparam T Quantity type.
+ * @param a Start quantity.
+ * @param b End quantity.
+ * @param t Interpolation factor.
+ * @return Interpolated quantity.
+ * @ingroup core_math
+ * @see Quantity
+ *
+ * @code {.cpp}
+ * using namespace radar::mms;
+ *
+ * auto halfway = lerp(10_m, 20_m, 0.5); // 15 m
+ * @endcode
+ */
+template <Quantity T>
+[[nodiscard]] constexpr T lerp(T a, std::type_identity_t<T> b, double const t)
+{
+  return QuantityTraits<T>::from_si(lerp(static_cast<double>(a), static_cast<double>(b), t));
 }
 
 /**
