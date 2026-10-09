@@ -97,11 +97,8 @@ namespace
     if(not logger)
       return;
 
-    auto const location = spdlog::source_loc {
-      ctx.file ? ctx.file : "",
-      ctx.line,
-      ctx.function ? ctx.function : ""
-    };
+    auto const location = spdlog::
+      source_loc {ctx.file ? ctx.file : "", ctx.line, ctx.function ? ctx.function : ""};
 
     auto const* category = ctx.category ? ctx.category : "unknown";
 

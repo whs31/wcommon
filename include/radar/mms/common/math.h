@@ -139,6 +139,44 @@ template <typename T>
 }
 
 /**
+ * @brief Returns true if quantities are approximately equal within a given epsilon.
+ * @details Compares the SI magnitudes using formula `|a - b| <= epsilon`. The default epsilon is
+ * `std::numeric_limits<double>::epsilon()` in the SI unit.
+ * @tparam T Quantity type.
+ * @param a First quantity.
+ * @param b Second quantity.
+ * @param epsilon Largest difference treated as equal.
+ * @ingroup core_math
+ * @see Quantity
+ */
+template <Quantity T>
+[[nodiscard]] constexpr bool approx_eq(
+  T a,
+  T b,
+  T epsilon = QuantityTraits<T>::from_si(std::numeric_limits<double>::epsilon())
+)
+{
+  return approx_eq(static_cast<double>(a), static_cast<double>(b), static_cast<double>(epsilon));
+}
+
+/**
+ * @brief Returns true if the quantity is approximately zero within a given epsilon.
+ * @tparam T Quantity type.
+ * @param a Quantity.
+ * @param epsilon Largest magnitude treated as zero.
+ * @ingroup core_math
+ * @see Quantity
+ */
+template <Quantity T>
+[[nodiscard]] constexpr bool is_null(
+  T a,
+  T epsilon = QuantityTraits<T>::from_si(std::numeric_limits<double>::epsilon())
+)
+{
+  return is_null(static_cast<double>(a), static_cast<double>(epsilon));
+}
+
+/**
  * @brief Calculates Euclidean division, the matching method for rem_euclid().
  * @details Returns the quotient that pairs with `rem_euclid(a, b)` so that
  * `a == div_euclid(a, b) * b + rem_euclid(a, b)` for nonzero `b`.
@@ -243,6 +281,49 @@ template <Number T>
 }
 
 /**
+ * @brief Restricts a quantity to a closed range.
+ * @details If `min` is greater than `max`, the bounds are swapped before the quantity is clamped.
+ * @tparam T Quantity type.
+ * @param value Quantity to clamp.
+ * @param min Lower bound.
+ * @param max Upper bound.
+ * @return `value` constrained to `[min, max]`.
+ * @ingroup core_math
+ * @see Quantity
+ */
+template <Quantity T>
+[[nodiscard]] constexpr T clamp(T value, std::type_identity_t<T> min, std::type_identity_t<T> max)
+{
+  return QuantityTraits<T>::from_si(
+    clamp(static_cast<double>(value), static_cast<double>(min), static_cast<double>(max))
+  );
+}
+
+/**
+ * @brief Linearly interpolates between two quantities.
+ * @details For an Angle the interpolation is linear in radians. Use Angle::lerp() to interpolate
+ * along the shortest arc instead.
+ * @tparam T Quantity type.
+ * @param a Start quantity.
+ * @param b End quantity.
+ * @param t Interpolation factor.
+ * @return Interpolated quantity.
+ * @ingroup core_math
+ * @see Quantity
+ *
+ * @code {.cpp}
+ * using namespace radar::mms;
+ *
+ * auto halfway = lerp(10_m, 20_m, 0.5); // 15 m
+ * @endcode
+ */
+template <Quantity T>
+[[nodiscard]] constexpr T lerp(T a, std::type_identity_t<T> b, double const t)
+{
+  return QuantityTraits<T>::from_si(lerp(static_cast<double>(a), static_cast<double>(b), t));
+}
+
+/**
  * @brief Normalizes a value to the `[0, 1]` range.
  * @details The input is clamped to the `[min, max]` range before normalization.
  * If `min` is greater than `max`, clamping treats the bounds as swapped while
@@ -278,6 +359,142 @@ template <Number T>
   value = clamp(value, min, max);
 
   return (value - min) / (max - min);
+}
+
+/**
+ * @brief Checks whether a floating-point value is neither infinite nor NaN.
+ * @details Unlike `std::isfinite`, it is usable in constant expressions on every compiler.
+ * @note Inside a class with an `is_finite()` member, e.g. Vector3, the member hides this
+ * function; call it as `common::is_finite(value)` there.
+ * @tparam T Floating-point type.
+ * @param value Value to check.
+ * @ingroup core_math
+ * @see positive
+ * @see nonnegative
+ * @see in_closed_range
+ */
+template <std::floating_point T>
+[[nodiscard]] constexpr bool is_finite(T const value) noexcept
+{
+  // NaN fails every comparison, and an infinity exceeds the largest finite value
+  return abs(value) <= std::numeric_limits<T>::max();
+}
+
+/**
+ * @brief Checks whether a quantity has a finite SI magnitude.
+ * @ingroup core_math
+ * @see Quantity
+ */
+template <Quantity T>
+[[nodiscard]] constexpr bool is_finite(T const value) noexcept
+{
+  return is_finite(static_cast<double>(value));
+}
+
+/**
+ * @brief Checks whether a value is finite and greater than zero.
+ * @details A NaN never passes. This avoids the common pitfall of writing `not (x <= 0)`, which
+ * is `true` for NaN.
+ * @tparam T Floating-point type.
+ * @param value Value to check.
+ * @ingroup core_math
+ * @see nonnegative
+ */
+template <std::floating_point T>
+[[nodiscard]] constexpr bool positive(T const value) noexcept
+{
+  return is_finite(value) and value > T {0};
+}
+
+/**
+ * @brief Checks whether a quantity is finite and greater than zero.
+ * @ingroup core_math
+ * @see Quantity
+ */
+template <Quantity T>
+[[nodiscard]] constexpr bool positive(T const value) noexcept
+{
+  return positive(static_cast<double>(value));
+}
+
+/**
+ * @brief Checks whether a value is finite and not less than zero.
+ * @tparam T Floating-point type.
+ * @param value Value to check.
+ * @ingroup core_math
+ * @see positive
+ */
+template <std::floating_point T>
+[[nodiscard]] constexpr bool nonnegative(T const value) noexcept
+{
+  return is_finite(value) and value >= T {0};
+}
+
+/**
+ * @brief Checks whether a quantity is finite and not less than zero.
+ * @ingroup core_math
+ * @see Quantity
+ */
+template <Quantity T>
+[[nodiscard]] constexpr bool nonnegative(T const value) noexcept
+{
+  return nonnegative(static_cast<double>(value));
+}
+
+/**
+ * @brief Checks whether a value is finite and inside the closed range `[lo, hi]`.
+ * @details The bounds take the type of the checked value, so bounds of another arithmetic type
+ * need no casts, e.g. `in_closed_range(float_soc, 0.0, 1.0)`.
+ * @tparam T Floating-point type.
+ * @param value Value to check.
+ * @param lo Lower bound.
+ * @param hi Upper bound.
+ * @ingroup core_math
+ * @see clamp
+ */
+template <std::floating_point T>
+[[nodiscard]] constexpr bool in_closed_range(
+  T const value,
+  std::type_identity_t<T> const lo,
+  std::type_identity_t<T> const hi
+) noexcept
+{
+  return is_finite(value) and value >= lo and value <= hi;
+}
+
+/**
+ * @brief Checks whether a quantity is finite and inside the closed range `[lo, hi]`.
+ * @details For example, `in_closed_range(pitch, -90_deg, 90_deg)`.
+ * @ingroup core_math
+ * @see Quantity
+ */
+template <Quantity T>
+[[nodiscard]] constexpr bool in_closed_range(
+  T const value,
+  std::type_identity_t<T> const lo,
+  std::type_identity_t<T> const hi
+) noexcept
+{
+  return in_closed_range(
+    static_cast<double>(value),
+    static_cast<double>(lo),
+    static_cast<double>(hi)
+  );
+}
+
+/**
+ * @brief Rounds a value to the nearest multiple of `step`.
+ * @details Halfway cases round away from zero. A `step` that is not positive leaves the value
+ * unchanged.
+ * @tparam T Floating-point type.
+ * @param value Value to round.
+ * @param step Quantization step.
+ * @ingroup core_math
+ */
+template <std::floating_point T>
+[[nodiscard]] constexpr T quantized(T const value, std::type_identity_t<T> const step) noexcept
+{
+  return step > T {0} ? std::round(value / step) * step : value;
 }
 
 RADAR_COMMON_NAMESPACE_END

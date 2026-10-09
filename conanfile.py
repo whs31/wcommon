@@ -4,7 +4,7 @@ from conan.tools.build import check_min_cppstd
 
 class RCommonRecipe(ConanFile):
   name = "rcommon"
-  version = "4.0.1"
+  version = "5.0.0"
   description = "Radar common utility library"
   author = "whs31 <whs31@github.io>"
   settings = "os", "arch", "compiler", "build_type"
@@ -17,12 +17,16 @@ class RCommonRecipe(ConanFile):
     "fPIC": [True, False],
     "test": [True, False],
     "with_qt": [True, False],
+    "with_nlohmann": [True, False],
+    "with_glaze": [True, False],
   }
   default_options = {
     "shared": True,
     "fPIC": True,
     "test": False,
     "with_qt": False,
+    "with_nlohmann": False,
+    "with_glaze": False,
   }
 
   user = "radar"
@@ -50,7 +54,10 @@ class RCommonRecipe(ConanFile):
       transitive_libs=True,
     )
     self.req("fmt", transitive_headers=True, transitive_libs=True)
-    self.req("nlohmann_json", transitive_headers=True)
+    if self.options.with_nlohmann:
+      self.req("nlohmann_json", transitive_headers=True)
+    if self.options.with_glaze:
+      self.req("glaze", transitive_headers=True)
     if self.options.test:
       self.req("catch2", test=True)
 
@@ -58,6 +65,8 @@ class RCommonRecipe(ConanFile):
     toolchain.shared = self.options.shared
     toolchain.cache_variables["BUILD_TESTING"] = bool(self.options.test)
     toolchain.cache_variables["RCOMMON_WITH_QT"] = bool(self.options.with_qt)
+    toolchain.cache_variables["RCOMMON_WITH_NLOHMANN"] = bool(self.options.with_nlohmann)
+    toolchain.cache_variables["RCOMMON_WITH_GLAZE"] = bool(self.options.with_glaze)
 
   def package_info(self):
     self.cpp_info.set_property("cmake_file_name", "RCommon")
@@ -78,9 +87,18 @@ class RCommonRecipe(ConanFile):
       "fmt::fmt",
     ]
 
-    json = self.cpp_info.components["json"]
-    json.set_property("cmake_target_name", "radar::mms::common::json")
-    json.requires = [
-      "common",
-      "nlohmann_json::nlohmann_json",
-    ]
+    if self.options.with_nlohmann:
+      json = self.cpp_info.components["json"]
+      json.set_property("cmake_target_name", "radar::mms::common::json")
+      json.requires = [
+        "common",
+        "nlohmann_json::nlohmann_json",
+      ]
+
+    if self.options.with_glaze:
+      glaze = self.cpp_info.components["glaze"]
+      glaze.set_property("cmake_target_name", "radar::mms::common::glaze")
+      glaze.requires = [
+        "common",
+        "glaze::glaze",
+      ]

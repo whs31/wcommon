@@ -24,22 +24,22 @@ fi
 
 mapfile -d '' source_files < <(
   find "$repo_root/include" "$repo_root/src" -type f \( -name '*.h' -o -name '*.cc' \) -print0 \
-    | grep -zv '/include/radar/mms/common/json/' \
+    | grep -zEv '/include/radar/mms/common/(json|glaze)/' \
     | sort -z
 )
 
-# JSON adapters are header-only. Analyze them through their test translation unit so
-# clang-tidy selects the compile command containing nlohmann_json's include path.
-source_files+=(
-  "$repo_root/tests/test_chrono_json.cc"
-  "$repo_root/tests/test_geometry_json.cc"
-  "$repo_root/tests/test_identifiers_json.cc"
-  "$repo_root/tests/test_measurements_json.cc"
-  "$repo_root/tests/test_network_json.cc"
+# Serialization adapters are header-only and optional. Analyze them through the test translation
+# units of the enabled adapters, so clang-tidy selects compile commands with their include paths.
+mapfile -d '' adapter_tests < <(
+  find "$repo_root/tests" -maxdepth 1 -type f \
+    \( -name '*_json.cc' -o -name '*_glaze.cc' -o -name 'test_json_qt.cc' -o -name 'test_glaze_qt.cc' \) \
+    -print0 | sort -z
 )
-if grep -Fq -- 'test_json_qt.cc' "$build_dir/compile_commands.json"; then
-  source_files+=("$repo_root/tests/test_json_qt.cc")
-fi
+for test_file in "${adapter_tests[@]}"; do
+  if grep -Fq -- "$test_file" "$build_dir/compile_commands.json"; then
+    source_files+=("$test_file")
+  fi
+done
 
 clang-tidy \
   -p "$tidy_build_dir" \

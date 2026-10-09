@@ -1,17 +1,22 @@
 #pragma once
 
+#include <array>
+#include <bit>
 #include <cmath>
 #include <compare>
 #include <functional>
 #include <iosfwd>
+#include <optional>
 #include <ostream>
 #include <string>
+#include <type_traits>
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
 #include <radar/mms/common/config.h>
 #include <radar/mms/common/detail/export.h>
+#include <radar/mms/common/detail/format.h>
 #include <radar/mms/common/detail/namespace.h>
 #include <radar/mms/common/math.h>
 #include <radar/mms/common/vector2.h>
@@ -29,11 +34,21 @@ RADAR_COMMON_NAMESPACE_BEGIN
 
 /**
  * @brief Three-dimensional displacement vector backed by doubles.
+ * @details The vector does not know its frame or unit; name the variable after them instead,
+ * e.g. `velocity_ned` or `omega_body`.
+ *
+ * @par Layout
+ * The storage is exactly three contiguous doubles in `x, y, z` order, with no padding. The class
+ * is standard layout and trivially copyable, so it can be reflected by offset or bit-cast to
+ * `std::array<double, 3>`. `Q_GADGET` adds no data members and does not affect the layout. The
+ * layout is part of the API and is checked by `static_assert`s in this header.
+ *
  * @note Qt properties, conversions, and metatype registration are available
  * only when rcommon is built with `with_qt=True`.
  * @ingroup core_measurements
  * @see Vector2
  * @see Point3
+ * @see Matrix3x3
  */
 class RADAR_COMMON_API Vector3
 {
@@ -45,6 +60,7 @@ class RADAR_COMMON_API Vector3
   Q_PROPERTY(double z READ z CONSTANT FINAL)
   Q_PROPERTY(double length READ length CONSTANT FINAL)
   Q_PROPERTY(double lengthSquared READ length_squared CONSTANT FINAL)
+  Q_PROPERTY(bool isFinite READ is_finite CONSTANT FINAL)
   Q_PROPERTY(QString string READ to_qstring CONSTANT FINAL)
 #endif
 
@@ -88,6 +104,45 @@ class RADAR_COMMON_API Vector3
 
   [[nodiscard]] constexpr Vector2 xy() const noexcept { return {this->m_x, this->m_y}; }
 
+  constexpr void set_x(double const x) noexcept { this->m_x = x; }
+
+  constexpr void set_y(double const y) noexcept { this->m_y = y; }
+
+  constexpr void set_z(double const z) noexcept { this->m_z = z; }
+
+  /**
+   * @brief Returns a copy with the x component replaced.
+   */
+  [[nodiscard]] constexpr Vector3 with_x(double const x) const noexcept
+  {
+    return {x, this->m_y, this->m_z};
+  }
+
+  /**
+   * @brief Returns a copy with the y component replaced.
+   */
+  [[nodiscard]] constexpr Vector3 with_y(double const y) const noexcept
+  {
+    return {this->m_x, y, this->m_z};
+  }
+
+  /**
+   * @brief Returns a copy with the z component replaced.
+   */
+  [[nodiscard]] constexpr Vector3 with_z(double const z) const noexcept
+  {
+    return {this->m_x, this->m_y, z};
+  }
+
+  /**
+   * @brief Checks whether every component is neither infinite nor NaN.
+   */
+  [[nodiscard]] constexpr bool is_finite() const noexcept
+  {
+    return common::is_finite(this->m_x) and common::is_finite(this->m_y)
+       and common::is_finite(this->m_z);
+  }
+
   [[nodiscard]] constexpr double length_squared() const noexcept
   {
     return this->m_x * this->m_x + this->m_y * this->m_y + this->m_z * this->m_z;
@@ -109,11 +164,32 @@ class RADAR_COMMON_API Vector3
     };
   }
 
+  /**
+   * @brief Returns the unit vector in the same direction.
+   * @details Returns the zero vector when the length is approximately zero.
+   * @see try_normalized
+   */
   [[nodiscard]] Vector3 normalized() const noexcept
   {
     auto const len = this->length();
     if(is_null(len))
       return {};
+
+    auto result = *this;
+    result /= len;
+    return result;
+  }
+
+  /**
+   * @brief Returns the unit vector in the same direction, or `std::nullopt` when the length is
+   * approximately zero or not finite.
+   * @see normalized
+   */
+  [[nodiscard]] std::optional<Vector3> try_normalized() const noexcept
+  {
+    auto const len = this->length();
+    if(is_null(len) or not common::is_finite(len))
+      return std::nullopt;
 
     auto result = *this;
     result /= len;
@@ -143,6 +219,21 @@ class RADAR_COMMON_API Vector3
 #endif
 
   [[nodiscard]] static constexpr Vector3 zero() noexcept { return {}; }
+
+  /**
+   * @brief Returns the unit vector `(1, 0, 0)`.
+   */
+  [[nodiscard]] static constexpr Vector3 unit_x() noexcept { return {1.0, 0.0, 0.0}; }
+
+  /**
+   * @brief Returns the unit vector `(0, 1, 0)`.
+   */
+  [[nodiscard]] static constexpr Vector3 unit_y() noexcept { return {0.0, 1.0, 0.0}; }
+
+  /**
+   * @brief Returns the unit vector `(0, 0, 1)`.
+   */
+  [[nodiscard]] static constexpr Vector3 unit_z() noexcept { return {0.0, 0.0, 1.0}; }
 
   [[nodiscard]] static constexpr Vector3 splat(double const value) noexcept
   {
@@ -260,7 +351,30 @@ class RADAR_COMMON_API Vector3
   return lhs;
 }
 
+/**
+ * @brief Returns the dot product `a · b`.
+ * @relates Vector3
+ */
+[[nodiscard]] constexpr double dot(Vector3 const& a, Vector3 const& b) noexcept { return a.dot(b); }
+
+/**
+ * @brief Returns the right-handed cross product `a × b`.
+ * @relates Vector3
+ */
+[[nodiscard]] constexpr Vector3 cross(Vector3 const& a, Vector3 const& b) noexcept
+{
+  return a.cross(b);
+}
+
 RADAR_COMMON_API std::ostream& operator<<(std::ostream& os, Vector3 vector);
+
+static_assert(std::is_standard_layout_v<Vector3>);
+static_assert(std::is_trivially_copyable_v<Vector3>);
+static_assert(sizeof(Vector3) == 3 * sizeof(double));
+static_assert(
+  std::bit_cast<std::array<double, 3>>(Vector3(1.0, 2.0, 3.0)) == std::array {1.0, 2.0, 3.0},
+  "Vector3 must store x, y, z contiguously"
+);
 
 RADAR_COMMON_NAMESPACE_END
 
@@ -277,9 +391,21 @@ struct std::hash<radar::mms::common::Vector3>
 };
 
 #ifndef __DOXYGEN__
+/**
+ * @brief Formats as `(x, y, z)`; the format spec, e.g. `{:.3f}`, applies to every component.
+ */
 template <>
-struct fmt::formatter<radar::mms::common::Vector3> : fmt::ostream_formatter
-{};
+struct fmt::formatter<radar::mms::common::Vector3> : fmt::formatter<double>
+{
+  format_context::iterator format(
+    radar::mms::common::Vector3 const vector,
+    format_context& ctx
+  ) const
+  {
+    return radar::mms::common::_format_impl::format_components<
+      3>(*this, {vector.x(), vector.y(), vector.z()}, ctx);
+  }
+};
 #endif
 
 #ifdef RCOMMON_WITH_QT

@@ -1,21 +1,17 @@
 #pragma once
 
 #include <cmath>
-#include <compare>
-#include <functional>
-#include <iosfwd>
 #include <limits>
-#include <ostream>
+#include <numbers>
 #include <string>
+#include <string_view>
 
-#include <fmt/format.h>
-#include <fmt/ostream.h>
-
+#include <radar/mms/common/concepts.h>
 #include <radar/mms/common/config.h>
 #include <radar/mms/common/detail/export.h>
 #include <radar/mms/common/detail/namespace.h>
-#include <radar/mms/common/error.h>
 #include <radar/mms/common/math.h>
+#include <radar/mms/common/quantity.h>
 
 #ifdef RCOMMON_WITH_QT
 #  include <qmetaobject.h>
@@ -40,10 +36,11 @@ RADAR_COMMON_NAMESPACE_BEGIN
  * @endcode
  *
  * @ingroup core_measurements
+ * @see QuantityBase
  * @see to_degrees
  * @see to_radians
  */
-class RADAR_COMMON_API Angle
+class RADAR_COMMON_API Angle : public QuantityBase<Angle>
 {
 #ifdef RCOMMON_WITH_QT
   Q_GADGET
@@ -56,6 +53,11 @@ class RADAR_COMMON_API Angle
 
  public:
   /**
+   * @brief Symbol of the SI unit the magnitude is stored in.
+   */
+  static constexpr std::string_view si_symbol = "rad";
+
+  /**
    * @brief Creates a zero angle.
    */
   constexpr Angle() noexcept = default;
@@ -64,24 +66,18 @@ class RADAR_COMMON_API Angle
    * @brief Creates an angle from radians.
    */
   explicit constexpr Angle(double const radians) noexcept
-    : m_radians(radians)
+    : QuantityBase(radians)
   {}
-
-  constexpr Angle(Angle const&) = default;
-  constexpr Angle(Angle&&) noexcept = default;
-  constexpr Angle& operator=(Angle const&) = default;
-  constexpr Angle& operator=(Angle&&) noexcept = default;
-  ~Angle() = default;
 
   /**
    * @brief Returns radians.
    */
-  [[nodiscard]] constexpr double radians() const noexcept { return this->m_radians; }
+  [[nodiscard]] constexpr double radians() const noexcept { return this->magnitude(); }
 
   /**
    * @brief Returns degrees.
    */
-  [[nodiscard]] constexpr double degrees() const noexcept { return to_degrees(this->m_radians); }
+  [[nodiscard]] constexpr double degrees() const noexcept { return to_degrees(this->magnitude()); }
 
   /**
    * @brief Returns the angle wrapped into `[0, 2*pi)`.
@@ -89,7 +85,7 @@ class RADAR_COMMON_API Angle
   [[nodiscard]] constexpr Angle positive() const noexcept
   {
     constexpr auto two_pi = std::numbers::pi_v<double> * 2.0;
-    auto radians = fmod(this->m_radians, two_pi);
+    auto radians = fmod(this->magnitude(), two_pi);
     if(radians < 0.0)
       radians += two_pi;
     if(approx_eq(radians, two_pi, std::numeric_limits<double>::epsilon() * 3.0))
@@ -109,7 +105,7 @@ class RADAR_COMMON_API Angle
 
     auto ret = pi();
     ret -= inner;
-    if(is_null(ret.m_radians, std::numeric_limits<double>::epsilon()))
+    if(is_null(ret.radians(), std::numeric_limits<double>::epsilon()))
       return zero();
     return ret;
   }
@@ -142,35 +138,24 @@ class RADAR_COMMON_API Angle
     return result;
   }
 
-  /**
-   * @brief Checks whether the stored radians value is finite.
-   */
-  [[nodiscard]] bool is_finite() const noexcept { return std::isfinite(this->m_radians); }
+  [[nodiscard]] double sin() const noexcept { return std::sin(this->magnitude()); }
 
-  [[nodiscard]] double sin() const noexcept { return std::sin(this->m_radians); }
+  [[nodiscard]] double cos() const noexcept { return std::cos(this->magnitude()); }
 
-  [[nodiscard]] double cos() const noexcept { return std::cos(this->m_radians); }
+  [[nodiscard]] double tan() const noexcept { return std::tan(this->magnitude()); }
 
-  [[nodiscard]] double tan() const noexcept { return std::tan(this->m_radians); }
+  [[nodiscard]] double asin() const noexcept { return std::asin(this->magnitude()); }
 
-  [[nodiscard]] double asin() const noexcept { return std::asin(this->m_radians); }
+  [[nodiscard]] double acos() const noexcept { return std::acos(this->magnitude()); }
 
-  [[nodiscard]] double acos() const noexcept { return std::acos(this->m_radians); }
-
-  [[nodiscard]] double atan() const noexcept { return std::atan(this->m_radians); }
+  [[nodiscard]] double atan() const noexcept { return std::atan(this->magnitude()); }
 
   /**
    * @brief Returns a compact string in degrees.
    */
+  // Replaces the SI display of QuantityBase::to_string().
+  // NOLINTNEXTLINE(bugprone-derived-method-shadowing-base-method)
   [[nodiscard]] std::string to_string() const;
-
-  /**
-   * @brief Returns a compact Qt string in degrees.
-   * @note Available only when rcommon is built with `with_qt=True`.
-   */
-#ifdef RCOMMON_WITH_QT
-  [[nodiscard]] QString to_qstring() const;
-#endif
 
   /**
    * @brief Creates an angle from radians.
@@ -187,8 +172,6 @@ class RADAR_COMMON_API Angle
   {
     return Angle(to_radians(degrees));
   }
-
-  [[nodiscard]] static constexpr Angle zero() noexcept { return {}; }
 
   [[nodiscard]] static constexpr Angle pi() noexcept
   {
@@ -215,151 +198,78 @@ class RADAR_COMMON_API Angle
     return from_radians(std::numbers::pi_v<double> / 4.0);
   }
 
-  [[nodiscard]] constexpr explicit operator float() const noexcept
-  {
-    return static_cast<float>(this->m_radians);
-  }
+  using QuantityBase::operator+=;
+  using QuantityBase::operator-=;
 
-  [[nodiscard]] constexpr explicit operator double() const noexcept { return this->m_radians; }
+  constexpr Angle& operator+=(double const radians) noexcept { return *this += Angle(radians); }
 
-  [[nodiscard]] constexpr bool operator==(Angle const&) const noexcept = default;
-
-  [[nodiscard]] constexpr std::partial_ordering operator<=>(Angle const&) const noexcept = default;
-
-  [[nodiscard]] constexpr Angle operator+() const noexcept { return *this; }
-
-  [[nodiscard]] constexpr Angle operator-() const noexcept { return Angle(-this->m_radians); }
-
-  constexpr Angle& operator+=(Angle const rhs) noexcept
-  {
-    this->m_radians += rhs.m_radians;
-    return *this;
-  }
-
-  constexpr Angle& operator+=(double const rhs) noexcept
-  {
-    this->m_radians += rhs;
-    return *this;
-  }
-
-  constexpr Angle& operator-=(Angle const rhs) noexcept
-  {
-    this->m_radians -= rhs.m_radians;
-    return *this;
-  }
-
-  constexpr Angle& operator-=(double const rhs) noexcept
-  {
-    this->m_radians -= rhs;
-    return *this;
-  }
-
-  constexpr Angle& operator*=(double const rhs) noexcept
-  {
-    this->m_radians *= rhs;
-    return *this;
-  }
-
-  constexpr Angle& operator/=(double const rhs) noexcept
-  {
-    this->m_radians /= rhs;
-    return *this;
-  }
-
- private:
-  double m_radians = 0.0;
+  constexpr Angle& operator-=(double const radians) noexcept { return *this -= Angle(radians); }
 };
 
-[[nodiscard]] constexpr Angle operator+(Angle lhs, Angle const rhs) noexcept
+[[nodiscard]] constexpr Angle operator+(Angle lhs, double const radians) noexcept
 {
-  lhs += rhs;
+  lhs += radians;
   return lhs;
 }
 
-[[nodiscard]] constexpr Angle operator+(Angle lhs, double const rhs) noexcept
+[[nodiscard]] constexpr Angle operator+(double const radians, Angle const rhs) noexcept
 {
-  lhs += rhs;
+  return Angle(radians) + rhs;
+}
+
+[[nodiscard]] constexpr Angle operator-(Angle lhs, double const radians) noexcept
+{
+  lhs -= radians;
   return lhs;
 }
 
-[[nodiscard]] constexpr Angle operator+(double const lhs, Angle const rhs) noexcept
+[[nodiscard]] constexpr Angle operator-(double const radians, Angle const rhs) noexcept
 {
-  return Angle::from_radians(lhs + rhs.radians());
+  return Angle(radians) - rhs;
 }
 
-[[nodiscard]] constexpr Angle operator-(Angle lhs, Angle const rhs) noexcept
+inline namespace literals
 {
-  lhs -= rhs;
-  return lhs;
-}
+  /**
+   * @brief Creates an angle from a degree literal.
+   * @ingroup core_measurements
+   * @relates Angle
+   */
+  [[nodiscard]] constexpr Angle operator""_deg(long double const value) noexcept
+  {
+    return Angle::from_degrees(static_cast<double>(value));
+  }
 
-[[nodiscard]] constexpr Angle operator-(Angle lhs, double const rhs) noexcept
-{
-  lhs -= rhs;
-  return lhs;
-}
+  /**
+   * @brief Creates an angle from a degree literal.
+   * @ingroup core_measurements
+   * @relates Angle
+   */
+  [[nodiscard]] constexpr Angle operator""_deg(unsigned long long const value) noexcept
+  {
+    return Angle::from_degrees(static_cast<double>(value));
+  }
 
-[[nodiscard]] constexpr Angle operator-(double const lhs, Angle const rhs) noexcept
-{
-  return Angle::from_radians(lhs - rhs.radians());
-}
+  /**
+   * @brief Creates an angle from a radian literal.
+   * @ingroup core_measurements
+   * @relates Angle
+   */
+  [[nodiscard]] constexpr Angle operator""_rad(long double const value) noexcept
+  {
+    return Angle::from_radians(static_cast<double>(value));
+  }
 
-[[nodiscard]] constexpr Angle operator*(Angle lhs, double const rhs) noexcept
-{
-  lhs *= rhs;
-  return lhs;
-}
-
-[[nodiscard]] constexpr Angle operator*(double const lhs, Angle const rhs) noexcept
-{
-  return Angle::from_radians(lhs * rhs.radians());
-}
-
-[[nodiscard]] constexpr Angle operator/(Angle lhs, double const rhs) noexcept
-{
-  lhs /= rhs;
-  return lhs;
-}
-
-/**
- * @brief Creates an angle from a degree literal.
- * @ingroup core_measurements
- * @relates Angle
- */
-[[nodiscard]] constexpr Angle operator""_deg(long double const degrees) noexcept
-{
-  return Angle::from_degrees(static_cast<double>(degrees));
-}
-
-/**
- * @brief Creates an angle from a degree literal.
- * @ingroup core_measurements
- * @relates Angle
- */
-[[nodiscard]] constexpr Angle operator""_deg(unsigned long long const degrees) noexcept
-{
-  return Angle::from_degrees(static_cast<double>(degrees));
-}
-
-/**
- * @brief Creates an angle from a radian literal.
- * @ingroup core_measurements
- * @relates Angle
- */
-[[nodiscard]] constexpr Angle operator""_rad(long double const radians) noexcept
-{
-  return Angle::from_radians(static_cast<double>(radians));
-}
-
-/**
- * @brief Creates an angle from a radian literal.
- * @ingroup core_measurements
- * @relates Angle
- */
-[[nodiscard]] constexpr Angle operator""_rad(unsigned long long const radians) noexcept
-{
-  return Angle::from_radians(static_cast<double>(radians));
-}
+  /**
+   * @brief Creates an angle from a radian literal.
+   * @ingroup core_measurements
+   * @relates Angle
+   */
+  [[nodiscard]] constexpr Angle operator""_rad(unsigned long long const value) noexcept
+  {
+    return Angle::from_radians(static_cast<double>(value));
+  }
+}  // namespace literals
 
 /**
  * @brief Returns @p angle in degrees.
@@ -375,24 +285,7 @@ class RADAR_COMMON_API Angle
  */
 [[nodiscard]] constexpr double to_radians(Angle const angle) noexcept { return angle.radians(); }
 
-RADAR_COMMON_API std::ostream& operator<<(std::ostream& os, Angle angle);
-
 RADAR_COMMON_NAMESPACE_END
-
-template <>
-struct std::hash<radar::mms::common::Angle>
-{
-  [[nodiscard]] std::size_t operator()(radar::mms::common::Angle const angle) const noexcept
-  {
-    return std::hash<double> {}(angle.radians());
-  }
-};
-
-#ifndef __DOXYGEN__
-template <>
-struct fmt::formatter<radar::mms::common::Angle> : fmt::ostream_formatter
-{};
-#endif
 
 #ifdef RCOMMON_WITH_QT
 Q_DECLARE_METATYPE(radar::mms::common::Angle)

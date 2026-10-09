@@ -6,7 +6,7 @@
 
 RADAR_COMMON_NAMESPACE_BEGIN
 
-std::string Vector2::to_string() const { return fmt::format("({}, {})", this->m_x, this->m_y); }
+std::string Vector2::to_string() const { return fmt::format("{}", *this); }
 
 #ifdef RCOMMON_WITH_QT
 Vector2::Vector2(QPointF const point) noexcept

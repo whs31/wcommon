@@ -1,4 +1,5 @@
 #include <radar/mms/common/euler_angles.h>
+#include <radar/mms/common/quaternion.h>
 
 #include <ostream>
 
@@ -9,6 +10,16 @@
 #endif
 
 RADAR_COMMON_NAMESPACE_BEGIN
+
+EulerAngles EulerAngles::from_quaternion(Quaternion const& attitude) noexcept
+{
+  return attitude.to_euler_angles();
+}
+
+Quaternion EulerAngles::to_quaternion() const noexcept
+{
+  return Quaternion::from_euler_angles(*this);
+}
 
 std::string EulerAngles::to_string() const
 {

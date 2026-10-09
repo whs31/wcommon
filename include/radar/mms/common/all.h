@@ -13,6 +13,9 @@
  * @defgroup core_measurements Measurements
  * @ingroup core
  * @brief Units, physical constants, and strongly typed measurement values.
+ * @details Every scalar quantity derives from QuantityBase and stores one `double` in its SI unit.
+ * See @ref quantities for the list of quantity types, units and literals.
+ * @see QuantityBase
  * @see Distance
  * @see Velocity
  */
@@ -43,31 +46,57 @@
  * @brief Platform path helpers and filesystem-based locking.
  */
 
+#include <radar/mms/common/acceleration.h>
 #include <radar/mms/common/adapter.h>
 #include <radar/mms/common/angle.h>
+#include <radar/mms/common/angular_acceleration.h>
+#include <radar/mms/common/angular_velocity.h>
+#include <radar/mms/common/capacitance.h>
 #include <radar/mms/common/char_utils.h>
+#include <radar/mms/common/charge.h>
 #include <radar/mms/common/check.h>
 #include <radar/mms/common/concepts.h>
+#include <radar/mms/common/conductance.h>
 #include <radar/mms/common/constants.h>
+#include <radar/mms/common/current.h>
+#include <radar/mms/common/curve.h>
+#include <radar/mms/common/density.h>
 #include <radar/mms/common/distance.h>
+#include <radar/mms/common/energy.h>
 #include <radar/mms/common/error.h>
 #include <radar/mms/common/euler_angles.h>
+#include <radar/mms/common/force.h>
+#include <radar/mms/common/frequency.h>
 #include <radar/mms/common/functional.h>
 #include <radar/mms/common/graph_resolver.h>
 #include <radar/mms/common/ip.h>
 #include <radar/mms/common/lockfile.h>
 #include <radar/mms/common/log.h>
+#include <radar/mms/common/magnetic_flux_density.h>
+#include <radar/mms/common/mass.h>
 #include <radar/mms/common/math.h>
+#include <radar/mms/common/matrix3x3.h>
 #include <radar/mms/common/memory.h>
+#include <radar/mms/common/moment_of_inertia.h>
+#include <radar/mms/common/noise.h>
 #include <radar/mms/common/paths.h>
 #include <radar/mms/common/pimpl.h>
 #include <radar/mms/common/point2.h>
 #include <radar/mms/common/point3.h>
+#include <radar/mms/common/power.h>
+#include <radar/mms/common/pressure.h>
+#include <radar/mms/common/quantity.h>
+#include <radar/mms/common/quaternion.h>
+#include <radar/mms/common/random.h>
+#include <radar/mms/common/resistance.h>
 #include <radar/mms/common/sockaddr.h>
+#include <radar/mms/common/temperature.h>
 #include <radar/mms/common/threading.h>
+#include <radar/mms/common/torque.h>
 #include <radar/mms/common/uuid.h>
 #include <radar/mms/common/vector2.h>
 #include <radar/mms/common/vector3.h>
+#include <radar/mms/common/velocity.h>
 #include <radar/mms/common/version.h>
 #include <radar/mms/common/version_range.h>
-#include <radar/mms/common/velocity.h>
+#include <radar/mms/common/voltage.h>

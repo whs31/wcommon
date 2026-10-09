@@ -1,6 +1,7 @@
 #pragma once
 
 #include <concepts>
+#include <string_view>
 #include <type_traits>
 
 #include <radar/mms/common/detail/namespace.h>
@@ -76,5 +77,45 @@ concept SmartPointer = requires(T t) {
  */
 template <typename T>
 concept PointerLike = Pointer<T> or SmartPointer<T>;
+
+/**
+ * @brief Describes a strongly typed physical quantity.
+ * @details The primary template is empty, so a type is a Quantity only when it specializes this
+ * trait. A specialization provides:
+ *   - `static constexpr std::string_view si_symbol`, the symbol of the SI unit the quantity
+ *     stores, e.g. `"m"`;
+ *   - `static constexpr T from_si(double)`, which creates the quantity from its SI magnitude.
+ *
+ * RCommon specializes it for every type that derives from QuantityBase, which covers all RCommon
+ * quantities. A project may derive its own quantity types from QuantityBase, or specialize this
+ * trait for an unrelated type, to use them with the range checks, the math helpers and Curve.
+ * @tparam T Quantity type.
+ * @ingroup core_concepts
+ * @see Quantity
+ */
+template <typename T>
+struct QuantityTraits
+{};
+
+/**
+ * @brief Concept that is true if T is a strongly typed physical quantity.
+ * @details Requires a QuantityTraits specialization and an explicit conversion to the SI
+ * magnitude as `double`. Yields `true` for references to quantities as well.
+ * @tparam T Type to check.
+ * @ingroup core_concepts
+ * @see QuantityTraits
+ * @see core_math
+ */
+template <typename T>
+concept Quantity = std::is_class_v<std::remove_cvref_t<T>>
+               and requires(std::remove_cvref_t<T> const value, double const magnitude) {
+                     {
+                       QuantityTraits<std::remove_cvref_t<T>>::si_symbol
+                     } -> std::convertible_to<std::string_view>;
+                     {
+                       QuantityTraits<std::remove_cvref_t<T>>::from_si(magnitude)
+                     } -> std::same_as<std::remove_cvref_t<T>>;
+                     { static_cast<double>(value) } -> std::same_as<double>;
+                   };
 
 RADAR_COMMON_NAMESPACE_END

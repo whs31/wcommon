@@ -1,9 +1,10 @@
 cmake_minimum_required(VERSION 3.20)
 
 message(DEBUG "Using ${CMAKE_TOOLCHAIN_FILE}")
+message(DEBUG "Tests: ${BUILD_TESTING}")
 
 project(rcommon
-  VERSION 4.0.0
+  VERSION 5.0.0
   DESCRIPTION "Radar common utility library"
   HOMEPAGE_URL "http://gitlab.uav.radar-mms.com/developers/v2/support/rcommon"
   LANGUAGES CXX
@@ -11,6 +12,8 @@ project(rcommon
 
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 option(RCOMMON_WITH_QT "Enable Qt integration" OFF)
+option(RCOMMON_WITH_NLOHMANN "Build the nlohmann/json adapters (radar::mms::common::json)" OFF)
+option(RCOMMON_WITH_GLAZE "Build the glaze adapters (radar::mms::common::glaze)" OFF)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -19,8 +22,13 @@ include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
 find_package(fmt REQUIRED)
-find_package(nlohmann_json REQUIRED)
 find_package(spdlog REQUIRED)
+if(RCOMMON_WITH_NLOHMANN)
+  find_package(nlohmann_json REQUIRED)
+endif()
+if(RCOMMON_WITH_GLAZE)
+  find_package(glaze REQUIRED)
+endif()
 if(RCOMMON_WITH_QT)
   find_package(Qt6 REQUIRED COMPONENTS Core Gui Network Positioning)
 endif()
@@ -29,10 +37,21 @@ add_subdirectory(config)
 
 add_library(${PROJECT_NAME})
 add_library("radar::mms::common" ALIAS ${PROJECT_NAME})
-add_library(${PROJECT_NAME}_json INTERFACE)
-add_library("radar::mms::common::json" ALIAS ${PROJECT_NAME}_json)
+set(RCOMMON_INSTALL_TARGETS ${PROJECT_NAME})
 
-set_target_properties(${PROJECT_NAME}_json PROPERTIES EXPORT_NAME json)
+if(RCOMMON_WITH_NLOHMANN)
+  add_library(${PROJECT_NAME}_json INTERFACE)
+  add_library("radar::mms::common::json" ALIAS ${PROJECT_NAME}_json)
+  set_target_properties(${PROJECT_NAME}_json PROPERTIES EXPORT_NAME json)
+  list(APPEND RCOMMON_INSTALL_TARGETS ${PROJECT_NAME}_json)
+endif()
+
+if(RCOMMON_WITH_GLAZE)
+  add_library(${PROJECT_NAME}_glaze INTERFACE)
+  add_library("radar::mms::common::glaze" ALIAS ${PROJECT_NAME}_glaze)
+  set_target_properties(${PROJECT_NAME}_glaze PROPERTIES EXPORT_NAME glaze)
+  list(APPEND RCOMMON_INSTALL_TARGETS ${PROJECT_NAME}_glaze)
+endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
   CXX_STANDARD 23
@@ -52,12 +71,24 @@ generate_export_header(${PROJECT_NAME}
 )
 
 file(GLOB_RECURSE RCOMMON_PUBLIC_HEADERS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/include/radar/mms/common/*.h")
+# The serialization adapters belong to their optional interface targets, not to the core library.
+list(FILTER RCOMMON_PUBLIC_HEADERS EXCLUDE REGEX "/include/radar/mms/common/(json|glaze)/")
 file(GLOB RCOMMON_PRIVATE_SOURCES CONFIGURE_DEPENDS
   "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/private/*.h"
 )
 
 target_sources(${PROJECT_NAME} PRIVATE ${RCOMMON_PUBLIC_HEADERS} ${RCOMMON_PRIVATE_SOURCES})
+
+# Deterministic random streams must round every operation exactly as IEEE 754 prescribes, so
+# multiply-adds may not be contracted into FMA instructions (Clang contracts by default, and so
+# does GCC in GNU mode or on targets with FMA).
+set_source_files_properties(
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/random.cc"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/noise.cc"
+  PROPERTIES COMPILE_OPTIONS
+    "$<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-ffp-contract=off>;$<$<CXX_COMPILER_ID:MSVC>:/fp:precise>"
+)
 
 target_include_directories(${PROJECT_NAME}
   PUBLIC
@@ -76,14 +107,28 @@ target_link_libraries(${PROJECT_NAME}
   spdlog::spdlog
 )
 
-target_link_libraries(${PROJECT_NAME}_json INTERFACE
-  radar::mms::common
-  nlohmann_json::nlohmann_json
-)
+if(RCOMMON_WITH_NLOHMANN)
+  target_link_libraries(${PROJECT_NAME}_json INTERFACE
+    radar::mms::common
+    nlohmann_json::nlohmann_json
+  )
+endif()
+
+if(RCOMMON_WITH_GLAZE)
+  target_link_libraries(${PROJECT_NAME}_glaze INTERFACE
+    radar::mms::common
+    glaze::glaze
+  )
+endif()
 
 if(RCOMMON_WITH_QT)
   target_link_libraries(${PROJECT_NAME} PUBLIC Qt6::Core Qt6::Gui Qt6::Network)
-  target_link_libraries(${PROJECT_NAME}_json INTERFACE Qt6::Positioning)
+  if(RCOMMON_WITH_NLOHMANN)
+    target_link_libraries(${PROJECT_NAME}_json INTERFACE Qt6::Positioning)
+  endif()
+  if(RCOMMON_WITH_GLAZE)
+    target_link_libraries(${PROJECT_NAME}_glaze INTERFACE Qt6::Positioning)
+  endif()
   set_target_properties(${PROJECT_NAME} PROPERTIES AUTOMOC ON)
 
   qt_extract_metatypes(${PROJECT_NAME} OUTPUT_FILES RCOMMON_METATYPES_FILE)
@@ -105,7 +150,7 @@ if (BUILD_TESTING)
   add_subdirectory(tests)
 endif ()
 
-install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_json
+install(TARGETS ${RCOMMON_INSTALL_TARGETS}
   EXPORT ${PROJECT_NAME}Targets
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -117,7 +162,23 @@ install(
   DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/radar/mms/common"
   DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/radar/mms"
   FILES_MATCHING PATTERN "*.h"
+  PATTERN "json" EXCLUDE
+  PATTERN "glaze" EXCLUDE
 )
+if(RCOMMON_WITH_NLOHMANN)
+  install(
+    DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/radar/mms/common/json"
+    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/radar/mms/common"
+    FILES_MATCHING PATTERN "*.h"
+  )
+endif()
+if(RCOMMON_WITH_GLAZE)
+  install(
+    DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/radar/mms/common/glaze"
+    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/radar/mms/common"
+    FILES_MATCHING PATTERN "*.h"
+  )
+endif()
 install(
   FILES "${CMAKE_CURRENT_BINARY_DIR}/radar/mms/common/detail/export.h"
   DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/radar/mms/common/detail"
