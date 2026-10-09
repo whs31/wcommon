@@ -97,15 +97,32 @@ namespace
     if(not logger)
       return;
 
+    auto const location = spdlog::source_loc {
+      ctx.file ? ctx.file : "",
+      ctx.line,
+      ctx.function ? ctx.function : ""
+    };
+
     auto const* category = ctx.category ? ctx.category : "unknown";
+
     auto const utf8_msg = msg.toStdString();
 
     switch(type) {
-      case QtDebugMsg: logger->debug("[{}] <{}> {}", category, ctx.line, utf8_msg); break;
-      case QtInfoMsg: logger->info("[{}] <{}> {}", category, ctx.line, utf8_msg); break;
-      case QtWarningMsg: logger->warn("[{}] <{}> {}", category, ctx.line, utf8_msg); break;
-      case QtCriticalMsg: logger->error("[{}] <{}> {}", category, ctx.line, utf8_msg); break;
-      case QtFatalMsg: logger->critical("[{}] <{}> {}", category, ctx.line, utf8_msg); break;
+      case QtDebugMsg:
+        logger->log(location, spdlog::level::debug, "[{}] {}", category, utf8_msg);
+        break;
+      case QtInfoMsg:
+        logger->log(location, spdlog::level::info, "[{}] {}", category, utf8_msg);
+        break;
+      case QtWarningMsg:
+        logger->log(location, spdlog::level::warn, "[{}] {}", category, utf8_msg);
+        break;
+      case QtCriticalMsg:
+        logger->log(location, spdlog::level::err, "[{}] {}", category, utf8_msg);
+        break;
+      case QtFatalMsg:
+        logger->log(location, spdlog::level::critical, "[{}] {}", category, utf8_msg);
+        break;
     }
   }
 #endif
