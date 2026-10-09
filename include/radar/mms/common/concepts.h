@@ -86,8 +86,9 @@ concept PointerLike = Pointer<T> or SmartPointer<T>;
  *     stores, e.g. `"m"`;
  *   - `static constexpr T from_si(double)`, which creates the quantity from its SI magnitude.
  *
- * RCommon specializes it for Angle, Distance and Velocity. A project may specialize it for its own
- * quantity types to use them with the range checks and Curve.
+ * RCommon specializes it for every type that derives from QuantityBase, which covers all RCommon
+ * quantities. A project may derive its own quantity types from QuantityBase, or specialize this
+ * trait for an unrelated type, to use them with the range checks, the math helpers and Curve.
  * @tparam T Quantity type.
  * @ingroup core_concepts
  * @see Quantity

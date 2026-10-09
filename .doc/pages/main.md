@@ -16,7 +16,7 @@ entity is marked accordingly in the reference documentation.
 
 | Module | Contents |
 |--------|----------|
-| @ref core_measurements | Angles, distances, velocities, points, and vectors |
+| @ref core_measurements | Physical quantities, units, literals, points, and vectors |
 | @ref core_identifiers | UUIDs, semantic versions, and version ranges |
 | @ref core_networking | IPv4/IPv6 and socket addresses |
 | @ref core_logging | spdlog setup and optional Qt log forwarding |
@@ -27,8 +27,8 @@ entity is marked accordingly in the reference documentation.
 | @ref core_threading | Mutex and read/write lock helpers |
 | @ref core_filesystem | Lock files and platform paths |
 
-See @ref rotations for the vector, matrix and quaternion conventions, and @ref random_streams
-for reproducible randomness.
+See @ref quantities for the physical quantity types and their units, @ref rotations for the
+vector, matrix and quaternion conventions, and @ref random_streams for reproducible randomness.
 
 Include `radar/mms/common/all.h` for the complete base API. JSON adapters remain
 opt-in and are provided under `radar/mms/common/json/`.
