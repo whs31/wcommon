@@ -98,6 +98,31 @@ inline constexpr auto METER_FURLONG_FACTOR = 10'000.0 / (254.0 * 12.0 * 3.0 * 22
 inline constexpr auto METER_MILE_FACTOR = 10'000.0 / (254.0 * 12.0 * 3.0 * 1'760.0);
 
 /**
+ * @brief Standard acceleration of gravity g₀ in meters per second squared.
+ * @details Also the number of newtons in a kilogram-force.
+ * @ingroup core_measurements
+ */
+inline constexpr auto STANDARD_GRAVITY = 9.806'65;
+
+/**
+ * @brief Temperature of 0 °C in kelvin.
+ * @ingroup core_measurements
+ */
+inline constexpr auto CELSIUS_ZERO_KELVIN = 273.15;
+
+/**
+ * @brief Number of pascals in a conventional inch of mercury.
+ * @ingroup core_measurements
+ */
+inline constexpr auto INHG_PASCAL_FACTOR = 3'386.389;
+
+/**
+ * @brief Number of gauss in a tesla.
+ * @ingroup core_measurements
+ */
+inline constexpr auto TESLA_GAUSS_FACTOR = 10'000.0;
+
+/**
  * @brief Speed of light in meters per second.
  * @ingroup core_measurements
  */
