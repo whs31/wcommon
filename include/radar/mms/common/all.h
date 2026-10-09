@@ -66,6 +66,7 @@
 #include <radar/mms/common/point2.h>
 #include <radar/mms/common/point3.h>
 #include <radar/mms/common/quaternion.h>
+#include <radar/mms/common/random.h>
 #include <radar/mms/common/sockaddr.h>
 #include <radar/mms/common/threading.h>
 #include <radar/mms/common/uuid.h>

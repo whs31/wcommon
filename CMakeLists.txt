@@ -59,6 +59,15 @@ file(GLOB RCOMMON_PRIVATE_SOURCES CONFIGURE_DEPENDS
 
 target_sources(${PROJECT_NAME} PRIVATE ${RCOMMON_PUBLIC_HEADERS} ${RCOMMON_PRIVATE_SOURCES})
 
+# Deterministic random streams must round every operation exactly as IEEE 754 prescribes, so
+# multiply-adds may not be contracted into FMA instructions (Clang contracts by default, and so
+# does GCC in GNU mode or on targets with FMA).
+set_source_files_properties(
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/random.cc"
+  PROPERTIES COMPILE_OPTIONS
+    "$<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-ffp-contract=off>;$<$<CXX_COMPILER_ID:MSVC>:/fp:precise>"
+)
+
 target_include_directories(${PROJECT_NAME}
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
