@@ -20,11 +20,15 @@ entity is marked accordingly in the reference documentation.
 | @ref core_identifiers | UUIDs, semantic versions, and version ranges |
 | @ref core_networking | IPv4/IPv6 and socket addresses |
 | @ref core_logging | spdlog setup and optional Qt log forwarding |
-| @ref core_math | Numeric helpers and interpolation |
+| @ref core_math | Numeric helpers, range checks, lookup curves, 3×3 matrices and quaternions |
+| @ref core_random | Deterministic random streams and noise processes |
 | @ref core_memory | Ownership helpers and pointer utilities |
 | @ref core_functional | Lazy values, overload helpers, and scope guards |
 | @ref core_threading | Mutex and read/write lock helpers |
 | @ref core_filesystem | Lock files and platform paths |
+
+See @ref rotations for the vector, matrix and quaternion conventions, and @ref random_streams
+for reproducible randomness.
 
 Include `radar/mms/common/all.h` for the complete base API. JSON adapters remain
 opt-in and are provided under `radar/mms/common/json/`.
