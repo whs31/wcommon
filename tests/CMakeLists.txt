@@ -5,6 +5,7 @@ set(RCOMMON_QT_TEST_SOURCES
   "${CMAKE_CURRENT_SOURCE_DIR}/test_geometry_qt.cc"
   "${CMAKE_CURRENT_SOURCE_DIR}/test_identifiers_qt.cc"
   "${CMAKE_CURRENT_SOURCE_DIR}/test_json_qt.cc"
+  "${CMAKE_CURRENT_SOURCE_DIR}/test_linear_algebra_qt.cc"
   "${CMAKE_CURRENT_SOURCE_DIR}/test_memory_qt.cc"
   "${CMAKE_CURRENT_SOURCE_DIR}/test_measurements_qt.cc"
   "${CMAKE_CURRENT_SOURCE_DIR}/test_network_qt.cc"

@@ -1,10 +1,13 @@
 #pragma once
 
+#include <array>
+#include <bit>
 #include <compare>
 #include <functional>
 #include <iosfwd>
 #include <ostream>
 #include <string>
+#include <type_traits>
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
@@ -22,15 +25,26 @@
 
 RADAR_COMMON_NAMESPACE_BEGIN
 
+class Quaternion;
+
 /**
  * @brief Roll, pitch, and yaw rotation angles.
  * @details Values are stored as three Angle objects. The `*Radians` and
  * `*Degrees` properties are provided for convenient QML use.
+ *
+ * @par Layout
+ * The storage is exactly three contiguous Angle values in `roll, pitch, yaw` order, each a single
+ * double in radians, with no padding. The class is standard layout and trivially copyable, so it
+ * can be reflected by offset or bit-cast to `std::array<double, 3>` of radians. `Q_GADGET` adds no
+ * data members and does not affect the layout. The layout is part of the API and is checked by
+ * `static_assert`s in this header.
+ *
  * @note Qt properties, QString conversion, and metatype registration are
  * available only when rcommon is built with `with_qt=True`.
  *
  * @ingroup core_measurements
  * @see Angle
+ * @see Quaternion
  */
 class RADAR_COMMON_API EulerAngles
 {
@@ -87,6 +101,16 @@ class RADAR_COMMON_API EulerAngles
 
   [[nodiscard]] static constexpr EulerAngles zero() noexcept { return {}; }
 
+  /**
+   * @brief Returns the aerospace ZYX Euler angles of the unit quaternion @p attitude.
+   * @details Same as Quaternion::to_euler_angles(): roll and yaw are in `[-180°, 180°]`, pitch in
+   * `[-90°, 90°]`, and the roll is zero at ±90° pitch.
+   * @note Include `radar/mms/common/quaternion.h` to call it; this header only declares
+   * Quaternion.
+   * @see to_quaternion
+   */
+  [[nodiscard]] static EulerAngles from_quaternion(Quaternion const& attitude) noexcept;
+
   [[nodiscard]] constexpr Angle roll() const noexcept { return this->m_roll; }
 
   [[nodiscard]] constexpr Angle pitch() const noexcept { return this->m_pitch; }
@@ -110,6 +134,15 @@ class RADAR_COMMON_API EulerAngles
     return this->m_roll.is_finite() and this->m_pitch.is_finite() and this->m_yaw.is_finite();
   }
 
+  /**
+   * @brief Returns the attitude of these aerospace ZYX Euler angles.
+   * @details Same as Quaternion::from_euler_angles(): `q = q_z(yaw) ⊗ q_y(pitch) ⊗ q_x(roll)`.
+   * @note Include `radar/mms/common/quaternion.h` to call it; this header only declares
+   * Quaternion.
+   * @see from_quaternion
+   */
+  [[nodiscard]] Quaternion to_quaternion() const noexcept;
+
   [[nodiscard]] std::string to_string() const;
 
 #ifdef RCOMMON_WITH_QT
@@ -129,6 +162,15 @@ class RADAR_COMMON_API EulerAngles
 };
 
 RADAR_COMMON_API std::ostream& operator<<(std::ostream& os, EulerAngles const& angles);
+
+static_assert(std::is_standard_layout_v<EulerAngles>);
+static_assert(std::is_trivially_copyable_v<EulerAngles>);
+static_assert(sizeof(EulerAngles) == 3 * sizeof(double));
+static_assert(
+  std::bit_cast<std::array<double, 3>>(EulerAngles::from_radians(1.0, 2.0, 3.0))
+    == std::array {1.0, 2.0, 3.0},
+  "EulerAngles must store roll, pitch, yaw radians contiguously"
+);
 
 RADAR_COMMON_NAMESPACE_END
 

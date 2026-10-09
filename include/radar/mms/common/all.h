@@ -58,11 +58,13 @@
 #include <radar/mms/common/lockfile.h>
 #include <radar/mms/common/log.h>
 #include <radar/mms/common/math.h>
+#include <radar/mms/common/matrix3x3.h>
 #include <radar/mms/common/memory.h>
 #include <radar/mms/common/paths.h>
 #include <radar/mms/common/pimpl.h>
 #include <radar/mms/common/point2.h>
 #include <radar/mms/common/point3.h>
+#include <radar/mms/common/quaternion.h>
 #include <radar/mms/common/sockaddr.h>
 #include <radar/mms/common/threading.h>
 #include <radar/mms/common/uuid.h>

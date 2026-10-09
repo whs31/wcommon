@@ -34,6 +34,7 @@ source_files+=(
   "$repo_root/tests/test_chrono_json.cc"
   "$repo_root/tests/test_geometry_json.cc"
   "$repo_root/tests/test_identifiers_json.cc"
+  "$repo_root/tests/test_linear_algebra_json.cc"
   "$repo_root/tests/test_measurements_json.cc"
   "$repo_root/tests/test_network_json.cc"
 )
