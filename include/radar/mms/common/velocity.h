@@ -1,20 +1,14 @@
 #pragma once
 
-#include <compare>
-#include <functional>
-#include <iosfwd>
-#include <ostream>
-#include <string>
+#include <chrono>
 #include <string_view>
 
-#include <fmt/format.h>
-#include <fmt/ostream.h>
-
-#include <radar/mms/common/concepts.h>
 #include <radar/mms/common/config.h>
 #include <radar/mms/common/constants.h>
 #include <radar/mms/common/detail/export.h>
 #include <radar/mms/common/detail/namespace.h>
+#include <radar/mms/common/distance.h>
+#include <radar/mms/common/quantity.h>
 
 #ifdef RCOMMON_WITH_QT
 #  include <qmetaobject.h>
@@ -29,17 +23,25 @@ RADAR_COMMON_NAMESPACE_BEGIN
  * @note Qt properties, QString conversion, and metatype registration are
  * available only when rcommon is built with `with_qt=True`.
  * @details Velocity is a small value type with conversions for meters per
- * second, kilometers per hour, and miles per hour.
+ * second, kilometers per hour, and miles per hour. It relates to Distance
+ * through `std::chrono` durations.
  *
  * @code {.cpp}
+ * using namespace std::chrono_literals;
+ * using namespace radar::mms::literals;
+ *
  * auto cruise = radar::mms::common::Velocity::from_kmph(90.0);
- * auto text = cruise.to_string(); // "25 m/s"
+ * auto text = cruise.to_string();  // "25 m/s"
+ * auto travelled = cruise * 2s;    // 50 m
+ * auto speed = 100_m / 4s;         // 25 m/s
  * @endcode
  *
  * @ingroup core_measurements
+ * @see QuantityBase
  * @see Distance
+ * @see Acceleration
  */
-class RADAR_COMMON_API Velocity
+class RADAR_COMMON_API Velocity : public QuantityBase<Velocity>
 {
 #ifdef RCOMMON_WITH_QT
   Q_GADGET
@@ -47,10 +49,16 @@ class RADAR_COMMON_API Velocity
   Q_PROPERTY(double metersPerSecond READ as_mps CONSTANT FINAL)
   Q_PROPERTY(double kilometersPerHour READ as_kmph CONSTANT FINAL)
   Q_PROPERTY(double milesPerHour READ as_mph CONSTANT FINAL)
+  Q_PROPERTY(bool isFinite READ is_finite CONSTANT FINAL)
   Q_PROPERTY(QString string READ to_qstring CONSTANT FINAL)
 #endif
 
  public:
+  /**
+   * @brief Symbol of the SI unit the magnitude is stored in.
+   */
+  static constexpr std::string_view si_symbol = "m/s";
+
   /**
    * @brief Creates a zero velocity.
    */
@@ -60,7 +68,7 @@ class RADAR_COMMON_API Velocity
    * @brief Creates a velocity from meters per second.
    */
   explicit constexpr Velocity(double const meters_per_second) noexcept
-    : m_mps(meters_per_second)
+    : QuantityBase(meters_per_second)
   {}
 
   /**
@@ -90,14 +98,14 @@ class RADAR_COMMON_API Velocity
   /**
    * @brief Returns meters per second.
    */
-  [[nodiscard]] constexpr double as_mps() const noexcept { return this->m_mps; }
+  [[nodiscard]] constexpr double as_mps() const noexcept { return this->magnitude(); }
 
   /**
    * @brief Returns kilometers per hour.
    */
   [[nodiscard]] constexpr double as_kmph() const noexcept
   {
-    return (this->m_mps * METER_KILOMETER_FACTOR) * SECONDS_HOURS_FACTOR;
+    return (this->magnitude() * METER_KILOMETER_FACTOR) * SECONDS_HOURS_FACTOR;
   }
 
   /**
@@ -105,225 +113,170 @@ class RADAR_COMMON_API Velocity
    */
   [[nodiscard]] constexpr double as_mph() const noexcept
   {
-    return this->m_mps * METER_MILE_FACTOR * SECONDS_HOURS_FACTOR;
+    return this->magnitude() * METER_MILE_FACTOR * SECONDS_HOURS_FACTOR;
   }
 
-  /**
-   * @brief Returns a string in meters per second.
-   */
-  [[nodiscard]] std::string to_string() const;
+  using QuantityBase::operator+=;
+  using QuantityBase::operator-=;
 
-  /**
-   * @brief Returns a Qt string in meters per second.
-   */
-#ifdef RCOMMON_WITH_QT
-  /// @note Available only when rcommon is built with `with_qt=True`.
-  [[nodiscard]] QString to_qstring() const;
-#endif
-
-  [[nodiscard]] constexpr explicit operator float() const noexcept
+  constexpr Velocity& operator+=(double const meters_per_second) noexcept
   {
-    return static_cast<float>(this->m_mps);
+    return *this += Velocity(meters_per_second);
   }
 
-  [[nodiscard]] constexpr explicit operator double() const noexcept { return this->m_mps; }
-
-  [[nodiscard]] constexpr bool operator==(Velocity const&) const noexcept = default;
-
-  [[nodiscard]] constexpr std::partial_ordering operator<=>(Velocity const&) const noexcept =
-    default;
-
-  [[nodiscard]] constexpr Velocity operator+() const noexcept { return *this; }
-
-  [[nodiscard]] constexpr Velocity operator-() const noexcept { return Velocity(-this->m_mps); }
-
-  constexpr Velocity& operator+=(Velocity const rhs) noexcept
+  constexpr Velocity& operator-=(double const meters_per_second) noexcept
   {
-    this->m_mps += rhs.m_mps;
-    return *this;
+    return *this -= Velocity(meters_per_second);
   }
-
-  constexpr Velocity& operator+=(double const rhs) noexcept
-  {
-    this->m_mps += rhs;
-    return *this;
-  }
-
-  constexpr Velocity& operator-=(Velocity const rhs) noexcept
-  {
-    this->m_mps -= rhs.m_mps;
-    return *this;
-  }
-
-  constexpr Velocity& operator-=(double const rhs) noexcept
-  {
-    this->m_mps -= rhs;
-    return *this;
-  }
-
-  constexpr Velocity& operator*=(double const rhs) noexcept
-  {
-    this->m_mps *= rhs;
-    return *this;
-  }
-
-  constexpr Velocity& operator/=(double const rhs) noexcept
-  {
-    this->m_mps /= rhs;
-    return *this;
-  }
-
- private:
-  double m_mps = 0.0;
 };
 
-[[nodiscard]] constexpr Velocity operator+(Velocity lhs, Velocity const rhs) noexcept
+[[nodiscard]] constexpr Velocity operator+(Velocity lhs, double const meters_per_second) noexcept
 {
-  lhs += rhs;
+  lhs += meters_per_second;
   return lhs;
 }
 
-[[nodiscard]] constexpr Velocity operator+(Velocity lhs, double const rhs) noexcept
-{
-  lhs += rhs;
-  return lhs;
-}
-
-[[nodiscard]] constexpr Velocity operator+(double const lhs, Velocity const rhs) noexcept
-{
-  return Velocity::from_mps(lhs + rhs.as_mps());
-}
-
-[[nodiscard]] constexpr Velocity operator-(Velocity lhs, Velocity const rhs) noexcept
-{
-  lhs -= rhs;
-  return lhs;
-}
-
-[[nodiscard]] constexpr Velocity operator-(Velocity lhs, double const rhs) noexcept
-{
-  lhs -= rhs;
-  return lhs;
-}
-
-[[nodiscard]] constexpr Velocity operator-(double const lhs, Velocity const rhs) noexcept
-{
-  return Velocity::from_mps(lhs - rhs.as_mps());
-}
-
-[[nodiscard]] constexpr Velocity operator*(Velocity lhs, double const rhs) noexcept
-{
-  lhs *= rhs;
-  return lhs;
-}
-
-[[nodiscard]] constexpr Velocity operator*(double const lhs, Velocity const rhs) noexcept
-{
-  return Velocity::from_mps(lhs * rhs.as_mps());
-}
-
-[[nodiscard]] constexpr Velocity operator/(Velocity lhs, double const rhs) noexcept
-{
-  lhs /= rhs;
-  return lhs;
-}
-
-/**
- * @brief Creates a velocity from a meters-per-second literal.
- * @ingroup core_measurements
- * @relates Velocity
- */
-[[nodiscard]] constexpr Velocity operator""_mps(long double const meters_per_second) noexcept
-{
-  return Velocity::from_mps(static_cast<double>(meters_per_second));
-}
-
-/**
- * @brief Creates a velocity from a meters-per-second literal.
- * @ingroup core_measurements
- * @relates Velocity
- */
-[[nodiscard]] constexpr Velocity operator""_mps(unsigned long long const meters_per_second) noexcept
-{
-  return Velocity::from_mps(static_cast<double>(meters_per_second));
-}
-
-/**
- * @brief Creates a velocity from a kilometers-per-hour literal.
- * @ingroup core_measurements
- * @relates Velocity
- */
-[[nodiscard]] constexpr Velocity operator""_kmph(long double const kilometers_per_hour) noexcept
-{
-  return Velocity::from_kmph(static_cast<double>(kilometers_per_hour));
-}
-
-/**
- * @brief Creates a velocity from a kilometers-per-hour literal.
- * @ingroup core_measurements
- * @relates Velocity
- */
-[[nodiscard]] constexpr Velocity operator""_kmph(
-  unsigned long long const kilometers_per_hour
+[[nodiscard]] constexpr Velocity operator+(
+  double const meters_per_second,
+  Velocity const rhs
 ) noexcept
 {
-  return Velocity::from_kmph(static_cast<double>(kilometers_per_hour));
+  return Velocity(meters_per_second) + rhs;
+}
+
+[[nodiscard]] constexpr Velocity operator-(Velocity lhs, double const meters_per_second) noexcept
+{
+  lhs -= meters_per_second;
+  return lhs;
+}
+
+[[nodiscard]] constexpr Velocity operator-(
+  double const meters_per_second,
+  Velocity const rhs
+) noexcept
+{
+  return Velocity(meters_per_second) - rhs;
 }
 
 /**
- * @brief Creates a velocity from a miles-per-hour literal.
+ * @brief Returns the average velocity that covers @p distance in @p time.
  * @ingroup core_measurements
  * @relates Velocity
  */
-[[nodiscard]] constexpr Velocity operator""_mph(long double const miles_per_hour) noexcept
+template <typename Rep, typename Period>
+[[nodiscard]] constexpr Velocity operator/(
+  Distance const distance,
+  std::chrono::duration<Rep, Period> const time
+) noexcept
 {
-  return Velocity::from_mph(static_cast<double>(miles_per_hour));
+  return Velocity::from_mps(distance.as_m() / std::chrono::duration<double>(time).count());
 }
 
 /**
- * @brief Creates a velocity from a miles-per-hour literal.
+ * @brief Returns the distance covered at @p velocity during @p time.
  * @ingroup core_measurements
  * @relates Velocity
  */
-[[nodiscard]] constexpr Velocity operator""_mph(unsigned long long const miles_per_hour) noexcept
+template <typename Rep, typename Period>
+[[nodiscard]] constexpr Distance operator*(
+  Velocity const velocity,
+  std::chrono::duration<Rep, Period> const time
+) noexcept
 {
-  return Velocity::from_mph(static_cast<double>(miles_per_hour));
+  return Distance::from_meters(velocity.as_mps() * std::chrono::duration<double>(time).count());
 }
 
 /**
- * @brief Quantity traits of Velocity: stored in `m/s`.
+ * @brief Returns the distance covered at @p velocity during @p time.
  * @ingroup core_measurements
- * @see Quantity
+ * @relates Velocity
  */
-template <>
-struct QuantityTraits<Velocity>
+template <typename Rep, typename Period>
+[[nodiscard]] constexpr Distance operator*(
+  std::chrono::duration<Rep, Period> const time,
+  Velocity const velocity
+) noexcept
 {
-  static constexpr std::string_view si_symbol = "m/s";
+  return velocity * time;
+}
 
-  [[nodiscard]] static constexpr Velocity from_si(double const meters_per_second) noexcept
+/**
+ * @brief Returns the time it takes to cover @p distance at @p velocity.
+ * @ingroup core_measurements
+ * @relates Velocity
+ */
+[[nodiscard]] constexpr std::chrono::duration<double> operator/(
+  Distance const distance,
+  Velocity const velocity
+) noexcept
+{
+  return std::chrono::duration<double>(distance.as_m() / velocity.as_mps());
+}
+
+inline namespace literals
+{
+  /**
+   * @brief Creates a velocity from a meters-per-second literal.
+   * @ingroup core_measurements
+   * @relates Velocity
+   */
+  [[nodiscard]] constexpr Velocity operator""_mps(long double const value) noexcept
   {
-    return Velocity::from_mps(meters_per_second);
+    return Velocity::from_mps(static_cast<double>(value));
   }
-};
 
-RADAR_COMMON_API std::ostream& operator<<(std::ostream& os, Velocity velocity);
+  /**
+   * @brief Creates a velocity from a meters-per-second literal.
+   * @ingroup core_measurements
+   * @relates Velocity
+   */
+  [[nodiscard]] constexpr Velocity operator""_mps(unsigned long long const value) noexcept
+  {
+    return Velocity::from_mps(static_cast<double>(value));
+  }
+
+  /**
+   * @brief Creates a velocity from a kilometers-per-hour literal.
+   * @ingroup core_measurements
+   * @relates Velocity
+   */
+  [[nodiscard]] constexpr Velocity operator""_kmph(long double const value) noexcept
+  {
+    return Velocity::from_kmph(static_cast<double>(value));
+  }
+
+  /**
+   * @brief Creates a velocity from a kilometers-per-hour literal.
+   * @ingroup core_measurements
+   * @relates Velocity
+   */
+  [[nodiscard]] constexpr Velocity operator""_kmph(unsigned long long const value) noexcept
+  {
+    return Velocity::from_kmph(static_cast<double>(value));
+  }
+
+  /**
+   * @brief Creates a velocity from a miles-per-hour literal.
+   * @ingroup core_measurements
+   * @relates Velocity
+   */
+  [[nodiscard]] constexpr Velocity operator""_mph(long double const value) noexcept
+  {
+    return Velocity::from_mph(static_cast<double>(value));
+  }
+
+  /**
+   * @brief Creates a velocity from a miles-per-hour literal.
+   * @ingroup core_measurements
+   * @relates Velocity
+   */
+  [[nodiscard]] constexpr Velocity operator""_mph(unsigned long long const value) noexcept
+  {
+    return Velocity::from_mph(static_cast<double>(value));
+  }
+}  // namespace literals
 
 RADAR_COMMON_NAMESPACE_END
-
-template <>
-struct std::hash<radar::mms::common::Velocity>
-{
-  [[nodiscard]] std::size_t operator()(radar::mms::common::Velocity const velocity) const noexcept
-  {
-    return std::hash<double> {}(velocity.as_mps());
-  }
-};
-
-#ifndef __DOXYGEN__
-template <>
-struct fmt::formatter<radar::mms::common::Velocity> : fmt::ostream_formatter
-{};
-#endif
 
 #ifdef RCOMMON_WITH_QT
 Q_DECLARE_METATYPE(radar::mms::common::Velocity)

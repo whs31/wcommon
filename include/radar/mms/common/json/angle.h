@@ -5,6 +5,7 @@
 #include <nlohmann/json.hpp>
 
 #include <radar/mms/common/angle.h>
+#include <radar/mms/common/error.h>
 
 RADAR_COMMON_NAMESPACE_BEGIN
 
