@@ -23,7 +23,7 @@ RADAR_COMMON_NAMESPACE_BEGIN
 template <typename T>
 concept CurveAxis = std::floating_point<T> or Quantity<T>;
 
-namespace _curve_impl // NOLINT(*-identifier-naming)
+namespace _curve_impl  // NOLINT(*-identifier-naming)
 {
   // the magnitude a curve computes with: the value itself, or the SI magnitude of a quantity
   template <CurveAxis T>

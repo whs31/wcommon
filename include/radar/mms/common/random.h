@@ -25,7 +25,7 @@
 
 RADAR_COMMON_NAMESPACE_BEGIN
 
-namespace _random_impl // NOLINT(*-identifier-naming)
+namespace _random_impl  // NOLINT(*-identifier-naming)
 {
   /**
    * @brief One step of SplitMix64: advances `state` and returns its next output.

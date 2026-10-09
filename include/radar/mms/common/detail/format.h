@@ -9,7 +9,7 @@
 
 RADAR_COMMON_NAMESPACE_BEGIN
 
-namespace _format_impl // NOLINT(*-identifier-naming)
+namespace _format_impl  // NOLINT(*-identifier-naming)
 {
   /**
    * @brief Formats `values` as `(a, b, ...)`, applying the parsed spec of `formatter`, e.g.
