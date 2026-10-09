@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 message(DEBUG "Using ${CMAKE_TOOLCHAIN_FILE}")
+message(DEBUG "Tests: ${BUILD_TESTING}")
 
 project(rcommon
   VERSION 4.0.0

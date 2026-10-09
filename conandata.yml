@@ -4,7 +4,7 @@ requirements:
   nlohmann_json: '[>=3.12.0]'
 
 test_requirements:
-  catch2: '[>=3.15.3]'
+  catch2: '[>=3.15]'
 
 build_requirements:
-  cmake: '[>=3.20.0 <4.4.3]'
+  cmake: '[>=4.4]'
