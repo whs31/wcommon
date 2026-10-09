@@ -6,10 +6,7 @@
 
 RADAR_COMMON_NAMESPACE_BEGIN
 
-std::string Vector3::to_string() const
-{
-  return fmt::format("({}, {}, {})", this->m_x, this->m_y, this->m_z);
-}
+std::string Vector3::to_string() const { return fmt::format("{}", *this); }
 
 #ifdef RCOMMON_WITH_QT
 Vector3::Vector3(QPointF const point) noexcept
