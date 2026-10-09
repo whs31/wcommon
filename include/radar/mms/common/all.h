@@ -61,6 +61,7 @@
 #include <radar/mms/common/math.h>
 #include <radar/mms/common/matrix3x3.h>
 #include <radar/mms/common/memory.h>
+#include <radar/mms/common/noise.h>
 #include <radar/mms/common/paths.h>
 #include <radar/mms/common/pimpl.h>
 #include <radar/mms/common/point2.h>

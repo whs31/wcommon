@@ -64,6 +64,7 @@ target_sources(${PROJECT_NAME} PRIVATE ${RCOMMON_PUBLIC_HEADERS} ${RCOMMON_PRIVA
 # does GCC in GNU mode or on targets with FMA).
 set_source_files_properties(
   "${CMAKE_CURRENT_SOURCE_DIR}/src/random.cc"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/noise.cc"
   PROPERTIES COMPILE_OPTIONS
     "$<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-ffp-contract=off>;$<$<CXX_COMPILER_ID:MSVC>:/fp:precise>"
 )
