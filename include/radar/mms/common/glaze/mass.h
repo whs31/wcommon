@@ -36,11 +36,19 @@ struct glz::meta<radar::mms::common::Mass>
       radar::mms::common::_glaze_impl::read_in_unit(
         value,
         ctx,
-        Unit {fields.kilograms, &radar::mms::common::Mass::from_kilograms},
-        Unit {fields.grams, &radar::mms::common::Mass::from_grams}
+        Unit {
+          .magnitude = fields.kilograms,
+          .from = &radar::mms::common::Mass::from_kilograms,
+        },
+        Unit {
+          .magnitude = fields.grams,
+          .from = &radar::mms::common::Mass::from_grams,
+        }
       );
     },
     [](radar::mms::common::Mass const& value) {
-      return radar::mms::common::_glaze_impl::MassFields {.kilograms = static_cast<double>(value)};
+      return radar::mms::common::_glaze_impl::MassFields {
+        .kilograms = static_cast<double>(value),
+      };
     }>;
 };

@@ -38,18 +38,18 @@ struct glz::meta<radar::mms::common::AngularAcceleration>
         value,
         ctx,
         Unit {
-          fields.radians_per_second_squared,
-          &radar::mms::common::AngularAcceleration::from_radians_per_second_squared
+          .magnitude = fields.radians_per_second_squared,
+          .from = &radar::mms::common::AngularAcceleration::from_radians_per_second_squared,
         },
         Unit {
-          fields.degrees_per_second_squared,
-          &radar::mms::common::AngularAcceleration::from_degrees_per_second_squared
+          .magnitude = fields.degrees_per_second_squared,
+          .from = &radar::mms::common::AngularAcceleration::from_degrees_per_second_squared,
         }
       );
     },
     [](radar::mms::common::AngularAcceleration const& value) {
       return radar::mms::common::_glaze_impl::AngularAccelerationFields {
-        .radians_per_second_squared = static_cast<double>(value)
+        .radians_per_second_squared = static_cast<double>(value),
       };
     }>;
 };

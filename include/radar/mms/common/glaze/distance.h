@@ -49,22 +49,63 @@ struct glz::meta<radar::mms::common::Distance>
       radar::mms::common::_glaze_impl::read_in_unit(
         value,
         ctx,
-        Unit {fields.meters, &radar::mms::common::Distance::from_meters},
-        Unit {fields.nanometers, &radar::mms::common::Distance::from_nanometers},
-        Unit {fields.micrometers, &radar::mms::common::Distance::from_micrometers},
-        Unit {fields.millimeters, &radar::mms::common::Distance::from_millimeters},
-        Unit {fields.centimeters, &radar::mms::common::Distance::from_centimeters},
-        Unit {fields.decimeters, &radar::mms::common::Distance::from_decimeters},
-        Unit {fields.hectometers, &radar::mms::common::Distance::from_hectometers},
-        Unit {fields.kilometers, &radar::mms::common::Distance::from_kilometers},
-        Unit {fields.inches, &radar::mms::common::Distance::from_inches},
-        Unit {fields.feet, &radar::mms::common::Distance::from_feet},
-        Unit {fields.yards, &radar::mms::common::Distance::from_yards},
-        Unit {fields.furlongs, &radar::mms::common::Distance::from_furlongs},
-        Unit {fields.miles, &radar::mms::common::Distance::from_miles}
+        Unit {
+          .magnitude = fields.meters,
+          .from = &radar::mms::common::Distance::from_meters,
+        },
+        Unit {
+          .magnitude = fields.nanometers,
+          .from = &radar::mms::common::Distance::from_nanometers,
+        },
+        Unit {
+          .magnitude = fields.micrometers,
+          .from = &radar::mms::common::Distance::from_micrometers,
+        },
+        Unit {
+          .magnitude = fields.millimeters,
+          .from = &radar::mms::common::Distance::from_millimeters,
+        },
+        Unit {
+          .magnitude = fields.centimeters,
+          .from = &radar::mms::common::Distance::from_centimeters,
+        },
+        Unit {
+          .magnitude = fields.decimeters,
+          .from = &radar::mms::common::Distance::from_decimeters,
+        },
+        Unit {
+          .magnitude = fields.hectometers,
+          .from = &radar::mms::common::Distance::from_hectometers,
+        },
+        Unit {
+          .magnitude = fields.kilometers,
+          .from = &radar::mms::common::Distance::from_kilometers,
+        },
+        Unit {
+          .magnitude = fields.inches,
+          .from = &radar::mms::common::Distance::from_inches,
+        },
+        Unit {
+          .magnitude = fields.feet,
+          .from = &radar::mms::common::Distance::from_feet,
+        },
+        Unit {
+          .magnitude = fields.yards,
+          .from = &radar::mms::common::Distance::from_yards,
+        },
+        Unit {
+          .magnitude = fields.furlongs,
+          .from = &radar::mms::common::Distance::from_furlongs,
+        },
+        Unit {
+          .magnitude = fields.miles,
+          .from = &radar::mms::common::Distance::from_miles,
+        }
       );
     },
     [](radar::mms::common::Distance const& value) {
-      return radar::mms::common::_glaze_impl::DistanceFields {.meters = static_cast<double>(value)};
+      return radar::mms::common::_glaze_impl::DistanceFields {
+        .meters = static_cast<double>(value),
+      };
     }>;
 };

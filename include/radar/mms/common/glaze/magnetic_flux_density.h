@@ -39,15 +39,27 @@ struct glz::meta<radar::mms::common::MagneticFluxDensity>
       radar::mms::common::_glaze_impl::read_in_unit(
         value,
         ctx,
-        Unit {fields.teslas, &radar::mms::common::MagneticFluxDensity::from_teslas},
-        Unit {fields.gauss, &radar::mms::common::MagneticFluxDensity::from_gauss},
-        Unit {fields.microteslas, &radar::mms::common::MagneticFluxDensity::from_microteslas},
-        Unit {fields.nanoteslas, &radar::mms::common::MagneticFluxDensity::from_nanoteslas}
+        Unit {
+          .magnitude = fields.teslas,
+          .from = &radar::mms::common::MagneticFluxDensity::from_teslas,
+        },
+        Unit {
+          .magnitude = fields.gauss,
+          .from = &radar::mms::common::MagneticFluxDensity::from_gauss,
+        },
+        Unit {
+          .magnitude = fields.microteslas,
+          .from = &radar::mms::common::MagneticFluxDensity::from_microteslas,
+        },
+        Unit {
+          .magnitude = fields.nanoteslas,
+          .from = &radar::mms::common::MagneticFluxDensity::from_nanoteslas,
+        }
       );
     },
     [](radar::mms::common::MagneticFluxDensity const& value) {
       return radar::mms::common::_glaze_impl::MagneticFluxDensityFields {
-        .teslas = static_cast<double>(value)
+        .teslas = static_cast<double>(value),
       };
     }>;
 };

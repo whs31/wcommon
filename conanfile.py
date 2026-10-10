@@ -4,7 +4,7 @@ from conan.tools.build import check_min_cppstd
 
 class RCommonRecipe(ConanFile):
   name = "rcommon"
-  version = "5.1.0"
+  version = "5.1.1"
   description = "Radar common utility library"
   author = "whs31 <whs31@github.io>"
   settings = "os", "arch", "compiler", "build_type"

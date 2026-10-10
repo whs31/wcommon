@@ -37,14 +37,23 @@ struct glz::meta<radar::mms::common::Temperature>
       radar::mms::common::_glaze_impl::read_in_unit(
         value,
         ctx,
-        Unit {fields.kelvin, &radar::mms::common::Temperature::from_kelvin},
-        Unit {fields.celsius, &radar::mms::common::Temperature::from_celsius},
-        Unit {fields.fahrenheit, &radar::mms::common::Temperature::from_fahrenheit}
+        Unit {
+          .magnitude = fields.kelvin,
+          .from = &radar::mms::common::Temperature::from_kelvin,
+        },
+        Unit {
+          .magnitude = fields.celsius,
+          .from = &radar::mms::common::Temperature::from_celsius,
+        },
+        Unit {
+          .magnitude = fields.fahrenheit,
+          .from = &radar::mms::common::Temperature::from_fahrenheit,
+        }
       );
     },
     [](radar::mms::common::Temperature const& value) {
       return radar::mms::common::_glaze_impl::TemperatureFields {
-        .kelvin = static_cast<double>(value)
+        .kelvin = static_cast<double>(value),
       };
     }>;
 };

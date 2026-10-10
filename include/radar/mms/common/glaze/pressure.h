@@ -40,16 +40,31 @@ struct glz::meta<radar::mms::common::Pressure>
       radar::mms::common::_glaze_impl::read_in_unit(
         value,
         ctx,
-        Unit {fields.pascals, &radar::mms::common::Pressure::from_pascals},
-        Unit {fields.hectopascals, &radar::mms::common::Pressure::from_hectopascals},
-        Unit {fields.kilopascals, &radar::mms::common::Pressure::from_kilopascals},
-        Unit {fields.millibars, &radar::mms::common::Pressure::from_millibars},
-        Unit {fields.inches_of_mercury, &radar::mms::common::Pressure::from_inches_of_mercury}
+        Unit {
+          .magnitude = fields.pascals,
+          .from = &radar::mms::common::Pressure::from_pascals,
+        },
+        Unit {
+          .magnitude = fields.hectopascals,
+          .from = &radar::mms::common::Pressure::from_hectopascals,
+        },
+        Unit {
+          .magnitude = fields.kilopascals,
+          .from = &radar::mms::common::Pressure::from_kilopascals,
+        },
+        Unit {
+          .magnitude = fields.millibars,
+          .from = &radar::mms::common::Pressure::from_millibars,
+        },
+        Unit {
+          .magnitude = fields.inches_of_mercury,
+          .from = &radar::mms::common::Pressure::from_inches_of_mercury,
+        }
       );
     },
     [](radar::mms::common::Pressure const& value) {
       return radar::mms::common::_glaze_impl::PressureFields {
-        .pascals = static_cast<double>(value)
+        .pascals = static_cast<double>(value),
       };
     }>;
 };

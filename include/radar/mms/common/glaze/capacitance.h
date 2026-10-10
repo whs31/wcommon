@@ -36,13 +36,19 @@ struct glz::meta<radar::mms::common::Capacitance>
       radar::mms::common::_glaze_impl::read_in_unit(
         value,
         ctx,
-        Unit {fields.farads, &radar::mms::common::Capacitance::from_farads},
-        Unit {fields.microfarads, &radar::mms::common::Capacitance::from_microfarads}
+        Unit {
+          .magnitude = fields.farads,
+          .from = &radar::mms::common::Capacitance::from_farads,
+        },
+        Unit {
+          .magnitude = fields.microfarads,
+          .from = &radar::mms::common::Capacitance::from_microfarads,
+        }
       );
     },
     [](radar::mms::common::Capacitance const& value) {
       return radar::mms::common::_glaze_impl::CapacitanceFields {
-        .farads = static_cast<double>(value)
+        .farads = static_cast<double>(value),
       };
     }>;
 };

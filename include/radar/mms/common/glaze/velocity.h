@@ -37,12 +37,23 @@ struct glz::meta<radar::mms::common::Velocity>
       radar::mms::common::_glaze_impl::read_in_unit(
         value,
         ctx,
-        Unit {fields.mps, &radar::mms::common::Velocity::from_mps},
-        Unit {fields.kmph, &radar::mms::common::Velocity::from_kmph},
-        Unit {fields.mph, &radar::mms::common::Velocity::from_mph}
+        Unit {
+          .magnitude = fields.mps,
+          .from = &radar::mms::common::Velocity::from_mps,
+        },
+        Unit {
+          .magnitude = fields.kmph,
+          .from = &radar::mms::common::Velocity::from_kmph,
+        },
+        Unit {
+          .magnitude = fields.mph,
+          .from = &radar::mms::common::Velocity::from_mph,
+        }
       );
     },
     [](radar::mms::common::Velocity const& value) {
-      return radar::mms::common::_glaze_impl::VelocityFields {.mps = static_cast<double>(value)};
+      return radar::mms::common::_glaze_impl::VelocityFields {
+        .mps = static_cast<double>(value),
+      };
     }>;
 };

@@ -39,19 +39,22 @@ struct glz::meta<radar::mms::common::AngularVelocity>
         value,
         ctx,
         Unit {
-          fields.radians_per_second,
-          &radar::mms::common::AngularVelocity::from_radians_per_second
+          .magnitude = fields.radians_per_second,
+          .from = &radar::mms::common::AngularVelocity::from_radians_per_second,
         },
         Unit {
-          fields.degrees_per_second,
-          &radar::mms::common::AngularVelocity::from_degrees_per_second
+          .magnitude = fields.degrees_per_second,
+          .from = &radar::mms::common::AngularVelocity::from_degrees_per_second,
         },
-        Unit {fields.rpm, &radar::mms::common::AngularVelocity::from_rpm}
+        Unit {
+          .magnitude = fields.rpm,
+          .from = &radar::mms::common::AngularVelocity::from_rpm,
+        }
       );
     },
     [](radar::mms::common::AngularVelocity const& value) {
       return radar::mms::common::_glaze_impl::AngularVelocityFields {
-        .radians_per_second = static_cast<double>(value)
+        .radians_per_second = static_cast<double>(value),
       };
     }>;
 };

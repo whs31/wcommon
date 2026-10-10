@@ -36,11 +36,19 @@ struct glz::meta<radar::mms::common::Power>
       radar::mms::common::_glaze_impl::read_in_unit(
         value,
         ctx,
-        Unit {fields.watts, &radar::mms::common::Power::from_watts},
-        Unit {fields.kilowatts, &radar::mms::common::Power::from_kilowatts}
+        Unit {
+          .magnitude = fields.watts,
+          .from = &radar::mms::common::Power::from_watts,
+        },
+        Unit {
+          .magnitude = fields.kilowatts,
+          .from = &radar::mms::common::Power::from_kilowatts,
+        }
       );
     },
     [](radar::mms::common::Power const& value) {
-      return radar::mms::common::_glaze_impl::PowerFields {.watts = static_cast<double>(value)};
+      return radar::mms::common::_glaze_impl::PowerFields {
+        .watts = static_cast<double>(value),
+      };
     }>;
 };

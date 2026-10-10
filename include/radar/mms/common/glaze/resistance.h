@@ -36,11 +36,19 @@ struct glz::meta<radar::mms::common::Resistance>
       radar::mms::common::_glaze_impl::read_in_unit(
         value,
         ctx,
-        Unit {fields.ohms, &radar::mms::common::Resistance::from_ohms},
-        Unit {fields.milliohms, &radar::mms::common::Resistance::from_milliohms}
+        Unit {
+          .magnitude = fields.ohms,
+          .from = &radar::mms::common::Resistance::from_ohms,
+        },
+        Unit {
+          .magnitude = fields.milliohms,
+          .from = &radar::mms::common::Resistance::from_milliohms,
+        }
       );
     },
     [](radar::mms::common::Resistance const& value) {
-      return radar::mms::common::_glaze_impl::ResistanceFields {.ohms = static_cast<double>(value)};
+      return radar::mms::common::_glaze_impl::ResistanceFields {
+        .ohms = static_cast<double>(value),
+      };
     }>;
 };

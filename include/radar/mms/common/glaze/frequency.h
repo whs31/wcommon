@@ -36,11 +36,19 @@ struct glz::meta<radar::mms::common::Frequency>
       radar::mms::common::_glaze_impl::read_in_unit(
         value,
         ctx,
-        Unit {fields.hertz, &radar::mms::common::Frequency::from_hertz},
-        Unit {fields.kilohertz, &radar::mms::common::Frequency::from_kilohertz}
+        Unit {
+          .magnitude = fields.hertz,
+          .from = &radar::mms::common::Frequency::from_hertz,
+        },
+        Unit {
+          .magnitude = fields.kilohertz,
+          .from = &radar::mms::common::Frequency::from_kilohertz,
+        }
       );
     },
     [](radar::mms::common::Frequency const& value) {
-      return radar::mms::common::_glaze_impl::FrequencyFields {.hertz = static_cast<double>(value)};
+      return radar::mms::common::_glaze_impl::FrequencyFields {
+        .hertz = static_cast<double>(value),
+      };
     }>;
 };

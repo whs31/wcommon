@@ -49,21 +49,30 @@ namespace
     REQUIRE(read_error<T>(R"({"value":12.5})") == glz::error_code::unknown_key);
     REQUIRE(strict_read_error<T>(R"({})") != glz::error_code::none);
   }
+}  // namespace
 
-  struct Rotor
+// note: [whs31 : 2026-10-10]
+// glaze reflects on the names of the members, which clang rejects for a type without linkage, so
+// these stay out of the anonymous namespace
+namespace measurements_glaze_test
+{
+  struct Rotor  // NOLINT(misc-use-internal-linkage)
   {
     AngularVelocity speed;
     Torque load;
     Temperature winding;
   };
 
-  struct Battery
+  struct Battery  // NOLINT(misc-use-internal-linkage)
   {
     Charge capacity;
     std::vector<Voltage> cutoff;
     Temperature ambient;
   };
-}  // namespace
+}  // namespace measurements_glaze_test
+
+using measurements_glaze_test::Battery;
+using measurements_glaze_test::Rotor;
 
 TEST_CASE("Quantity glaze adapters store the SI magnitude under the unit name", "[glaze]")
 {

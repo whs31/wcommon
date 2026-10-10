@@ -27,8 +27,14 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
         read_in_unit(
           angle,
           ctx,
-          UnitMagnitude<Angle> {fields.degrees, &Angle::from_degrees},
-          UnitMagnitude<Angle> {fields.radians, &Angle::from_radians}
+          UnitMagnitude<Angle> {
+            .magnitude = fields.degrees,
+            .from = &Angle::from_degrees,
+          },
+          UnitMagnitude<Angle> {
+            .magnitude = fields.radians,
+            .from = &Angle::from_radians,
+          }
         );
       return;
     }

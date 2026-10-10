@@ -36,13 +36,19 @@ struct glz::meta<radar::mms::common::Acceleration>
       radar::mms::common::_glaze_impl::read_in_unit(
         value,
         ctx,
-        Unit {fields.meters_per_second_squared, &radar::mms::common::Acceleration::from_mps2},
-        Unit {fields.standard_gravity, &radar::mms::common::Acceleration::from_standard_gravity}
+        Unit {
+          .magnitude = fields.meters_per_second_squared,
+          .from = &radar::mms::common::Acceleration::from_mps2,
+        },
+        Unit {
+          .magnitude = fields.standard_gravity,
+          .from = &radar::mms::common::Acceleration::from_standard_gravity,
+        }
       );
     },
     [](radar::mms::common::Acceleration const& value) {
       return radar::mms::common::_glaze_impl::AccelerationFields {
-        .meters_per_second_squared = static_cast<double>(value)
+        .meters_per_second_squared = static_cast<double>(value),
       };
     }>;
 };

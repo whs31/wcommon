@@ -37,12 +37,23 @@ struct glz::meta<radar::mms::common::Force>
       radar::mms::common::_glaze_impl::read_in_unit(
         value,
         ctx,
-        Unit {fields.newtons, &radar::mms::common::Force::from_newtons},
-        Unit {fields.kilonewtons, &radar::mms::common::Force::from_kilonewtons},
-        Unit {fields.kilograms_force, &radar::mms::common::Force::from_kilograms_force}
+        Unit {
+          .magnitude = fields.newtons,
+          .from = &radar::mms::common::Force::from_newtons,
+        },
+        Unit {
+          .magnitude = fields.kilonewtons,
+          .from = &radar::mms::common::Force::from_kilonewtons,
+        },
+        Unit {
+          .magnitude = fields.kilograms_force,
+          .from = &radar::mms::common::Force::from_kilograms_force,
+        }
       );
     },
     [](radar::mms::common::Force const& value) {
-      return radar::mms::common::_glaze_impl::ForceFields {.newtons = static_cast<double>(value)};
+      return radar::mms::common::_glaze_impl::ForceFields {
+        .newtons = static_cast<double>(value),
+      };
     }>;
 };

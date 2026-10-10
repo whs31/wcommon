@@ -37,12 +37,23 @@ struct glz::meta<radar::mms::common::Charge>
       radar::mms::common::_glaze_impl::read_in_unit(
         value,
         ctx,
-        Unit {fields.coulombs, &radar::mms::common::Charge::from_coulombs},
-        Unit {fields.ampere_hours, &radar::mms::common::Charge::from_ampere_hours},
-        Unit {fields.milliampere_hours, &radar::mms::common::Charge::from_milliampere_hours}
+        Unit {
+          .magnitude = fields.coulombs,
+          .from = &radar::mms::common::Charge::from_coulombs,
+        },
+        Unit {
+          .magnitude = fields.ampere_hours,
+          .from = &radar::mms::common::Charge::from_ampere_hours,
+        },
+        Unit {
+          .magnitude = fields.milliampere_hours,
+          .from = &radar::mms::common::Charge::from_milliampere_hours,
+        }
       );
     },
     [](radar::mms::common::Charge const& value) {
-      return radar::mms::common::_glaze_impl::ChargeFields {.coulombs = static_cast<double>(value)};
+      return radar::mms::common::_glaze_impl::ChargeFields {
+        .coulombs = static_cast<double>(value),
+      };
     }>;
 };

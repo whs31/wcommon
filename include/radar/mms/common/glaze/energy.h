@@ -37,12 +37,23 @@ struct glz::meta<radar::mms::common::Energy>
       radar::mms::common::_glaze_impl::read_in_unit(
         value,
         ctx,
-        Unit {fields.joules, &radar::mms::common::Energy::from_joules},
-        Unit {fields.watt_hours, &radar::mms::common::Energy::from_watt_hours},
-        Unit {fields.kilowatt_hours, &radar::mms::common::Energy::from_kilowatt_hours}
+        Unit {
+          .magnitude = fields.joules,
+          .from = &radar::mms::common::Energy::from_joules,
+        },
+        Unit {
+          .magnitude = fields.watt_hours,
+          .from = &radar::mms::common::Energy::from_watt_hours,
+        },
+        Unit {
+          .magnitude = fields.kilowatt_hours,
+          .from = &radar::mms::common::Energy::from_kilowatt_hours,
+        }
       );
     },
     [](radar::mms::common::Energy const& value) {
-      return radar::mms::common::_glaze_impl::EnergyFields {.joules = static_cast<double>(value)};
+      return radar::mms::common::_glaze_impl::EnergyFields {
+        .joules = static_cast<double>(value),
+      };
     }>;
 };

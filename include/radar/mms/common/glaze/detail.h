@@ -66,8 +66,8 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
   template <DerivedQuantity T>
   struct UnitMagnitude
   {
-    std::optional<double> const& magnitude;
-    T (*from)(double);
+    std::optional<double> magnitude;
+    T (*from)(double) = nullptr;
   };
 
   /**

@@ -36,11 +36,19 @@ struct glz::meta<radar::mms::common::Voltage>
       radar::mms::common::_glaze_impl::read_in_unit(
         value,
         ctx,
-        Unit {fields.volts, &radar::mms::common::Voltage::from_volts},
-        Unit {fields.millivolts, &radar::mms::common::Voltage::from_millivolts}
+        Unit {
+          .magnitude = fields.volts,
+          .from = &radar::mms::common::Voltage::from_volts,
+        },
+        Unit {
+          .magnitude = fields.millivolts,
+          .from = &radar::mms::common::Voltage::from_millivolts,
+        }
       );
     },
     [](radar::mms::common::Voltage const& value) {
-      return radar::mms::common::_glaze_impl::VoltageFields {.volts = static_cast<double>(value)};
+      return radar::mms::common::_glaze_impl::VoltageFields {
+        .volts = static_cast<double>(value),
+      };
     }>;
 };

@@ -36,11 +36,19 @@ struct glz::meta<radar::mms::common::Current>
       radar::mms::common::_glaze_impl::read_in_unit(
         value,
         ctx,
-        Unit {fields.amperes, &radar::mms::common::Current::from_amperes},
-        Unit {fields.milliamperes, &radar::mms::common::Current::from_milliamperes}
+        Unit {
+          .magnitude = fields.amperes,
+          .from = &radar::mms::common::Current::from_amperes,
+        },
+        Unit {
+          .magnitude = fields.milliamperes,
+          .from = &radar::mms::common::Current::from_milliamperes,
+        }
       );
     },
     [](radar::mms::common::Current const& value) {
-      return radar::mms::common::_glaze_impl::CurrentFields {.amperes = static_cast<double>(value)};
+      return radar::mms::common::_glaze_impl::CurrentFields {
+        .amperes = static_cast<double>(value),
+      };
     }>;
 };
