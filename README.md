@@ -36,7 +36,10 @@
   (default `False`).
 
 With Qt enabled, both adapter targets also cover Qt Core, Gui, and Positioning types. The two
-adapter sets write the same JSON, so a document written with one is read by the other.
+adapter sets write the same JSON, so a document written with one is read by the other. The glaze
+adapters also read physical quantities in any unit the quantity has a factory for, e.g.
+`{"ampere_hours": 52}` or `{"celsius": 15}`, which suits hand-written TOML configuration; they
+still write the SI unit.
 
 Enable the adapters through the consumer's Conan options, e.g. in its `conanfile.py`:
 

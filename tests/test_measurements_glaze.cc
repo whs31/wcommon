@@ -29,6 +29,7 @@
 
 #include <glaze/beve.hpp>
 #include <glaze/json.hpp>
+#include <glaze/toml.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -46,8 +47,7 @@ namespace
 
     REQUIRE(read_error<T>(R"({")" + key + R"(":"12.5"})") != glz::error_code::none);
     REQUIRE(read_error<T>(R"({"value":12.5})") == glz::error_code::unknown_key);
-    REQUIRE(read_error<T>(R"({})") == glz::error_code::none);
-    REQUIRE(strict_read_error<T>(R"({})") == glz::error_code::missing_key);
+    REQUIRE(strict_read_error<T>(R"({})") != glz::error_code::none);
   }
 
   struct Rotor
@@ -55,6 +55,13 @@ namespace
     AngularVelocity speed;
     Torque load;
     Temperature winding;
+  };
+
+  struct Battery
+  {
+    Charge capacity;
+    std::vector<Voltage> cutoff;
+    Temperature ambient;
   };
 }  // namespace
 
@@ -82,6 +89,43 @@ TEST_CASE("Quantity glaze adapters store the SI magnitude under the unit name", 
   check_quantity<Charge>("coulombs");
   check_quantity<Capacitance>("farads");
   check_quantity<MagneticFluxDensity>("teslas");
+}
+
+TEST_CASE("Quantity glaze adapters read any unit the quantity has a factory for", "[glaze]")
+{
+  REQUIRE(read<Charge>(R"({"ampere_hours":52})") == Charge::from_ampere_hours(52.0));
+  REQUIRE(read<Temperature>(R"({"celsius":15})") == Temperature::from_celsius(15.0));
+  REQUIRE(
+    read<AngularVelocity>(R"({"degrees_per_second":90})")
+    == AngularVelocity::from_degrees_per_second(90.0)
+  );
+  REQUIRE(read<Distance>(R"({"kilometers":1.5})") == Distance::from_kilometers(1.5));
+  REQUIRE(read<Pressure>(R"({"hectopascals":1013.25})") == Pressure::from_hectopascals(1013.25));
+  REQUIRE(read<MagneticFluxDensity>(R"({"gauss":0.5})") == MagneticFluxDensity::from_gauss(0.5));
+
+  // the SI unit is still what is written
+  REQUIRE(write(Charge::from_ampere_hours(1.0)) == R"({"coulombs":3600})");
+
+  REQUIRE(
+    read_error<Charge>(R"({"coulombs":1,"ampere_hours":1})") == glz::error_code::constraint_violated
+  );
+  REQUIRE(read_error<Charge>(R"({})") == glz::error_code::constraint_violated);
+  REQUIRE(read_error<Charge>(R"({"kiloampere_hours":1})") == glz::error_code::unknown_key);
+}
+
+TEST_CASE("Quantity glaze adapters read TOML in natural units", "[glaze][toml]")
+{
+  auto battery = Battery {};
+  auto const toml = std::string(R"(capacity = { ampere_hours = 52.0 }
+cutoff = [{ volts = 42.0 }, { millivolts = 58800.0 }]
+ambient = { celsius = 15.0 }
+)");
+  auto const error = glz::read_toml(battery, toml);
+  INFO(glz::format_error(error, toml));
+  REQUIRE_FALSE(error);
+  REQUIRE(battery.capacity == Charge::from_ampere_hours(52.0));
+  REQUIRE(battery.cutoff == std::vector {Voltage::from_volts(42.0), Voltage::from_volts(58.8)});
+  REQUIRE(battery.ambient == Temperature::from_celsius(15.0));
 }
 
 TEST_CASE("Quantity glaze adapters compose into reflected structs", "[glaze]")
@@ -132,6 +176,23 @@ TEST_CASE("Angle glaze adapter writes degrees and reads degrees or radians", "[g
     read_error<Angle>(R"({"angle":90,"units":"turns"})") == glz::error_code::constraint_violated
   );
   REQUIRE(read_error<Angle>(R"({"angle":"90","units":"degrees"})") != glz::error_code::none);
+}
+
+TEST_CASE("Angle glaze adapter reads the magnitude under its unit", "[glaze][angle]")
+{
+  REQUIRE(read<Angle>(R"({"degrees":90})") == Angle::from_degrees(90.0));
+  REQUIRE(read<Angle>(R"({"radians":1.5})") == Angle::from_radians(1.5));
+
+  REQUIRE(read_error<Angle>(R"({})") == glz::error_code::constraint_violated);
+  REQUIRE(
+    read_error<Angle>(R"({"degrees":1,"radians":1})") == glz::error_code::constraint_violated
+  );
+  REQUIRE(
+    read_error<Angle>(R"({"angle":1,"units":"degrees","degrees":1})")
+    == glz::error_code::constraint_violated
+  );
+  REQUIRE(read_error<Angle>(R"({"angle":1})") == glz::error_code::constraint_violated);
+  REQUIRE(read_error<Angle>(R"({"units":"degrees"})") == glz::error_code::constraint_violated);
 }
 
 TEST_CASE("Euler angles glaze adapter nests three angles", "[glaze][euler]")
