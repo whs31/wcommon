@@ -15,45 +15,37 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> celsius;
     std::optional<double> fahrenheit;
   };
+
+  inline constexpr auto
+    temperature_reading = QuantityReading<Temperature, TemperatureFields, 3, 3> {
+      .fields =
+        {
+          field_unit(&TemperatureFields::kelvin, &Temperature::from_kelvin),
+          field_unit(&TemperatureFields::celsius, &Temperature::from_celsius),
+          field_unit(&TemperatureFields::fahrenheit, &Temperature::from_fahrenheit),
+        },
+      .literals =
+        {
+          literal_unit("k", &Temperature::from_kelvin),
+          literal_unit("degc", &Temperature::from_celsius),
+          literal_unit("degf", &Temperature::from_fahrenheit),
+        },
+      .unknown_suffix = "a temperature literal needs one of the unit suffixes k, degc, degf",
+    };
 }  // namespace _glaze_impl
 
 RADAR_COMMON_NAMESPACE_END
 
 /**
  * @brief Glaze metadata of Temperature: `{"kelvin": magnitude}`.
- * @details Reading also accepts the magnitude in `celsius` or `fahrenheit` instead.
+ * @details Reading also accepts the magnitude in `celsius` or `fahrenheit` instead. A text
+ * format also reads a literal string, e.g. `"12.5k"`, with the suffix of a C++ literal: `k`,
+ * `degc`, `degf`.
  * @ingroup core_glaze
  */
 template <>
 struct glz::meta<radar::mms::common::Temperature>
 {
-  static constexpr auto value = glz::custom<
-    [](
-      radar::mms::common::Temperature& value,
-      radar::mms::common::_glaze_impl::TemperatureFields const& fields,
-      glz::context& ctx
-    ) {
-      using Unit = radar::mms::common::_glaze_impl::UnitMagnitude<radar::mms::common::Temperature>;
-      radar::mms::common::_glaze_impl::read_in_unit(
-        value,
-        ctx,
-        Unit {
-          .magnitude = fields.kelvin,
-          .from = &radar::mms::common::Temperature::from_kelvin,
-        },
-        Unit {
-          .magnitude = fields.celsius,
-          .from = &radar::mms::common::Temperature::from_celsius,
-        },
-        Unit {
-          .magnitude = fields.fahrenheit,
-          .from = &radar::mms::common::Temperature::from_fahrenheit,
-        }
-      );
-    },
-    [](radar::mms::common::Temperature const& value) {
-      return radar::mms::common::_glaze_impl::TemperatureFields {
-        .kelvin = static_cast<double>(value),
-      };
-    }>;
+  static constexpr auto value = radar::mms::common::_glaze_impl::QuantityAdapter<
+    radar::mms::common::_glaze_impl::temperature_reading>::value;
 };

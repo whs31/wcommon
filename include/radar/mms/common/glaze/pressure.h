@@ -17,6 +17,26 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> millibars;
     std::optional<double> inches_of_mercury;
   };
+
+  inline constexpr auto pressure_reading = QuantityReading<Pressure, PressureFields, 5, 5> {
+    .fields =
+      {
+        field_unit(&PressureFields::pascals, &Pressure::from_pascals),
+        field_unit(&PressureFields::hectopascals, &Pressure::from_hectopascals),
+        field_unit(&PressureFields::kilopascals, &Pressure::from_kilopascals),
+        field_unit(&PressureFields::millibars, &Pressure::from_millibars),
+        field_unit(&PressureFields::inches_of_mercury, &Pressure::from_inches_of_mercury),
+      },
+    .literals =
+      {
+        literal_unit("pa", &Pressure::from_pascals),
+        literal_unit("hpa", &Pressure::from_hectopascals),
+        literal_unit("kpa", &Pressure::from_kilopascals),
+        literal_unit("mbar", &Pressure::from_millibars),
+        literal_unit("inhg", &Pressure::from_inches_of_mercury),
+      },
+    .unknown_suffix = "a pressure literal needs one of the unit suffixes pa, hpa, kpa, mbar, inhg",
+  };
 }  // namespace _glaze_impl
 
 RADAR_COMMON_NAMESPACE_END
@@ -24,47 +44,13 @@ RADAR_COMMON_NAMESPACE_END
 /**
  * @brief Glaze metadata of Pressure: `{"pascals": magnitude}`.
  * @details Reading also accepts the magnitude in `hectopascals`, `kilopascals`, `millibars` or
- * `inches_of_mercury` instead.
+ * `inches_of_mercury` instead. A text format also reads a literal string, e.g. `"12.5pa"`, with
+ * the suffix of a C++ literal: `pa`, `hpa`, `kpa`, `mbar`, `inhg`.
  * @ingroup core_glaze
  */
 template <>
 struct glz::meta<radar::mms::common::Pressure>
 {
-  static constexpr auto value = glz::custom<
-    [](
-      radar::mms::common::Pressure& value,
-      radar::mms::common::_glaze_impl::PressureFields const& fields,
-      glz::context& ctx
-    ) {
-      using Unit = radar::mms::common::_glaze_impl::UnitMagnitude<radar::mms::common::Pressure>;
-      radar::mms::common::_glaze_impl::read_in_unit(
-        value,
-        ctx,
-        Unit {
-          .magnitude = fields.pascals,
-          .from = &radar::mms::common::Pressure::from_pascals,
-        },
-        Unit {
-          .magnitude = fields.hectopascals,
-          .from = &radar::mms::common::Pressure::from_hectopascals,
-        },
-        Unit {
-          .magnitude = fields.kilopascals,
-          .from = &radar::mms::common::Pressure::from_kilopascals,
-        },
-        Unit {
-          .magnitude = fields.millibars,
-          .from = &radar::mms::common::Pressure::from_millibars,
-        },
-        Unit {
-          .magnitude = fields.inches_of_mercury,
-          .from = &radar::mms::common::Pressure::from_inches_of_mercury,
-        }
-      );
-    },
-    [](radar::mms::common::Pressure const& value) {
-      return radar::mms::common::_glaze_impl::PressureFields {
-        .pascals = static_cast<double>(value),
-      };
-    }>;
+  static constexpr auto value = radar::mms::common::_glaze_impl::QuantityAdapter<
+    radar::mms::common::_glaze_impl::pressure_reading>::value;
 };

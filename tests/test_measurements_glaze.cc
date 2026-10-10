@@ -37,6 +37,7 @@
 
 using namespace radar::mms;
 using namespace glaze_support;
+using namespace radar::mms::literals;
 
 namespace
 {
@@ -48,6 +49,17 @@ namespace
     REQUIRE(read_error<T>(R"({")" + key + R"(":"12.5"})") != glz::error_code::none);
     REQUIRE(read_error<T>(R"({"value":12.5})") == glz::error_code::unknown_key);
     REQUIRE(strict_read_error<T>(R"({})") != glz::error_code::none);
+  }
+
+  // every suffix of the quantity reads the magnitude in its unit
+  template <typename T, auto const& Reading>
+  void check_literals()
+  {
+    // NOLINTNEXTLINE(readability-redundant-parentheses): a misread reference template parameter
+    for(auto const& unit : Reading.literals) {
+      INFO(unit.suffix);
+      REQUIRE(read<T>(R"("2.5)" + std::string(unit.suffix) + R"(")") == unit.from(2.5));
+    }
   }
 }  // namespace
 
@@ -122,6 +134,76 @@ TEST_CASE("Quantity glaze adapters read any unit the quantity has a factory for"
   REQUIRE(read_error<Charge>(R"({"kiloampere_hours":1})") == glz::error_code::unknown_key);
 }
 
+TEST_CASE("Quantity glaze adapters read literal strings in text formats", "[glaze][literal]")
+{
+  // the suffixes are those of the C++ literals
+  REQUIRE(read<Frequency>(R"("400hz")") == 400_hz);
+  REQUIRE(read<Frequency>(R"("1.5khz")") == 1.5_khz);
+  REQUIRE(read<Distance>(R"("-1.5e3m")") == -1.5e3_m);
+  REQUIRE(read<Distance>(R"("12mm")") == 12_mm);
+  REQUIRE(read<Charge>(R"("52ah")") == 52_ah);
+  REQUIRE(read<Temperature>(R"("15degc")") == 15_degc);
+  REQUIRE(read<AngularVelocity>(R"("428.6deg_per_s")") == 428.6_deg_per_s);
+  REQUIRE(read<MomentOfInertia>(R"("0.15kg_m2")") == 0.15_kg_m2);
+  REQUIRE(read<Torque>(R"("2nm")") == 2_nm);
+  REQUIRE(read<Angle>(R"("30deg")") == 30_deg);
+  REQUIRE(read<Angle>(R"("0.5rad")") == 0.5_rad);
+
+  // the object form is still what is written
+  REQUIRE(write(read<Frequency>(R"("1khz")")) == R"({"hertz":1000})");
+
+  using namespace radar::mms::common::_glaze_impl;
+  check_literals<Acceleration, acceleration_reading>();
+  check_literals<Angle, angle_reading>();
+  check_literals<AngularAcceleration, angular_acceleration_reading>();
+  check_literals<AngularVelocity, angular_velocity_reading>();
+  check_literals<Capacitance, capacitance_reading>();
+  check_literals<Charge, charge_reading>();
+  check_literals<Conductance, conductance_reading>();
+  check_literals<Current, current_reading>();
+  check_literals<Density, density_reading>();
+  check_literals<Distance, distance_reading>();
+  check_literals<Energy, energy_reading>();
+  check_literals<Force, force_reading>();
+  check_literals<Frequency, frequency_reading>();
+  check_literals<MagneticFluxDensity, magnetic_flux_density_reading>();
+  check_literals<Mass, mass_reading>();
+  check_literals<MomentOfInertia, moment_of_inertia_reading>();
+  check_literals<Power, power_reading>();
+  check_literals<Pressure, pressure_reading>();
+  check_literals<Resistance, resistance_reading>();
+  check_literals<Temperature, temperature_reading>();
+  check_literals<Torque, torque_reading>();
+  check_literals<Velocity, velocity_reading>();
+  check_literals<Voltage, voltage_reading>();
+}
+
+TEST_CASE("Quantity glaze adapters reject malformed literal strings", "[glaze][literal]")
+{
+  for(auto const* const literal : {"400", "hz", "400 hz", "400Hz", "400_hz", "400hzz", ""}) {
+    INFO(literal);
+    REQUIRE(
+      read_error<Frequency>(R"(")" + std::string(literal) + R"(")")
+      == glz::error_code::constraint_violated
+    );
+  }
+  REQUIRE(read_error<Angle>(R"("30")") == glz::error_code::constraint_violated);
+
+  // the message names the suffixes the quantity takes
+  auto value = Frequency {};
+  auto const json = std::string(R"("400hertz")");
+  auto const error = glz::read_json(value, json);
+  REQUIRE(glz::format_error(error, json).contains("unit suffixes hz, khz"));
+}
+
+TEST_CASE("Quantity glaze adapters read binary formats as objects only", "[glaze][literal]")
+{
+  auto buffer = std::string {};
+  REQUIRE_FALSE(glz::write_beve(std::string("400hz"), buffer));
+  auto value = Frequency {};
+  REQUIRE(glz::read_beve(value, buffer));
+}
+
 TEST_CASE("Quantity glaze adapters read TOML in natural units", "[glaze][toml]")
 {
   auto battery = Battery {};
@@ -135,6 +217,18 @@ ambient = { celsius = 15.0 }
   REQUIRE(battery.capacity == Charge::from_ampere_hours(52.0));
   REQUIRE(battery.cutoff == std::vector {Voltage::from_volts(42.0), Voltage::from_volts(58.8)});
   REQUIRE(battery.ambient == Temperature::from_celsius(15.0));
+
+  auto literals = Battery {};
+  auto const literal_toml = std::string(R"(capacity = "52ah"
+cutoff = ['42v', { millivolts = 58800.0 }, "-1mv"]
+ambient = "15degc"
+)");
+  auto const literal_error = glz::read_toml(literals, literal_toml);
+  INFO(glz::format_error(literal_error, literal_toml));
+  REQUIRE_FALSE(literal_error);
+  REQUIRE(literals.capacity == 52_ah);
+  REQUIRE(literals.cutoff == std::vector {42_v, 58.8_v, -1_mv});
+  REQUIRE(literals.ambient == 15_degc);
 }
 
 TEST_CASE("Quantity glaze adapters compose into reflected structs", "[glaze]")

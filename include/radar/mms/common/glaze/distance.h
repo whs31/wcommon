@@ -25,6 +25,36 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> furlongs;
     std::optional<double> miles;
   };
+
+  inline constexpr auto distance_reading = QuantityReading<Distance, DistanceFields, 13, 6> {
+    .fields =
+      {
+        field_unit(&DistanceFields::meters, &Distance::from_meters),
+        field_unit(&DistanceFields::nanometers, &Distance::from_nanometers),
+        field_unit(&DistanceFields::micrometers, &Distance::from_micrometers),
+        field_unit(&DistanceFields::millimeters, &Distance::from_millimeters),
+        field_unit(&DistanceFields::centimeters, &Distance::from_centimeters),
+        field_unit(&DistanceFields::decimeters, &Distance::from_decimeters),
+        field_unit(&DistanceFields::hectometers, &Distance::from_hectometers),
+        field_unit(&DistanceFields::kilometers, &Distance::from_kilometers),
+        field_unit(&DistanceFields::inches, &Distance::from_inches),
+        field_unit(&DistanceFields::feet, &Distance::from_feet),
+        field_unit(&DistanceFields::yards, &Distance::from_yards),
+        field_unit(&DistanceFields::furlongs, &Distance::from_furlongs),
+        field_unit(&DistanceFields::miles, &Distance::from_miles),
+      },
+    .literals =
+      {
+        literal_unit("meters", &Distance::from_meters),
+        literal_unit("kilometers", &Distance::from_kilometers),
+        literal_unit("m", &Distance::from_meters),
+        literal_unit("km", &Distance::from_kilometers),
+        literal_unit("cm", &Distance::from_centimeters),
+        literal_unit("mm", &Distance::from_millimeters),
+      },
+    .unknown_suffix =
+      "a distance literal needs one of the unit suffixes meters, kilometers, m, km, cm, mm",
+  };
 }  // namespace _glaze_impl
 
 RADAR_COMMON_NAMESPACE_END
@@ -32,80 +62,15 @@ RADAR_COMMON_NAMESPACE_END
 /**
  * @brief Glaze metadata of Distance: `{"meters": magnitude}`.
  * @details Reading also accepts the magnitude in `nanometers`, `micrometers`, `millimeters`,
- * `centimeters`, `decimeters`, `hectometers`, `kilometers`, `inches`, `feet`, `yards`, `furlongs`
- * or `miles` instead.
+ * `centimeters`, `decimeters`, `hectometers`, `kilometers`, `inches`, `feet`, `yards`,
+ * `furlongs` or `miles` instead. A text format also reads a literal string, e.g.
+ * `"12.5meters"`, with the suffix of a C++ literal: `meters`, `kilometers`, `m`, `km`, `cm`,
+ * `mm`.
  * @ingroup core_glaze
  */
 template <>
 struct glz::meta<radar::mms::common::Distance>
 {
-  static constexpr auto value = glz::custom<
-    [](
-      radar::mms::common::Distance& value,
-      radar::mms::common::_glaze_impl::DistanceFields const& fields,
-      glz::context& ctx
-    ) {
-      using Unit = radar::mms::common::_glaze_impl::UnitMagnitude<radar::mms::common::Distance>;
-      radar::mms::common::_glaze_impl::read_in_unit(
-        value,
-        ctx,
-        Unit {
-          .magnitude = fields.meters,
-          .from = &radar::mms::common::Distance::from_meters,
-        },
-        Unit {
-          .magnitude = fields.nanometers,
-          .from = &radar::mms::common::Distance::from_nanometers,
-        },
-        Unit {
-          .magnitude = fields.micrometers,
-          .from = &radar::mms::common::Distance::from_micrometers,
-        },
-        Unit {
-          .magnitude = fields.millimeters,
-          .from = &radar::mms::common::Distance::from_millimeters,
-        },
-        Unit {
-          .magnitude = fields.centimeters,
-          .from = &radar::mms::common::Distance::from_centimeters,
-        },
-        Unit {
-          .magnitude = fields.decimeters,
-          .from = &radar::mms::common::Distance::from_decimeters,
-        },
-        Unit {
-          .magnitude = fields.hectometers,
-          .from = &radar::mms::common::Distance::from_hectometers,
-        },
-        Unit {
-          .magnitude = fields.kilometers,
-          .from = &radar::mms::common::Distance::from_kilometers,
-        },
-        Unit {
-          .magnitude = fields.inches,
-          .from = &radar::mms::common::Distance::from_inches,
-        },
-        Unit {
-          .magnitude = fields.feet,
-          .from = &radar::mms::common::Distance::from_feet,
-        },
-        Unit {
-          .magnitude = fields.yards,
-          .from = &radar::mms::common::Distance::from_yards,
-        },
-        Unit {
-          .magnitude = fields.furlongs,
-          .from = &radar::mms::common::Distance::from_furlongs,
-        },
-        Unit {
-          .magnitude = fields.miles,
-          .from = &radar::mms::common::Distance::from_miles,
-        }
-      );
-    },
-    [](radar::mms::common::Distance const& value) {
-      return radar::mms::common::_glaze_impl::DistanceFields {
-        .meters = static_cast<double>(value),
-      };
-    }>;
+  static constexpr auto value = radar::mms::common::_glaze_impl::QuantityAdapter<
+    radar::mms::common::_glaze_impl::distance_reading>::value;
 };

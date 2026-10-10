@@ -14,41 +14,34 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> farads;
     std::optional<double> microfarads;
   };
+
+  inline constexpr auto
+    capacitance_reading = QuantityReading<Capacitance, CapacitanceFields, 2, 2> {
+      .fields =
+        {
+          field_unit(&CapacitanceFields::farads, &Capacitance::from_farads),
+          field_unit(&CapacitanceFields::microfarads, &Capacitance::from_microfarads),
+        },
+      .literals =
+        {
+          literal_unit("f", &Capacitance::from_farads),
+          literal_unit("uf", &Capacitance::from_microfarads),
+        },
+      .unknown_suffix = "a capacitance literal needs one of the unit suffixes f, uf",
+    };
 }  // namespace _glaze_impl
 
 RADAR_COMMON_NAMESPACE_END
 
 /**
  * @brief Glaze metadata of Capacitance: `{"farads": magnitude}`.
- * @details Reading also accepts the magnitude in `microfarads` instead.
+ * @details Reading also accepts the magnitude in `microfarads` instead. A text format also
+ * reads a literal string, e.g. `"12.5f"`, with the suffix of a C++ literal: `f`, `uf`.
  * @ingroup core_glaze
  */
 template <>
 struct glz::meta<radar::mms::common::Capacitance>
 {
-  static constexpr auto value = glz::custom<
-    [](
-      radar::mms::common::Capacitance& value,
-      radar::mms::common::_glaze_impl::CapacitanceFields const& fields,
-      glz::context& ctx
-    ) {
-      using Unit = radar::mms::common::_glaze_impl::UnitMagnitude<radar::mms::common::Capacitance>;
-      radar::mms::common::_glaze_impl::read_in_unit(
-        value,
-        ctx,
-        Unit {
-          .magnitude = fields.farads,
-          .from = &radar::mms::common::Capacitance::from_farads,
-        },
-        Unit {
-          .magnitude = fields.microfarads,
-          .from = &radar::mms::common::Capacitance::from_microfarads,
-        }
-      );
-    },
-    [](radar::mms::common::Capacitance const& value) {
-      return radar::mms::common::_glaze_impl::CapacitanceFields {
-        .farads = static_cast<double>(value),
-      };
-    }>;
+  static constexpr auto value = radar::mms::common::_glaze_impl::QuantityAdapter<
+    radar::mms::common::_glaze_impl::capacitance_reading>::value;
 };

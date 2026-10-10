@@ -14,41 +14,33 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> watts;
     std::optional<double> kilowatts;
   };
+
+  inline constexpr auto power_reading = QuantityReading<Power, PowerFields, 2, 2> {
+    .fields =
+      {
+        field_unit(&PowerFields::watts, &Power::from_watts),
+        field_unit(&PowerFields::kilowatts, &Power::from_kilowatts),
+      },
+    .literals =
+      {
+        literal_unit("w", &Power::from_watts),
+        literal_unit("kw", &Power::from_kilowatts),
+      },
+    .unknown_suffix = "a power literal needs one of the unit suffixes w, kw",
+  };
 }  // namespace _glaze_impl
 
 RADAR_COMMON_NAMESPACE_END
 
 /**
  * @brief Glaze metadata of Power: `{"watts": magnitude}`.
- * @details Reading also accepts the magnitude in `kilowatts` instead.
+ * @details Reading also accepts the magnitude in `kilowatts` instead. A text format also reads
+ * a literal string, e.g. `"12.5w"`, with the suffix of a C++ literal: `w`, `kw`.
  * @ingroup core_glaze
  */
 template <>
 struct glz::meta<radar::mms::common::Power>
 {
-  static constexpr auto value = glz::custom<
-    [](
-      radar::mms::common::Power& value,
-      radar::mms::common::_glaze_impl::PowerFields const& fields,
-      glz::context& ctx
-    ) {
-      using Unit = radar::mms::common::_glaze_impl::UnitMagnitude<radar::mms::common::Power>;
-      radar::mms::common::_glaze_impl::read_in_unit(
-        value,
-        ctx,
-        Unit {
-          .magnitude = fields.watts,
-          .from = &radar::mms::common::Power::from_watts,
-        },
-        Unit {
-          .magnitude = fields.kilowatts,
-          .from = &radar::mms::common::Power::from_kilowatts,
-        }
-      );
-    },
-    [](radar::mms::common::Power const& value) {
-      return radar::mms::common::_glaze_impl::PowerFields {
-        .watts = static_cast<double>(value),
-      };
-    }>;
+  static constexpr auto value = radar::mms::common::_glaze_impl::QuantityAdapter<
+    radar::mms::common::_glaze_impl::power_reading>::value;
 };

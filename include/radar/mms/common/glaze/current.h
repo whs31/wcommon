@@ -14,41 +14,33 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> amperes;
     std::optional<double> milliamperes;
   };
+
+  inline constexpr auto current_reading = QuantityReading<Current, CurrentFields, 2, 2> {
+    .fields =
+      {
+        field_unit(&CurrentFields::amperes, &Current::from_amperes),
+        field_unit(&CurrentFields::milliamperes, &Current::from_milliamperes),
+      },
+    .literals =
+      {
+        literal_unit("a", &Current::from_amperes),
+        literal_unit("ma", &Current::from_milliamperes),
+      },
+    .unknown_suffix = "a current literal needs one of the unit suffixes a, ma",
+  };
 }  // namespace _glaze_impl
 
 RADAR_COMMON_NAMESPACE_END
 
 /**
  * @brief Glaze metadata of Current: `{"amperes": magnitude}`.
- * @details Reading also accepts the magnitude in `milliamperes` instead.
+ * @details Reading also accepts the magnitude in `milliamperes` instead. A text format also
+ * reads a literal string, e.g. `"12.5a"`, with the suffix of a C++ literal: `a`, `ma`.
  * @ingroup core_glaze
  */
 template <>
 struct glz::meta<radar::mms::common::Current>
 {
-  static constexpr auto value = glz::custom<
-    [](
-      radar::mms::common::Current& value,
-      radar::mms::common::_glaze_impl::CurrentFields const& fields,
-      glz::context& ctx
-    ) {
-      using Unit = radar::mms::common::_glaze_impl::UnitMagnitude<radar::mms::common::Current>;
-      radar::mms::common::_glaze_impl::read_in_unit(
-        value,
-        ctx,
-        Unit {
-          .magnitude = fields.amperes,
-          .from = &radar::mms::common::Current::from_amperes,
-        },
-        Unit {
-          .magnitude = fields.milliamperes,
-          .from = &radar::mms::common::Current::from_milliamperes,
-        }
-      );
-    },
-    [](radar::mms::common::Current const& value) {
-      return radar::mms::common::_glaze_impl::CurrentFields {
-        .amperes = static_cast<double>(value),
-      };
-    }>;
+  static constexpr auto value = radar::mms::common::_glaze_impl::QuantityAdapter<
+    radar::mms::common::_glaze_impl::current_reading>::value;
 };

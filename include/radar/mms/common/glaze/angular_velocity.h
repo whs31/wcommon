@@ -15,46 +15,44 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> degrees_per_second;
     std::optional<double> rpm;
   };
+
+  inline constexpr auto
+    angular_velocity_reading = QuantityReading<AngularVelocity, AngularVelocityFields, 3, 3> {
+      .fields =
+        {
+          field_unit(
+            &AngularVelocityFields::radians_per_second,
+            &AngularVelocity::from_radians_per_second
+          ),
+          field_unit(
+            &AngularVelocityFields::degrees_per_second,
+            &AngularVelocity::from_degrees_per_second
+          ),
+          field_unit(&AngularVelocityFields::rpm, &AngularVelocity::from_rpm),
+        },
+      .literals =
+        {
+          literal_unit("rad_per_s", &AngularVelocity::from_radians_per_second),
+          literal_unit("deg_per_s", &AngularVelocity::from_degrees_per_second),
+          literal_unit("rpm", &AngularVelocity::from_rpm),
+        },
+      .unknown_suffix =
+        "a angular velocity literal needs one of the unit suffixes rad_per_s, deg_per_s, rpm",
+    };
 }  // namespace _glaze_impl
 
 RADAR_COMMON_NAMESPACE_END
 
 /**
  * @brief Glaze metadata of AngularVelocity: `{"radians_per_second": magnitude}`.
- * @details Reading also accepts the magnitude in `degrees_per_second` or `rpm` instead.
+ * @details Reading also accepts the magnitude in `degrees_per_second` or `rpm` instead. A text
+ * format also reads a literal string, e.g. `"12.5rad_per_s"`, with the suffix of a C++ literal:
+ * `rad_per_s`, `deg_per_s`, `rpm`.
  * @ingroup core_glaze
  */
 template <>
 struct glz::meta<radar::mms::common::AngularVelocity>
 {
-  static constexpr auto value = glz::custom<
-    [](
-      radar::mms::common::AngularVelocity& value,
-      radar::mms::common::_glaze_impl::AngularVelocityFields const& fields,
-      glz::context& ctx
-    ) {
-      using Unit = radar::mms::common::_glaze_impl::UnitMagnitude<
-        radar::mms::common::AngularVelocity>;
-      radar::mms::common::_glaze_impl::read_in_unit(
-        value,
-        ctx,
-        Unit {
-          .magnitude = fields.radians_per_second,
-          .from = &radar::mms::common::AngularVelocity::from_radians_per_second,
-        },
-        Unit {
-          .magnitude = fields.degrees_per_second,
-          .from = &radar::mms::common::AngularVelocity::from_degrees_per_second,
-        },
-        Unit {
-          .magnitude = fields.rpm,
-          .from = &radar::mms::common::AngularVelocity::from_rpm,
-        }
-      );
-    },
-    [](radar::mms::common::AngularVelocity const& value) {
-      return radar::mms::common::_glaze_impl::AngularVelocityFields {
-        .radians_per_second = static_cast<double>(value),
-      };
-    }>;
+  static constexpr auto value = radar::mms::common::_glaze_impl::QuantityAdapter<
+    radar::mms::common::_glaze_impl::angular_velocity_reading>::value;
 };

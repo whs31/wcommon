@@ -14,41 +14,33 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> kilograms;
     std::optional<double> grams;
   };
+
+  inline constexpr auto mass_reading = QuantityReading<Mass, MassFields, 2, 2> {
+    .fields =
+      {
+        field_unit(&MassFields::kilograms, &Mass::from_kilograms),
+        field_unit(&MassFields::grams, &Mass::from_grams),
+      },
+    .literals =
+      {
+        literal_unit("kg", &Mass::from_kilograms),
+        literal_unit("g", &Mass::from_grams),
+      },
+    .unknown_suffix = "a mass literal needs one of the unit suffixes kg, g",
+  };
 }  // namespace _glaze_impl
 
 RADAR_COMMON_NAMESPACE_END
 
 /**
  * @brief Glaze metadata of Mass: `{"kilograms": magnitude}`.
- * @details Reading also accepts the magnitude in `grams` instead.
+ * @details Reading also accepts the magnitude in `grams` instead. A text format also reads a
+ * literal string, e.g. `"12.5kg"`, with the suffix of a C++ literal: `kg`, `g`.
  * @ingroup core_glaze
  */
 template <>
 struct glz::meta<radar::mms::common::Mass>
 {
-  static constexpr auto value = glz::custom<
-    [](
-      radar::mms::common::Mass& value,
-      radar::mms::common::_glaze_impl::MassFields const& fields,
-      glz::context& ctx
-    ) {
-      using Unit = radar::mms::common::_glaze_impl::UnitMagnitude<radar::mms::common::Mass>;
-      radar::mms::common::_glaze_impl::read_in_unit(
-        value,
-        ctx,
-        Unit {
-          .magnitude = fields.kilograms,
-          .from = &radar::mms::common::Mass::from_kilograms,
-        },
-        Unit {
-          .magnitude = fields.grams,
-          .from = &radar::mms::common::Mass::from_grams,
-        }
-      );
-    },
-    [](radar::mms::common::Mass const& value) {
-      return radar::mms::common::_glaze_impl::MassFields {
-        .kilograms = static_cast<double>(value),
-      };
-    }>;
+  static constexpr auto value = radar::mms::common::_glaze_impl::QuantityAdapter<
+    radar::mms::common::_glaze_impl::mass_reading>::value;
 };

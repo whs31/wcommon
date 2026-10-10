@@ -14,41 +14,33 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> ohms;
     std::optional<double> milliohms;
   };
+
+  inline constexpr auto resistance_reading = QuantityReading<Resistance, ResistanceFields, 2, 2> {
+    .fields =
+      {
+        field_unit(&ResistanceFields::ohms, &Resistance::from_ohms),
+        field_unit(&ResistanceFields::milliohms, &Resistance::from_milliohms),
+      },
+    .literals =
+      {
+        literal_unit("ohm", &Resistance::from_ohms),
+        literal_unit("mohm", &Resistance::from_milliohms),
+      },
+    .unknown_suffix = "a resistance literal needs one of the unit suffixes ohm, mohm",
+  };
 }  // namespace _glaze_impl
 
 RADAR_COMMON_NAMESPACE_END
 
 /**
  * @brief Glaze metadata of Resistance: `{"ohms": magnitude}`.
- * @details Reading also accepts the magnitude in `milliohms` instead.
+ * @details Reading also accepts the magnitude in `milliohms` instead. A text format also reads
+ * a literal string, e.g. `"12.5ohm"`, with the suffix of a C++ literal: `ohm`, `mohm`.
  * @ingroup core_glaze
  */
 template <>
 struct glz::meta<radar::mms::common::Resistance>
 {
-  static constexpr auto value = glz::custom<
-    [](
-      radar::mms::common::Resistance& value,
-      radar::mms::common::_glaze_impl::ResistanceFields const& fields,
-      glz::context& ctx
-    ) {
-      using Unit = radar::mms::common::_glaze_impl::UnitMagnitude<radar::mms::common::Resistance>;
-      radar::mms::common::_glaze_impl::read_in_unit(
-        value,
-        ctx,
-        Unit {
-          .magnitude = fields.ohms,
-          .from = &radar::mms::common::Resistance::from_ohms,
-        },
-        Unit {
-          .magnitude = fields.milliohms,
-          .from = &radar::mms::common::Resistance::from_milliohms,
-        }
-      );
-    },
-    [](radar::mms::common::Resistance const& value) {
-      return radar::mms::common::_glaze_impl::ResistanceFields {
-        .ohms = static_cast<double>(value),
-      };
-    }>;
+  static constexpr auto value = radar::mms::common::_glaze_impl::QuantityAdapter<
+    radar::mms::common::_glaze_impl::resistance_reading>::value;
 };

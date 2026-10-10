@@ -15,45 +15,36 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> watt_hours;
     std::optional<double> kilowatt_hours;
   };
+
+  inline constexpr auto energy_reading = QuantityReading<Energy, EnergyFields, 3, 3> {
+    .fields =
+      {
+        field_unit(&EnergyFields::joules, &Energy::from_joules),
+        field_unit(&EnergyFields::watt_hours, &Energy::from_watt_hours),
+        field_unit(&EnergyFields::kilowatt_hours, &Energy::from_kilowatt_hours),
+      },
+    .literals =
+      {
+        literal_unit("j", &Energy::from_joules),
+        literal_unit("wh", &Energy::from_watt_hours),
+        literal_unit("kwh", &Energy::from_kilowatt_hours),
+      },
+    .unknown_suffix = "a energy literal needs one of the unit suffixes j, wh, kwh",
+  };
 }  // namespace _glaze_impl
 
 RADAR_COMMON_NAMESPACE_END
 
 /**
  * @brief Glaze metadata of Energy: `{"joules": magnitude}`.
- * @details Reading also accepts the magnitude in `watt_hours` or `kilowatt_hours` instead.
+ * @details Reading also accepts the magnitude in `watt_hours` or `kilowatt_hours` instead. A
+ * text format also reads a literal string, e.g. `"12.5j"`, with the suffix of a C++ literal:
+ * `j`, `wh`, `kwh`.
  * @ingroup core_glaze
  */
 template <>
 struct glz::meta<radar::mms::common::Energy>
 {
-  static constexpr auto value = glz::custom<
-    [](
-      radar::mms::common::Energy& value,
-      radar::mms::common::_glaze_impl::EnergyFields const& fields,
-      glz::context& ctx
-    ) {
-      using Unit = radar::mms::common::_glaze_impl::UnitMagnitude<radar::mms::common::Energy>;
-      radar::mms::common::_glaze_impl::read_in_unit(
-        value,
-        ctx,
-        Unit {
-          .magnitude = fields.joules,
-          .from = &radar::mms::common::Energy::from_joules,
-        },
-        Unit {
-          .magnitude = fields.watt_hours,
-          .from = &radar::mms::common::Energy::from_watt_hours,
-        },
-        Unit {
-          .magnitude = fields.kilowatt_hours,
-          .from = &radar::mms::common::Energy::from_kilowatt_hours,
-        }
-      );
-    },
-    [](radar::mms::common::Energy const& value) {
-      return radar::mms::common::_glaze_impl::EnergyFields {
-        .joules = static_cast<double>(value),
-      };
-    }>;
+  static constexpr auto value = radar::mms::common::_glaze_impl::QuantityAdapter<
+    radar::mms::common::_glaze_impl::energy_reading>::value;
 };

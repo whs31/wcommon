@@ -14,41 +14,34 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> meters_per_second_squared;
     std::optional<double> standard_gravity;
   };
+
+  inline constexpr auto
+    acceleration_reading = QuantityReading<Acceleration, AccelerationFields, 2, 2> {
+      .fields =
+        {
+          field_unit(&AccelerationFields::meters_per_second_squared, &Acceleration::from_mps2),
+          field_unit(&AccelerationFields::standard_gravity, &Acceleration::from_standard_gravity),
+        },
+      .literals =
+        {
+          literal_unit("mps2", &Acceleration::from_mps2),
+          literal_unit("gn", &Acceleration::from_standard_gravity),
+        },
+      .unknown_suffix = "a acceleration literal needs one of the unit suffixes mps2, gn",
+    };
 }  // namespace _glaze_impl
 
 RADAR_COMMON_NAMESPACE_END
 
 /**
  * @brief Glaze metadata of Acceleration: `{"meters_per_second_squared": magnitude}`.
- * @details Reading also accepts the magnitude in `standard_gravity` instead.
+ * @details Reading also accepts the magnitude in `standard_gravity` instead. A text format also
+ * reads a literal string, e.g. `"12.5mps2"`, with the suffix of a C++ literal: `mps2`, `gn`.
  * @ingroup core_glaze
  */
 template <>
 struct glz::meta<radar::mms::common::Acceleration>
 {
-  static constexpr auto value = glz::custom<
-    [](
-      radar::mms::common::Acceleration& value,
-      radar::mms::common::_glaze_impl::AccelerationFields const& fields,
-      glz::context& ctx
-    ) {
-      using Unit = radar::mms::common::_glaze_impl::UnitMagnitude<radar::mms::common::Acceleration>;
-      radar::mms::common::_glaze_impl::read_in_unit(
-        value,
-        ctx,
-        Unit {
-          .magnitude = fields.meters_per_second_squared,
-          .from = &radar::mms::common::Acceleration::from_mps2,
-        },
-        Unit {
-          .magnitude = fields.standard_gravity,
-          .from = &radar::mms::common::Acceleration::from_standard_gravity,
-        }
-      );
-    },
-    [](radar::mms::common::Acceleration const& value) {
-      return radar::mms::common::_glaze_impl::AccelerationFields {
-        .meters_per_second_squared = static_cast<double>(value),
-      };
-    }>;
+  static constexpr auto value = radar::mms::common::_glaze_impl::QuantityAdapter<
+    radar::mms::common::_glaze_impl::acceleration_reading>::value;
 };

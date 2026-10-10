@@ -15,45 +15,36 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> kilonewtons;
     std::optional<double> kilograms_force;
   };
+
+  inline constexpr auto force_reading = QuantityReading<Force, ForceFields, 3, 3> {
+    .fields =
+      {
+        field_unit(&ForceFields::newtons, &Force::from_newtons),
+        field_unit(&ForceFields::kilonewtons, &Force::from_kilonewtons),
+        field_unit(&ForceFields::kilograms_force, &Force::from_kilograms_force),
+      },
+    .literals =
+      {
+        literal_unit("n", &Force::from_newtons),
+        literal_unit("kn", &Force::from_kilonewtons),
+        literal_unit("kgf", &Force::from_kilograms_force),
+      },
+    .unknown_suffix = "a force literal needs one of the unit suffixes n, kn, kgf",
+  };
 }  // namespace _glaze_impl
 
 RADAR_COMMON_NAMESPACE_END
 
 /**
  * @brief Glaze metadata of Force: `{"newtons": magnitude}`.
- * @details Reading also accepts the magnitude in `kilonewtons` or `kilograms_force` instead.
+ * @details Reading also accepts the magnitude in `kilonewtons` or `kilograms_force` instead. A
+ * text format also reads a literal string, e.g. `"12.5n"`, with the suffix of a C++ literal:
+ * `n`, `kn`, `kgf`.
  * @ingroup core_glaze
  */
 template <>
 struct glz::meta<radar::mms::common::Force>
 {
-  static constexpr auto value = glz::custom<
-    [](
-      radar::mms::common::Force& value,
-      radar::mms::common::_glaze_impl::ForceFields const& fields,
-      glz::context& ctx
-    ) {
-      using Unit = radar::mms::common::_glaze_impl::UnitMagnitude<radar::mms::common::Force>;
-      radar::mms::common::_glaze_impl::read_in_unit(
-        value,
-        ctx,
-        Unit {
-          .magnitude = fields.newtons,
-          .from = &radar::mms::common::Force::from_newtons,
-        },
-        Unit {
-          .magnitude = fields.kilonewtons,
-          .from = &radar::mms::common::Force::from_kilonewtons,
-        },
-        Unit {
-          .magnitude = fields.kilograms_force,
-          .from = &radar::mms::common::Force::from_kilograms_force,
-        }
-      );
-    },
-    [](radar::mms::common::Force const& value) {
-      return radar::mms::common::_glaze_impl::ForceFields {
-        .newtons = static_cast<double>(value),
-      };
-    }>;
+  static constexpr auto value = radar::mms::common::_glaze_impl::QuantityAdapter<
+    radar::mms::common::_glaze_impl::force_reading>::value;
 };
