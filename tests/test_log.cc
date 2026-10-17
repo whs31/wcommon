@@ -7,6 +7,7 @@
 #include <filesystem>
 #include <limits>
 #include <optional>
+#include <sstream>
 #include <string>
 
 #ifdef RCOMMON_WITH_QT
@@ -15,6 +16,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <spdlog/sinks/callback_sink.h>
+#include <spdlog/sinks/ostream_sink.h>
 
 using namespace radar::mms;
 
@@ -164,6 +166,40 @@ TEST_CASE("create_logger installs additional sinks during construction", "[log]"
   logger->info("info reaches additional sink");
 
   REQUIRE(callback_count == 1);
+}
+
+TEST_CASE("aligned_log_pattern pads every column to a fixed width", "[log]")
+{
+  auto const name = std::string {"rcommon.pattern"};
+  auto const drop = ScopedSpdlogDrop(name);
+  auto stream = std::ostringstream();
+  auto config = stdout_config(name);
+  config.pattern = std::string(aligned_log_pattern);
+  config.additional_sinks.push_back(std::make_shared<spdlog::sinks::ostream_sink_mt>(stream));
+
+  auto const logger = create_logger(config);
+  stream.str({});
+  logger->log(
+    spdlog::source_loc {"/src/model/parameters.cc", 53, "load"},
+    spdlog::level::info,
+    "loaded parameters"
+  );
+  logger->log(spdlog::level::critical, "no source");
+
+  auto lines = std::istringstream(stream.str());
+  auto with_source = std::string();
+  auto without_source = std::string();
+  REQUIRE(std::getline(lines, with_source));
+  REQUIRE(std::getline(lines, without_source));
+
+  // `[13:43:05.120] ` is 15 characters wide
+  REQUIRE(
+    with_source.substr(15)
+    == "info     rcommon.pattern          parameters.cc:53   loaded parameters"
+  );
+  REQUIRE(
+    without_source.substr(15) == "critical rcommon.pattern                       :     no source"
+  );
 }
 
 TEST_CASE("Dynamic log sinks can be attached and detached at runtime", "[log]")

@@ -4,7 +4,7 @@ message(DEBUG "Using ${CMAKE_TOOLCHAIN_FILE}")
 message(DEBUG "Tests: ${BUILD_TESTING}")
 
 project(rcommon
-  VERSION 5.1.2
+  VERSION 5.1.3
   DESCRIPTION "Radar common utility library"
   HOMEPAGE_URL "http://gitlab.uav.radar-mms.com/developers/v2/support/rcommon"
   LANGUAGES CXX

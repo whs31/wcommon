@@ -7,6 +7,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -50,6 +51,28 @@ enum class LogTarget : std::uint8_t
   Stdout = 1 << 0,           ///< Add a colored stdout sink.
   File = 1 << 1,             ///< Add a rotating file sink.
   All = (1 << 0) | (1 << 1)  ///< Add stdout and file sinks.
+};
+
+/**
+ * @brief Fixed-width spdlog pattern for applications that want aligned log columns.
+ * @details Produces lines like:
+ *
+ * `[13:43:05.120] info     helisim.model            parameters.cc:53   loaded VT30 parameters`
+ *
+ * The level column fits `critical`, the logger name column is 21 characters wide and the source
+ * file name is right-aligned to 16 characters. Longer names are not truncated and shift the rest
+ * of the line. Messages without a source location leave the file and line columns blank.
+ *
+ * @code {.cpp}
+ * auto logger = radar::mms::create_logger({
+ *   .name = "core",
+ *   .pattern = std::string(radar::mms::aligned_log_pattern),
+ * });
+ * @endcode
+ * @ingroup core_logging
+ */
+inline auto constexpr aligned_log_pattern = std::string_view {
+  "[%T.%e] %^%-8l%$ %-21n %16s:%-4# %v"
 };
 
 /**
