@@ -27,6 +27,7 @@ from clang_tools import (
   error_line,
   fail_line,
   file_link,
+  find_files,
   find_format_sources,
   info_line,
   ok_line,
@@ -38,7 +39,9 @@ from clang_tools import (
 )
 
 # only project sources and headers; generated code (export headers) lives in the build tree
-PROJECT_DIRS = ("include", "src", "tests")
+PROJECT_DIRS = r"(include|src|tests)"
+# how to get a build/<config>/compile_commands.json
+CONFIGURE_COMMAND = "conan build ."
 # qt adds gcc-only flags to the compile commands of gcc builds; clang rejects them
 GCC_ONLY_FLAGS = {"-mno-direct-extern-access"}
 
@@ -263,7 +266,8 @@ def find_compile_commands(build_dir: Path | None) -> Path:
   )
   if not candidates:
     raise CheckError(
-      "no build/*/compile_commands.json found; configure the project first (conan build .)"
+      "no build/*/compile_commands.json found; "
+      f"configure the project first ({CONFIGURE_COMMAND})"
     )
   return candidates[0]
 
@@ -297,7 +301,7 @@ def sanitize_compile_commands(source: Path, destination: Path) -> dict[str, str]
 
 def project_filter() -> str:
   root = re.escape(str(REPO_ROOT).rstrip("/\\"))
-  return rf"^{root}[/\\]({'|'.join(PROJECT_DIRS)})[/\\]"
+  return rf"^{root}[/\\]{PROJECT_DIRS}[/\\]"
 
 
 def tidy_flags() -> list[str]:
@@ -330,11 +334,7 @@ class TidyCache:
   def __init__(self, directory: Path, tool: Tool, started_ns: int) -> None:
     self.directory = directory
     self.started_ns = started_ns
-    configs = [REPO_ROOT / ".clang-tidy"] + [
-      config
-      for name in PROJECT_DIRS
-      for config in sorted((REPO_ROOT / name).rglob(".clang-tidy"))
-    ]
+    configs = find_files(lambda name: name == ".clang-tidy")
     self.setup = [
       CACHE_VERSION,
       tool.version,
@@ -488,7 +488,7 @@ def run_clang_tidy(
   compile_commands = find_compile_commands(build_dir)
   file_digest.cache_clear()
 
-  with tempfile.TemporaryDirectory(prefix="rcommon-check-") as temp_dir:
+  with tempfile.TemporaryDirectory(prefix=f"{REPO_ROOT.name}-check-") as temp_dir:
     database_dir = Path(temp_dir)
     commands = sanitize_compile_commands(
       compile_commands, database_dir / "compile_commands.json"

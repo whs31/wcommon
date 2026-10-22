@@ -65,8 +65,9 @@ def pinned_tool(name: str) -> Tool:
   return Tool(name, str(executable), version)
 
 
-def find_format_sources() -> list[Path]:
-  sources = []
+def find_files(matches: Callable[[str], bool]) -> list[Path]:
+  """Lists repository files whose name matches, skipping VCS, tooling and build directories."""
+  found = []
   for root, dirs, files in os.walk(REPO_ROOT):
     if Path(root) == REPO_ROOT:
       dirs[:] = [
@@ -74,10 +75,12 @@ def find_format_sources() -> list[Path]:
         for name in dirs
         if name not in EXCLUDED_DIRS and not name.startswith(EXCLUDED_DIR_PREFIXES)
       ]
-    sources.extend(
-      Path(root) / name for name in files if Path(name).suffix in SOURCE_SUFFIXES
-    )
-  return sorted(sources)
+    found.extend(Path(root) / name for name in files if matches(name))
+  return sorted(found)
+
+
+def find_format_sources() -> list[Path]:
+  return find_files(lambda name: Path(name).suffix in SOURCE_SUFFIXES)
 
 
 def batched[T](items: list[T], size: int = CLANG_FORMAT_BATCH) -> list[list[T]]:
