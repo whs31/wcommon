@@ -51,6 +51,7 @@
 #include <radar/mms/common/angle.h>
 #include <radar/mms/common/angular_acceleration.h>
 #include <radar/mms/common/angular_velocity.h>
+#include <radar/mms/common/bit.h>
 #include <radar/mms/common/capacitance.h>
 #include <radar/mms/common/char_utils.h>
 #include <radar/mms/common/charge.h>
@@ -75,6 +76,7 @@
 #include <radar/mms/common/magnetic_flux_density.h>
 #include <radar/mms/common/mass.h>
 #include <radar/mms/common/math.h>
+#include <radar/mms/common/memo.h>
 #include <radar/mms/common/matrix3x3.h>
 #include <radar/mms/common/memory.h>
 #include <radar/mms/common/moment_of_inertia.h>
