@@ -151,8 +151,8 @@ TEST_CASE("IP addresses support ordering and hashing", "[network][ip]")
 
 TEST_CASE("Socket address value operations are constexpr", "[network][sockaddr]")
 {
-  constexpr auto v4 = SockAddrV4(Ipv4Addr::from_octets(127, 0, 0, 1), 8'080);
-  constexpr auto v6 = SockAddrV6(Ipv6Addr::from_segments(0, 0, 0, 0, 0, 0, 0, 1), 443, 12, 34);
+  auto constexpr v4 = SockAddrV4(Ipv4Addr::from_octets(127, 0, 0, 1), 8'080);
+  auto constexpr v6 = SockAddrV6(Ipv6Addr::from_segments(0, 0, 0, 0, 0, 0, 0, 1), 443, 12, 34);
 
   STATIC_CHECK(v4.port() == 8'080);
   STATIC_CHECK(v6.port() == 443);

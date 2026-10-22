@@ -16,7 +16,7 @@ using namespace radar::mms::common;
 
 TEST_CASE("Matrix JSON adapter round-trips rows", "[linalg][json]")
 {
-  constexpr auto matrix = Matrix3x3::from_rows({1.0, 2.0, 3.0}, {4.0, 5.0, 6.0}, {7.0, 8.0, 9.5});
+  auto constexpr matrix = Matrix3x3::from_rows({1.0, 2.0, 3.0}, {4.0, 5.0, 6.0}, {7.0, 8.0, 9.5});
 
   REQUIRE(nlohmann::json(matrix) == nlohmann::json::parse("[[1, 2, 3], [4, 5, 6], [7, 8, 9.5]]"));
   REQUIRE(nlohmann::json(matrix).get<Matrix3x3>() == matrix);
@@ -34,7 +34,7 @@ TEST_CASE("Matrix JSON adapter round-trips rows", "[linalg][json]")
 
 TEST_CASE("Quaternion JSON adapter round-trips components", "[linalg][json]")
 {
-  constexpr auto quaternion = Quaternion(0.5, -0.5, 0.25, 1.0);
+  auto constexpr quaternion = Quaternion(0.5, -0.5, 0.25, 1.0);
 
   REQUIRE(
     nlohmann::json(quaternion) == nlohmann::json({{"w", 0.5}, {"x", -0.5}, {"y", 0.25}, {"z", 1.0}})

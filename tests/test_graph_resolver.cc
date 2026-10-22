@@ -100,7 +100,7 @@ TEST_CASE("GraphResolver detects self and multi-node cycles", "[graph_resolver]"
 
 TEST_CASE("GraphResolver handles long dependency chains without recursion", "[graph_resolver]")
 {
-  constexpr auto node_count = 20'000;
+  auto constexpr node_count = 20'000;
   auto resolver = GraphResolver();
   resolver.enqueue(id(0), {});
   for(auto value = 1; value < node_count; ++value)

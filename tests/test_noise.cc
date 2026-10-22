@@ -1,6 +1,7 @@
 #include <radar/mms/common/error.h>
 #include <radar/mms/common/noise.h>
 #include <radar/mms/common/random.h>
+#include <radar/mms/common/math.h>
 
 #include <cmath>
 #include <cstddef>
@@ -17,12 +18,13 @@
 
 using namespace radar::mms;
 using namespace std::chrono_literals;
+
 using Catch::Matchers::WithinAbs;
 using Catch::Matchers::WithinRel;
 
 namespace
 {
-  constexpr auto world_seed = std::uint64_t {1};
+  auto constexpr world_seed = std::uint64_t {1};
 
   [[nodiscard]] double mean_of(std::vector<double> const& values)
   {
@@ -52,8 +54,8 @@ TEST_CASE("Noise processes are trivially copyable aggregates", "[random][noise]"
 TEST_CASE("White noise variance matches its power spectral density", "[random][noise]")
 {
   // 1e-6 (m/s²)²/Hz sampled at 100 Hz
-  constexpr auto psd = 1e-6;
-  constexpr auto period = 10ms;
+  auto constexpr psd = 1e-6;
+  auto constexpr period = 10ms;
   auto const noise = WhiteNoise::from_psd(psd, period);
   CHECK_THAT(noise.sigma, WithinRel(0.01, 1e-15));
   CHECK(white_noise_sigma(psd, 0.01s) == noise.sigma);
@@ -71,9 +73,9 @@ TEST_CASE("White noise variance matches its power spectral density", "[random][n
 
 TEST_CASE("Gauss–Markov autocorrelation matches its correlation time", "[random][noise]")
 {
-  constexpr auto sigma = 2.0;
-  constexpr auto tau_s = 0.5;
-  constexpr auto period_s = 0.01;
+  auto constexpr sigma = 2.0;
+  auto constexpr tau_s = 0.5;
+  auto constexpr period_s = 0.01;
   auto stream = RandomStream::derive(world_seed, "vt30-1", "test.gauss_markov");
   auto process = GaussMarkov::with(sigma, 500ms, 10ms, stream.normal(0.0, sigma));
   CHECK_THAT(process.phi, WithinRel(std::exp(-period_s / tau_s), 1e-15));
@@ -97,8 +99,8 @@ TEST_CASE("Gauss–Markov autocorrelation matches its correlation time", "[rando
 
 TEST_CASE("Random walk variance grows by its density squared per second", "[random][noise]")
 {
-  constexpr auto density = 0.3;
-  constexpr auto period_s = 0.0025;
+  auto constexpr density = 0.3;
+  auto constexpr period_s = 0.0025;
   auto stream = RandomStream::derive(world_seed, "vt30-1", "test.random_walk");
   auto walk = RandomWalk::with(density, 2.5ms, 1.0);
   CHECK_THAT(walk.step_sigma, WithinRel(density * std::sqrt(period_s), 1e-15));
@@ -135,18 +137,16 @@ TEST_CASE("Every sample draws once whatever the parameters", "[random][noise]")
 
 TEST_CASE("Invalid noise parameters are rejected", "[random][noise]")
 {
-  constexpr auto nan = std::numeric_limits<double>::quiet_NaN();
-
   CHECK_THROWS_AS(white_noise_sigma(-1.0, 10ms), InvalidArgumentError);
-  CHECK_THROWS_AS(white_noise_sigma(nan, 10ms), InvalidArgumentError);
+  CHECK_THROWS_AS(white_noise_sigma(NaN, 10ms), InvalidArgumentError);
   CHECK_THROWS_AS(white_noise_sigma(1.0, 0s), InvalidArgumentError);
   CHECK_THROWS_AS(GaussMarkov::with(-1.0, 1s, 10ms), InvalidArgumentError);
   CHECK_THROWS_AS(GaussMarkov::with(1.0, 0s, 10ms), InvalidArgumentError);
-  CHECK_THROWS_AS(GaussMarkov::with(1.0, 1s, 10ms, nan), InvalidArgumentError);
+  CHECK_THROWS_AS(GaussMarkov::with(1.0, 1s, 10ms, NaN), InvalidArgumentError);
   CHECK_THROWS_AS(RandomWalk::with(-0.1, 10ms), InvalidArgumentError);
   CHECK_THROWS_AS(RandomWalk::with(0.1, -10ms), InvalidArgumentError);
   CHECK_THROWS_AS(
-    RandomWalk::with(0.1, std::chrono::duration<double>(std::numeric_limits<double>::infinity())),
+    RandomWalk::with(0.1, std::chrono::duration<double>(Inf)),
     InvalidArgumentError
   );
 }

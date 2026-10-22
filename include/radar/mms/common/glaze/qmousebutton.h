@@ -20,7 +20,7 @@
 template <>
 struct glz::meta<Qt::MouseButtons>
 {
-  static constexpr auto value = glz::custom<
+  static auto constexpr value = glz::custom<
     [](Qt::MouseButtons& value, int const number) { value = Qt::MouseButtons::fromInt(number); },
     [](Qt::MouseButtons const value) { return static_cast<int>(value); }>;
 };

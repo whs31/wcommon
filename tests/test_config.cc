@@ -5,14 +5,14 @@
 #include <catch2/catch_test_macros.hpp>
 
 #ifdef RCOMMON_WITH_QT
-inline constexpr auto rcommon_with_qt = true;
+inline auto constexpr rcommon_with_qt = true;
 #else
-inline constexpr auto rcommon_with_qt = false;
+inline auto constexpr rcommon_with_qt = false;
 #endif
 
 TEST_CASE("Version macros encode and decode components", "[core][config]")
 {
-  constexpr auto version = RADAR_VERSION_ENCODE(12, 34, 56);
+  auto constexpr version = RADAR_VERSION_ENCODE(12, 34, 56);
 
   STATIC_CHECK(version == 12'034'056);
   STATIC_CHECK(RADAR_VERSION_DECODE_MAJOR(version) == 12);
@@ -23,7 +23,7 @@ TEST_CASE("Version macros encode and decode components", "[core][config]")
 TEST_CASE("Preprocessor helpers expand arguments", "[core][config]")
 {
 #define RCOMMON_TEST_NUMBER 42  // NOLINT(cppcoreguidelines-macro-usage): the helpers expand macros
-  constexpr auto RCOMMON_TEST_TOKEN_SUFFIX = 8;
+  auto constexpr RCOMMON_TEST_TOKEN_SUFFIX = 8;
 
   STATIC_CHECK(std::string_view {RADAR_STRINGIFY(RCOMMON_TEST_NUMBER)} == "42");
   STATIC_CHECK(RADAR_CONCAT(RCOMMON_TEST_TOKEN, _SUFFIX) == 8);

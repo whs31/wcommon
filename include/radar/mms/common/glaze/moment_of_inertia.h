@@ -14,7 +14,7 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> kilogram_square_meters;
   };
 
-  inline constexpr auto
+  inline auto constexpr
     moment_of_inertia_reading = QuantityReading<MomentOfInertia, MomentOfInertiaFields, 1, 1> {
       .fields =
         {
@@ -42,6 +42,6 @@ RADAR_COMMON_NAMESPACE_END
 template <>
 struct glz::meta<radar::mms::common::MomentOfInertia>
 {
-  static constexpr auto value = radar::mms::common::_glaze_impl::QuantityAdapter<
+  static auto constexpr value = radar::mms::common::_glaze_impl::QuantityAdapter<
     radar::mms::common::_glaze_impl::moment_of_inertia_reading>::value;
 };

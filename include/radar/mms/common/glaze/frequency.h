@@ -15,7 +15,7 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> kilohertz;
   };
 
-  inline constexpr auto frequency_reading = QuantityReading<Frequency, FrequencyFields, 2, 2> {
+  inline auto constexpr frequency_reading = QuantityReading<Frequency, FrequencyFields, 2, 2> {
     .fields =
       {
         field_unit(&FrequencyFields::hertz, &Frequency::from_hertz),
@@ -41,6 +41,6 @@ RADAR_COMMON_NAMESPACE_END
 template <>
 struct glz::meta<radar::mms::common::Frequency>
 {
-  static constexpr auto value = radar::mms::common::_glaze_impl::QuantityAdapter<
+  static auto constexpr value = radar::mms::common::_glaze_impl::QuantityAdapter<
     radar::mms::common::_glaze_impl::frequency_reading>::value;
 };

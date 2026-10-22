@@ -18,7 +18,7 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> inches_of_mercury;
   };
 
-  inline constexpr auto pressure_reading = QuantityReading<Pressure, PressureFields, 5, 5> {
+  inline auto constexpr pressure_reading = QuantityReading<Pressure, PressureFields, 5, 5> {
     .fields =
       {
         field_unit(&PressureFields::pascals, &Pressure::from_pascals),
@@ -51,6 +51,6 @@ RADAR_COMMON_NAMESPACE_END
 template <>
 struct glz::meta<radar::mms::common::Pressure>
 {
-  static constexpr auto value = radar::mms::common::_glaze_impl::QuantityAdapter<
+  static auto constexpr value = radar::mms::common::_glaze_impl::QuantityAdapter<
     radar::mms::common::_glaze_impl::pressure_reading>::value;
 };

@@ -15,7 +15,7 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> kilowatts;
   };
 
-  inline constexpr auto power_reading = QuantityReading<Power, PowerFields, 2, 2> {
+  inline auto constexpr power_reading = QuantityReading<Power, PowerFields, 2, 2> {
     .fields =
       {
         field_unit(&PowerFields::watts, &Power::from_watts),
@@ -41,6 +41,6 @@ RADAR_COMMON_NAMESPACE_END
 template <>
 struct glz::meta<radar::mms::common::Power>
 {
-  static constexpr auto value = radar::mms::common::_glaze_impl::QuantityAdapter<
+  static auto constexpr value = radar::mms::common::_glaze_impl::QuantityAdapter<
     radar::mms::common::_glaze_impl::power_reading>::value;
 };

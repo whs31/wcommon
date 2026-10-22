@@ -14,7 +14,7 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> kilograms_per_cubic_meter;
   };
 
-  inline constexpr auto density_reading = QuantityReading<Density, DensityFields, 1, 1> {
+  inline auto constexpr density_reading = QuantityReading<Density, DensityFields, 1, 1> {
     .fields =
       {
         field_unit(
@@ -41,6 +41,6 @@ RADAR_COMMON_NAMESPACE_END
 template <>
 struct glz::meta<radar::mms::common::Density>
 {
-  static constexpr auto value = radar::mms::common::_glaze_impl::QuantityAdapter<
+  static auto constexpr value = radar::mms::common::_glaze_impl::QuantityAdapter<
     radar::mms::common::_glaze_impl::density_reading>::value;
 };

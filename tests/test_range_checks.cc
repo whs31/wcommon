@@ -30,54 +30,48 @@ TEMPLATE_TEST_CASE("Range checks accept finite values only", "[math]", float, do
 {
   using T = TestType;
 
-  constexpr auto nan = std::numeric_limits<T>::quiet_NaN();
-  constexpr auto inf = std::numeric_limits<T>::infinity();
-
   STATIC_CHECK(is_finite(T {-1}));
   STATIC_CHECK(is_finite(std::numeric_limits<T>::max()));
   STATIC_CHECK(is_finite(std::numeric_limits<T>::denorm_min()));
-  STATIC_CHECK_FALSE(is_finite(inf));
-  STATIC_CHECK_FALSE(is_finite(-inf));
-  STATIC_CHECK_FALSE(is_finite(nan));
+  STATIC_CHECK_FALSE(is_finite(Inf));
+  STATIC_CHECK_FALSE(is_finite(-Inf));
+  STATIC_CHECK_FALSE(is_finite(NaN));
 
   STATIC_CHECK(positive(T {1}));
   STATIC_CHECK_FALSE(positive(T {0}));
-  STATIC_CHECK_FALSE(positive(inf));
-  STATIC_CHECK_FALSE(positive(nan));
+  STATIC_CHECK_FALSE(positive(Inf));
+  STATIC_CHECK_FALSE(positive(NaN));
 
   STATIC_CHECK(nonnegative(T {0}));
   STATIC_CHECK_FALSE(nonnegative(T {-1}));
-  STATIC_CHECK_FALSE(nonnegative(inf));
-  STATIC_CHECK_FALSE(nonnegative(nan));
+  STATIC_CHECK_FALSE(nonnegative(Inf));
+  STATIC_CHECK_FALSE(nonnegative(NaN));
 
   // bounds of another type convert to the checked one
   STATIC_CHECK(in_closed_range(T {0}, 0., 1.));
   STATIC_CHECK(in_closed_range(T {1}, 0.F, 1.F));
   STATIC_CHECK_FALSE(in_closed_range(T {1.5}, 0, 1));
-  STATIC_CHECK_FALSE(in_closed_range(nan, -inf, inf));
+  STATIC_CHECK_FALSE(in_closed_range(NaN, -Inf, Inf));
 }
 
 TEST_CASE("Range checks take quantities by their SI magnitude", "[math]")
 {
-  constexpr auto nan = std::numeric_limits<double>::quiet_NaN();
-  constexpr auto inf = std::numeric_limits<double>::infinity();
-
   STATIC_CHECK(is_finite(Distance::from_meters(-3.0)));
-  STATIC_CHECK_FALSE(is_finite(Distance::from_meters(inf)));
-  STATIC_CHECK_FALSE(is_finite(Angle::from_radians(nan)));
+  STATIC_CHECK_FALSE(is_finite(Distance::from_meters(Inf)));
+  STATIC_CHECK_FALSE(is_finite(Angle::from_radians(NaN)));
 
   STATIC_CHECK(positive(Distance::from_meters(0.5)));
   STATIC_CHECK_FALSE(positive(Distance::from_meters(0.0)));
-  STATIC_CHECK_FALSE(positive(Distance::from_meters(nan)));
+  STATIC_CHECK_FALSE(positive(Distance::from_meters(NaN)));
 
   STATIC_CHECK(nonnegative(Velocity::from_mps(0.0)));
   STATIC_CHECK_FALSE(nonnegative(Velocity::from_mps(-1.0)));
-  STATIC_CHECK_FALSE(nonnegative(Velocity::from_mps(inf)));
+  STATIC_CHECK_FALSE(nonnegative(Velocity::from_mps(Inf)));
 
   STATIC_CHECK(in_closed_range(45_deg, 0_deg, 90_deg));
   STATIC_CHECK(in_closed_range(90_deg, 0_deg, 90_deg));
   STATIC_CHECK_FALSE(in_closed_range(91_deg, 0_deg, 90_deg));
-  STATIC_CHECK_FALSE(in_closed_range(Angle::from_radians(nan), -180_deg, 180_deg));
+  STATIC_CHECK_FALSE(in_closed_range(Angle::from_radians(NaN), -180_deg, 180_deg));
 }
 
 TEST_CASE("Quantization rounds to the nearest step", "[math]")

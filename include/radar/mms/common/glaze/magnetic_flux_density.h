@@ -17,7 +17,7 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> nanoteslas;
   };
 
-  inline constexpr auto magnetic_flux_density_reading = QuantityReading<
+  inline auto constexpr magnetic_flux_density_reading = QuantityReading<
     MagneticFluxDensity,
     MagneticFluxDensityFields,
     4,
@@ -53,6 +53,6 @@ RADAR_COMMON_NAMESPACE_END
 template <>
 struct glz::meta<radar::mms::common::MagneticFluxDensity>
 {
-  static constexpr auto value = radar::mms::common::_glaze_impl::QuantityAdapter<
+  static auto constexpr value = radar::mms::common::_glaze_impl::QuantityAdapter<
     radar::mms::common::_glaze_impl::magnetic_flux_density_reading>::value;
 };

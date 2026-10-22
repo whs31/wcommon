@@ -19,7 +19,7 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> radians;
   };
 
-  inline constexpr auto angle_reading = QuantityReading<Angle, AngleFields, 2, 2> {
+  inline auto constexpr angle_reading = QuantityReading<Angle, AngleFields, 2, 2> {
     .fields =
       {
         field_unit(&AngleFields::degrees, &Angle::from_degrees),
@@ -77,7 +77,7 @@ RADAR_COMMON_NAMESPACE_END
 template <>
 struct glz::meta<radar::mms::common::Angle>
 {
-  static constexpr auto value = glz::custom<
+  static auto constexpr value = glz::custom<
     [](
       radar::mms::common::Angle& angle,
       radar::mms::common::_glaze_impl::QuantityInput<

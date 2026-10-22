@@ -15,7 +15,7 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> standard_gravity;
   };
 
-  inline constexpr auto
+  inline auto constexpr
     acceleration_reading = QuantityReading<Acceleration, AccelerationFields, 2, 2> {
       .fields =
         {
@@ -42,6 +42,6 @@ RADAR_COMMON_NAMESPACE_END
 template <>
 struct glz::meta<radar::mms::common::Acceleration>
 {
-  static constexpr auto value = radar::mms::common::_glaze_impl::QuantityAdapter<
+  static auto constexpr value = radar::mms::common::_glaze_impl::QuantityAdapter<
     radar::mms::common::_glaze_impl::acceleration_reading>::value;
 };

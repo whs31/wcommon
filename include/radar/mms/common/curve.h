@@ -28,7 +28,7 @@ namespace _curve_impl  // NOLINT(*-identifier-naming)
 {
   // the magnitude a curve computes with: the value itself, or the SI magnitude of a quantity
   template <CurveAxis T>
-  [[nodiscard]] constexpr auto curve_magnitude(T const value) noexcept
+  [[nodiscard]] auto constexpr curve_magnitude(T const value) noexcept
   {
     if constexpr(std::floating_point<T>)
       return value;

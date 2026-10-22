@@ -19,7 +19,7 @@
 template <>
 struct glz::meta<QPoint>
 {
-  static constexpr auto value = glz::custom<
+  static auto constexpr value = glz::custom<
     [](QPoint& value, std::array<int, 2> const& pair) {
       auto const [first, second] = pair;
       value = QPoint(first, second);
@@ -34,7 +34,7 @@ struct glz::meta<QPoint>
 template <>
 struct glz::meta<QPointF>
 {
-  static constexpr auto value = glz::custom<
+  static auto constexpr value = glz::custom<
     [](QPointF& value, std::array<double, 2> const& pair) {
       auto const [first, second] = pair;
       value = QPointF(first, second);

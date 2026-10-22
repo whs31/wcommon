@@ -15,7 +15,7 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> degrees_per_second_squared;
   };
 
-  inline constexpr auto angular_acceleration_reading = QuantityReading<
+  inline auto constexpr angular_acceleration_reading = QuantityReading<
     AngularAcceleration,
     AngularAccelerationFields,
     2,
@@ -53,6 +53,6 @@ RADAR_COMMON_NAMESPACE_END
 template <>
 struct glz::meta<radar::mms::common::AngularAcceleration>
 {
-  static constexpr auto value = radar::mms::common::_glaze_impl::QuantityAdapter<
+  static auto constexpr value = radar::mms::common::_glaze_impl::QuantityAdapter<
     radar::mms::common::_glaze_impl::angular_acceleration_reading>::value;
 };

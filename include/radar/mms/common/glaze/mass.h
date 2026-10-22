@@ -15,7 +15,7 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> grams;
   };
 
-  inline constexpr auto mass_reading = QuantityReading<Mass, MassFields, 2, 2> {
+  inline auto constexpr mass_reading = QuantityReading<Mass, MassFields, 2, 2> {
     .fields =
       {
         field_unit(&MassFields::kilograms, &Mass::from_kilograms),
@@ -41,6 +41,6 @@ RADAR_COMMON_NAMESPACE_END
 template <>
 struct glz::meta<radar::mms::common::Mass>
 {
-  static constexpr auto value = radar::mms::common::_glaze_impl::QuantityAdapter<
+  static auto constexpr value = radar::mms::common::_glaze_impl::QuantityAdapter<
     radar::mms::common::_glaze_impl::mass_reading>::value;
 };

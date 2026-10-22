@@ -55,7 +55,7 @@ namespace
   template <typename T>
   concept Negatable = requires(T value) { -value; };
 
-  constexpr auto tolerance = 1e-9;
+  auto constexpr tolerance = 1e-9;
 
   constexpr bool near(double const actual, double const expected, double const epsilon = tolerance)
   {

@@ -15,7 +15,7 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> milliamperes;
   };
 
-  inline constexpr auto current_reading = QuantityReading<Current, CurrentFields, 2, 2> {
+  inline auto constexpr current_reading = QuantityReading<Current, CurrentFields, 2, 2> {
     .fields =
       {
         field_unit(&CurrentFields::amperes, &Current::from_amperes),
@@ -41,6 +41,6 @@ RADAR_COMMON_NAMESPACE_END
 template <>
 struct glz::meta<radar::mms::common::Current>
 {
-  static constexpr auto value = radar::mms::common::_glaze_impl::QuantityAdapter<
+  static auto constexpr value = radar::mms::common::_glaze_impl::QuantityAdapter<
     radar::mms::common::_glaze_impl::current_reading>::value;
 };

@@ -19,8 +19,8 @@ using namespace radar::mms;
 
 namespace
 {
-  constexpr auto uuid_text = "00112233-4455-6677-8899-aAbBcCdDeEfF";
-  constexpr auto uuid_bytes = std::array<std::uint8_t, 16> {
+  auto constexpr uuid_text = "00112233-4455-6677-8899-aAbBcCdDeEfF";
+  auto constexpr uuid_bytes = std::array<std::uint8_t, 16> {
     0x00,
     0x11,
     0x22,
@@ -38,7 +38,7 @@ namespace
     0xee,
     0xff,
   };
-  constexpr auto field_bytes = std::array<std::uint8_t, 8> {
+  auto constexpr field_bytes = std::array<std::uint8_t, 8> {
     0x88,
     0x99,
     0xaa,
@@ -58,9 +58,9 @@ namespace
 
 TEST_CASE("Uuid supports constexpr construction and inspection", "[uuid]")
 {
-  constexpr auto uuid = Uuid(uuid_text);
-  constexpr auto little = Uuid::from_fields_le(0x00112233, 0x4455, 0x6677, field_bytes);
-  constexpr auto custom = Uuid::new_v8(uuid_bytes);
+  auto constexpr uuid = Uuid(uuid_text);
+  auto constexpr little = Uuid::from_fields_le(0x00112233, 0x4455, 0x6677, field_bytes);
+  auto constexpr custom = Uuid::new_v8(uuid_bytes);
 
   STATIC_CHECK(Uuid::SHORT_STRING_LEN == 36);
   STATIC_CHECK(Uuid::LONG_STRING_LEN == 38);
@@ -164,7 +164,7 @@ TEST_CASE("Uuid supports streams fmt ordering and hashing", "[uuid]")
 
 TEST_CASE("Uuid supports byte construction and mutation", "[uuid]")
 {
-  constexpr auto storage = std::array<std::byte, 16> {
+  auto constexpr storage = std::array<std::byte, 16> {
     std::byte {0x00},
     std::byte {0x11},
     std::byte {0x22},

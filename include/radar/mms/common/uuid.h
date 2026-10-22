@@ -115,7 +115,7 @@ class RADAR_COMMON_API Uuid
     if(value.at(8) != '-' or value.at(13) != '-' or value.at(18) != '-' or value.at(23) != '-')
       throw UuidError::invalid_string(text);
 
-    constexpr auto offsets = std::array<std::size_t, 16> {
+    auto constexpr offsets = std::array<std::size_t, 16> {
       0,
       2,
       4,
@@ -394,7 +394,7 @@ struct fmt::formatter<radar::mms::common::Uuid>
 {
   radar::mms::common::Uuid::Format output_format = radar::mms::common::Uuid::Format::Hyphenated;
 
-  constexpr auto parse(fmt::format_parse_context& context)
+  auto constexpr parse(fmt::format_parse_context& context)
   {
     // fmt exposes its parse position as an iterator; advancing it is the required API.
     // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic,readability-qualified-auto)

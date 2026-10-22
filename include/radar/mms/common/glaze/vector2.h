@@ -23,7 +23,7 @@ RADAR_COMMON_NAMESPACE_END
 template <>
 struct glz::meta<radar::mms::common::Vector2>
 {
-  static constexpr auto value = glz::custom<
+  static auto constexpr value = glz::custom<
     [](
       radar::mms::common::Vector2& vector2,
       radar::mms::common::_glaze_impl::Vector2Fields const& fields

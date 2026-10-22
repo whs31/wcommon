@@ -28,13 +28,9 @@ TEST_CASE("floor supports constexpr values", "[math]")
 
 TEST_CASE("floor preserves non-finite and large values", "[math]")
 {
-  constexpr auto infinity = std::numeric_limits<double>::infinity();
-  constexpr auto not_a_number = std::numeric_limits<double>::quiet_NaN();
-  constexpr auto maximum = std::numeric_limits<double>::max();
-
-  STATIC_CHECK(radar::mms::floor(infinity) == infinity);
-  STATIC_CHECK(std::isnan(radar::mms::floor(not_a_number)));
-  STATIC_CHECK(radar::mms::floor(maximum) == maximum);
+  STATIC_CHECK(radar::mms::floor(Inf) == Inf);
+  STATIC_CHECK(std::isnan(radar::mms::floor(NaN)));
+  STATIC_CHECK(radar::mms::floor(std::numeric_limits<double>::max()) == std::numeric_limits<double>::max());
 }
 
 TEST_CASE("abs and fmod support constexpr values", "[math]")
@@ -106,8 +102,8 @@ TEST_CASE("Euclidean division returns a nonnegative remainder", "[math]")
 
 TEST_CASE("Euclidean division preserves large integer precision", "[math]")
 {
-  constexpr auto dividend = std::int64_t {18'014'398'509'481'987};
-  constexpr auto divisor = std::int64_t {2};
+  auto constexpr dividend = std::int64_t {18'014'398'509'481'987};
+  auto constexpr divisor = std::int64_t {2};
 
   REQUIRE(div_euclid(dividend, divisor) == 9'007'199'254'740'993);
   REQUIRE(

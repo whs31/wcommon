@@ -13,7 +13,7 @@
 template <>
 struct glz::meta<radar::mms::common::Ipv4Addr>
 {
-  static constexpr auto value = glz::custom<
+  static auto constexpr value = glz::custom<
     [](radar::mms::common::Ipv4Addr& address, std::string const& text, glz::context& ctx) {
       try {
         address = radar::mms::common::Ipv4Addr::parse(text);
@@ -32,7 +32,7 @@ struct glz::meta<radar::mms::common::Ipv4Addr>
 template <>
 struct glz::meta<radar::mms::common::Ipv6Addr>
 {
-  static constexpr auto value = glz::custom<
+  static auto constexpr value = glz::custom<
     [](radar::mms::common::Ipv6Addr& address, std::string const& text, glz::context& ctx) {
       try {
         address = radar::mms::common::Ipv6Addr::parse(text);

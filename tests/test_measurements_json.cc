@@ -29,7 +29,7 @@ TEST_CASE("Measurement JSON adapters preserve their schemas", "[measurements][js
   REQUIRE(velocity == nlohmann::json({{"mps", 7.25}}));
   REQUIRE(velocity.get<Velocity>() == Velocity::from_mps(7.25));
 
-  constexpr auto euler = EulerAngles::from_degrees(10.0, 20.0, 30.0);
+  auto constexpr euler = EulerAngles::from_degrees(10.0, 20.0, 30.0);
   auto const euler_json = nlohmann::json(euler);
   REQUIRE(euler_json.get<EulerAngles>() == euler);
 }

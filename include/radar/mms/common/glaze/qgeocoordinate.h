@@ -36,7 +36,7 @@ RADAR_COMMON_NAMESPACE_END
 template <>
 struct glz::meta<QGeoCoordinate>
 {
-  static constexpr auto value = glz::custom<
+  static auto constexpr value = glz::custom<
     [](
       QGeoCoordinate& coordinate,
       radar::mms::common::_glaze_impl::GeoCoordinateFields const& fields

@@ -23,7 +23,7 @@ RADAR_COMMON_NAMESPACE_END
 template <>
 struct glz::meta<radar::mms::common::Matrix3x3>
 {
-  static constexpr auto value = glz::custom<
+  static auto constexpr value = glz::custom<
     [](
       radar::mms::common::Matrix3x3& matrix,
       radar::mms::common::_glaze_impl::Matrix3x3Rows const& rows

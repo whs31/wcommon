@@ -300,7 +300,7 @@ TEST_CASE("Angle glaze adapter reads the magnitude under its unit", "[glaze][ang
 
 TEST_CASE("Euler angles glaze adapter nests three angles", "[glaze][euler]")
 {
-  constexpr auto angles = EulerAngles::from_degrees(10.0, 20.0, 30.0);
+  auto constexpr angles = EulerAngles::from_degrees(10.0, 20.0, 30.0);
   auto const json = write(angles);
   REQUIRE(json.starts_with(R"({"roll":{"angle":10)"));
   REQUIRE(read<EulerAngles>(json) == angles);

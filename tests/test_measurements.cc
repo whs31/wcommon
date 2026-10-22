@@ -105,7 +105,7 @@ TEST_CASE("Distances and velocities convert and format", "[measurements]")
 
 TEST_CASE("Euler angles expose all components and integrations", "[measurements][euler]")
 {
-  constexpr auto angles = EulerAngles::from_degrees(10.0, 20.0, 30.0);
+  auto constexpr angles = EulerAngles::from_degrees(10.0, 20.0, 30.0);
   REQUIRE(angles.is_finite());
   REQUIRE(angles.to_string() == "roll 10 deg, pitch 20 deg, yaw 30 deg");
   REQUIRE(fmt::format("{}", angles) == angles.to_string());

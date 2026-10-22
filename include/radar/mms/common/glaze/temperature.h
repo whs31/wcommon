@@ -16,7 +16,7 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> fahrenheit;
   };
 
-  inline constexpr auto
+  inline auto constexpr
     temperature_reading = QuantityReading<Temperature, TemperatureFields, 3, 3> {
       .fields =
         {
@@ -46,6 +46,6 @@ RADAR_COMMON_NAMESPACE_END
 template <>
 struct glz::meta<radar::mms::common::Temperature>
 {
-  static constexpr auto value = radar::mms::common::_glaze_impl::QuantityAdapter<
+  static auto constexpr value = radar::mms::common::_glaze_impl::QuantityAdapter<
     radar::mms::common::_glaze_impl::temperature_reading>::value;
 };

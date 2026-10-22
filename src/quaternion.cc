@@ -30,7 +30,7 @@ EulerAngles Quaternion::to_euler_angles() const noexcept
 
   // below this cosine of the pitch, rounding noise of the quaternion outweighs the roll and yaw
   // terms, which scale with it; about the square root of the double epsilon
-  if(constexpr auto singular_cos_pitch = 1e-8; cos_pitch < singular_cos_pitch)
+  if(auto constexpr singular_cos_pitch = 1e-8; cos_pitch < singular_cos_pitch)
     return EulerAngles::from_radians(
       0.0,
       std::copysign(std::numbers::pi / 2.0, sin_pitch),

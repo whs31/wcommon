@@ -16,7 +16,7 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> kilograms_force;
   };
 
-  inline constexpr auto force_reading = QuantityReading<Force, ForceFields, 3, 3> {
+  inline auto constexpr force_reading = QuantityReading<Force, ForceFields, 3, 3> {
     .fields =
       {
         field_unit(&ForceFields::newtons, &Force::from_newtons),
@@ -45,6 +45,6 @@ RADAR_COMMON_NAMESPACE_END
 template <>
 struct glz::meta<radar::mms::common::Force>
 {
-  static constexpr auto value = radar::mms::common::_glaze_impl::QuantityAdapter<
+  static auto constexpr value = radar::mms::common::_glaze_impl::QuantityAdapter<
     radar::mms::common::_glaze_impl::force_reading>::value;
 };

@@ -15,13 +15,13 @@ template <typename... Args>
 struct non_const_overload_t  // NOLINT(*-identifier-naming)
 {
   template <typename R, typename T>
-  constexpr auto operator()(R (T::*ptr)(Args...)) const noexcept -> decltype(ptr)
+  auto constexpr operator()(R (T::*ptr)(Args...)) const noexcept -> decltype(ptr)
   {
     return ptr;
   }
 
   template <typename R, typename T>
-  static constexpr auto of(R (T::*ptr)(Args...)) noexcept -> decltype(ptr)
+  static auto constexpr of(R (T::*ptr)(Args...)) noexcept -> decltype(ptr)
   {
     return ptr;
   }
@@ -38,13 +38,13 @@ template <typename... Args>
 struct const_overload_t  // NOLINT(*-identifier-naming)
 {
   template <typename R, typename T>
-  constexpr auto operator()(R (T::*ptr)(Args...) const) const noexcept -> decltype(ptr)
+  auto constexpr operator()(R (T::*ptr)(Args...) const) const noexcept -> decltype(ptr)
   {
     return ptr;
   }
 
   template <typename R, typename T>
-  static constexpr auto of(R (T::*ptr)(Args...) const) noexcept -> decltype(ptr)
+  static auto constexpr of(R (T::*ptr)(Args...) const) noexcept -> decltype(ptr)
   {
     return ptr;
   }
@@ -79,13 +79,13 @@ struct overload_t : const_overload_t<Args...>,  // NOLINT(*-identifier-naming)
   using non_const_overload_t<Args...>::operator();
 
   template <typename R>
-  constexpr auto operator()(R (*ptr)(Args...)) const noexcept -> decltype(ptr)
+  auto constexpr operator()(R (*ptr)(Args...)) const noexcept -> decltype(ptr)
   {
     return ptr;
   }
 
   template <typename R>
-  static constexpr auto of(R (*ptr)(Args...)) noexcept -> decltype(ptr)
+  static auto constexpr of(R (*ptr)(Args...)) noexcept -> decltype(ptr)
   {
     return ptr;
   }

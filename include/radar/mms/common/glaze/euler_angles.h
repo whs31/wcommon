@@ -25,7 +25,7 @@ RADAR_COMMON_NAMESPACE_END
 template <>
 struct glz::meta<radar::mms::common::EulerAngles>
 {
-  static constexpr auto value = glz::custom<
+  static auto constexpr value = glz::custom<
     [](
       radar::mms::common::EulerAngles& angles,
       radar::mms::common::_glaze_impl::EulerAnglesFields const& fields

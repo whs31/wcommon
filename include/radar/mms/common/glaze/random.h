@@ -27,7 +27,7 @@ RADAR_COMMON_NAMESPACE_END
 template <>
 struct glz::meta<radar::mms::common::RandomStream>
 {
-  static constexpr auto value = glz::custom<
+  static auto constexpr value = glz::custom<
     [](
       radar::mms::common::RandomStream& stream,
       radar::mms::common::_glaze_impl::RandomStreamFields const& fields,

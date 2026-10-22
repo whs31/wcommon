@@ -20,7 +20,7 @@ TEST_CASE("Curve stays trivially copyable for embedding into state", "[curve]")
 
 TEST_CASE("Default-constructed curve is empty and cannot be interpolated", "[curve]")
 {
-  constexpr auto c = Curve<double, double, 4>();
+  auto constexpr c = Curve<double, double, 4>();
 
   STATIC_CHECK(c.empty());
   STATIC_CHECK(c.arguments().empty());
@@ -42,16 +42,16 @@ TEST_CASE("Curve preserves its points in order", "[curve]")
 
 TEST_CASE("Curve interpolates linearly and clamps outside its range", "[curve]")
 {
-  constexpr auto arguments = std::array {0.0, 0.5, 1.0};
-  constexpr auto values = std::array {10.0, 20.0, 30.0};
-  constexpr auto c = Curve<double, double, 4>(arguments, values);
+  auto constexpr arguments = std::array {0.0, 0.5, 1.0};
+  auto constexpr values = std::array {10.0, 20.0, 30.0};
+  auto constexpr c = Curve<double, double, 4>(arguments, values);
 
   STATIC_CHECK(c.interpolate(0.25) == 15.0);
   STATIC_CHECK(c.interpolate(0.5) == 20.0);
   STATIC_CHECK(c.interpolate(-1.0) == 10.0);
   STATIC_CHECK(c.interpolate(2.0) == 30.0);
-  CHECK_THROWS_AS(c.interpolate(std::numeric_limits<double>::quiet_NaN()), InvalidArgumentError);
-  CHECK_THROWS_AS(c.interpolate(std::numeric_limits<double>::infinity()), InvalidArgumentError);
+  CHECK_THROWS_AS(c.interpolate(NaN), InvalidArgumentError);
+  CHECK_THROWS_AS(c.interpolate(Inf), InvalidArgumentError);
 }
 
 TEST_CASE("Single-point curve is constant", "[curve]")
@@ -66,8 +66,6 @@ TEST_CASE("Curve rejects malformed point sets on construction", "[curve]")
 {
   using C = Curve<double, double, 4>;
 
-  constexpr auto nan = std::numeric_limits<double>::quiet_NaN();
-
   CHECK_THROWS_AS(C(std::array {0.0, 1.0}, std::array {1.0}), InvalidArgumentError);
   CHECK_THROWS_AS(C(std::vector<double> {}, std::vector<double> {}), InvalidArgumentError);
   CHECK_THROWS_AS(
@@ -76,8 +74,8 @@ TEST_CASE("Curve rejects malformed point sets on construction", "[curve]")
   );
   CHECK_THROWS_AS(C(std::array {0.5, 0.5}, std::array {1.0, 2.0}), InvalidArgumentError);
   CHECK_THROWS_AS(C(std::array {1.0, 0.0}, std::array {1.0, 2.0}), InvalidArgumentError);
-  CHECK_THROWS_AS(C(std::array {0.0, nan}, std::array {1.0, 2.0}), InvalidArgumentError);
-  CHECK_THROWS_AS(C(std::array {0.0, 1.0}, std::array {1.0, nan}), InvalidArgumentError);
+  CHECK_THROWS_AS(C(std::array {0.0, NaN}, std::array {1.0, 2.0}), InvalidArgumentError);
+  CHECK_THROWS_AS(C(std::array {0.0, 1.0}, std::array {1.0, NaN}), InvalidArgumentError);
 }
 
 TEST_CASE("Curve interpolates values in another precision than its arguments", "[curve]")
@@ -90,9 +88,9 @@ TEST_CASE("Curve interpolates values in another precision than its arguments", "
 
 TEST_CASE("Curve axes may be quantities", "[curve]")
 {
-  constexpr auto arguments = std::array {0_deg, 90_deg};
-  constexpr auto values = std::array {Distance::from_meters(1.0), Distance::from_meters(3.0)};
-  constexpr auto c = Curve<Angle, Distance, 2>(arguments, values);
+  auto constexpr arguments = std::array {0_deg, 90_deg};
+  auto constexpr values = std::array {Distance::from_meters(1.0), Distance::from_meters(3.0)};
+  auto constexpr c = Curve<Angle, Distance, 2>(arguments, values);
 
   STATIC_CHECK(c.interpolate(Angle::from_radians(0.0)) == Distance::from_meters(1.0));
   CHECK(c.interpolate(45_deg).as_m() == 2.0);

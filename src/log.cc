@@ -57,7 +57,7 @@ namespace
     if(not std::isfinite(max_file_size_mb) or max_file_size_mb <= 0.0f)
       throw radar::mms::common::LogError("max_file_size_mb must be finite and greater than zero");
 
-    constexpr auto bytes_per_mebibyte = 1'024.0 * 1'024.0;
+    auto constexpr bytes_per_mebibyte = 1'024.0 * 1'024.0;
     auto const bytes = static_cast<double>(max_file_size_mb) * bytes_per_mebibyte;
     if(bytes > static_cast<double>(std::numeric_limits<std::size_t>::max()))
       throw radar::mms::common::LogError("max_file_size_mb is too large");

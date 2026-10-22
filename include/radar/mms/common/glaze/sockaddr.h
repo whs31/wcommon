@@ -51,7 +51,7 @@ RADAR_COMMON_NAMESPACE_END
 template <>
 struct glz::meta<radar::mms::common::SockAddrV4>
 {
-  static constexpr auto value = glz::custom<
+  static auto constexpr value = glz::custom<
     [](
       radar::mms::common::SockAddrV4& address,
       radar::mms::common::_glaze_impl::SockAddrV4Fields const& fields
@@ -72,7 +72,7 @@ struct glz::meta<radar::mms::common::SockAddrV4>
 template <>
 struct glz::meta<radar::mms::common::SockAddrV6>
 {
-  static constexpr auto value = glz::custom<
+  static auto constexpr value = glz::custom<
     [](
       radar::mms::common::SockAddrV6& address,
       radar::mms::common::_glaze_impl::SockAddrV6Fields const& fields
@@ -99,7 +99,7 @@ struct glz::meta<radar::mms::common::SockAddrV6>
 template <>
 struct glz::meta<radar::mms::common::SockAddr>
 {
-  static constexpr auto value = glz::custom<
+  static auto constexpr value = glz::custom<
     [](
       radar::mms::common::SockAddr& address,
       radar::mms::common::_glaze_impl::SockAddrFields const& fields,

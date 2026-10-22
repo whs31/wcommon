@@ -16,7 +16,7 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> mph;
   };
 
-  inline constexpr auto velocity_reading = QuantityReading<Velocity, VelocityFields, 3, 3> {
+  inline auto constexpr velocity_reading = QuantityReading<Velocity, VelocityFields, 3, 3> {
     .fields =
       {
         field_unit(&VelocityFields::mps, &Velocity::from_mps),
@@ -45,6 +45,6 @@ RADAR_COMMON_NAMESPACE_END
 template <>
 struct glz::meta<radar::mms::common::Velocity>
 {
-  static constexpr auto value = radar::mms::common::_glaze_impl::QuantityAdapter<
+  static auto constexpr value = radar::mms::common::_glaze_impl::QuantityAdapter<
     radar::mms::common::_glaze_impl::velocity_reading>::value;
 };

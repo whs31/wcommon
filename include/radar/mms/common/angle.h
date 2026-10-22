@@ -84,7 +84,7 @@ class RADAR_COMMON_API Angle : public QuantityBase<Angle>
    */
   [[nodiscard]] constexpr Angle positive() const noexcept
   {
-    constexpr auto two_pi = std::numbers::pi_v<double> * 2.0;
+    auto constexpr two_pi = std::numbers::pi_v<double> * 2.0;
     auto radians = fmod(this->magnitude(), two_pi);
     if(radians < 0.0)
       radians += two_pi;
@@ -117,7 +117,7 @@ class RADAR_COMMON_API Angle : public QuantityBase<Angle>
    */
   [[nodiscard]] constexpr Angle angle_to(Angle const& other) const noexcept
   {
-    constexpr auto max = std::numbers::pi_v<double> * 2.0;
+    auto constexpr max = std::numbers::pi_v<double> * 2.0;
     auto const d = fmod(other.radians() - this->radians(), max);
     return from_radians(fmod(2.0 * d, max) - d);
   }

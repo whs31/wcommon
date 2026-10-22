@@ -27,13 +27,11 @@ using namespace radar::mms;
 
 namespace
 {
-  constexpr auto not_a_number = std::numeric_limits<double>::quiet_NaN();
-  constexpr auto infinity = std::numeric_limits<double>::infinity();
-  constexpr auto unit_x = Vector3::unit_x();
-  constexpr auto unit_y = Vector3::unit_y();
-  constexpr auto unit_z = Vector3::unit_z();
-  constexpr auto sample_vector = Vector3(0.3, -1.7, 2.4);
-  constexpr auto
+  auto constexpr unit_x = Vector3::unit_x();
+  auto constexpr unit_y = Vector3::unit_y();
+  auto constexpr unit_z = Vector3::unit_z();
+  auto constexpr sample_vector = Vector3(0.3, -1.7, 2.4);
+  auto constexpr
     inertia = Matrix3x3::from_rows({0.5, -0.02, 0.05}, {-0.02, 3.2, 0.01}, {0.05, 0.01, 3.0});
 
   [[nodiscard]] double max_difference(Vector3 const a, Vector3 const b)
@@ -119,9 +117,9 @@ TEST_CASE("Vector3 components can be replaced and validated", "[geometry][linalg
   CHECK(vector == Vector3(1.0, 2.0, 3.0));
 
   STATIC_CHECK(sample_vector.is_finite());
-  STATIC_CHECK_FALSE(sample_vector.with_y(not_a_number).is_finite());
-  STATIC_CHECK_FALSE(sample_vector.with_z(-infinity).is_finite());
-  STATIC_CHECK_FALSE(Vector2(infinity, 0.0).is_finite());
+  STATIC_CHECK_FALSE(sample_vector.with_y(NaN).is_finite());
+  STATIC_CHECK_FALSE(sample_vector.with_z(-Inf).is_finite());
+  STATIC_CHECK_FALSE(Vector2(Inf, 0.0).is_finite());
 }
 
 TEST_CASE("Vectors keep their documented storage layout", "[geometry][linalg]")
@@ -144,8 +142,8 @@ TEST_CASE("Vectors keep their documented storage layout", "[geometry][linalg]")
 
 TEST_CASE("Vector products are available as free functions", "[geometry][linalg]")
 {
-  constexpr auto a = Vector3(1.0, 2.0, 3.0);
-  constexpr auto b = Vector3(-4.0, 0.5, 2.0);
+  auto constexpr a = Vector3(1.0, 2.0, 3.0);
+  auto constexpr b = Vector3(-4.0, 0.5, 2.0);
 
   STATIC_CHECK(dot(a, b) == 3.0);
   STATIC_CHECK(cross(unit_x, unit_y) == unit_z);
@@ -165,8 +163,8 @@ TEST_CASE("try_normalized rejects degenerate vectors", "[geometry][linalg]")
   CHECK(normalized.length() == Catch::Approx(1.0));
   CHECK_THAT(normalized * sample_vector.length(), is_close_to(sample_vector));
   CHECK_FALSE(Vector3::zero().try_normalized().has_value());
-  CHECK_FALSE(Vector3(not_a_number, 0.0, 0.0).try_normalized().has_value());
-  CHECK_FALSE(Vector3(infinity, 0.0, 0.0).try_normalized().has_value());
+  CHECK_FALSE(Vector3(NaN, 0.0, 0.0).try_normalized().has_value());
+  CHECK_FALSE(Vector3(Inf, 0.0, 0.0).try_normalized().has_value());
   CHECK_FALSE(Vector2::zero().try_normalized().has_value());
   CHECK(Vector2(3.0, 4.0).try_normalized() == Vector2(0.6, 0.8));
 
@@ -184,7 +182,7 @@ TEST_CASE("Vector formatting applies the format spec to every component", "[geom
 
 TEST_CASE("Matrix accessors address rows, columns and elements", "[linalg][matrix]")
 {
-  constexpr auto m = Matrix3x3::from_rows({1.0, 2.0, 3.0}, {4.0, 5.0, 6.0}, {7.0, 8.0, 9.0});
+  auto constexpr m = Matrix3x3::from_rows({1.0, 2.0, 3.0}, {4.0, 5.0, 6.0}, {7.0, 8.0, 9.0});
 
   STATIC_CHECK(Matrix3x3() == Matrix3x3::zero());
   STATIC_CHECK(m.row(1) == Vector3(4.0, 5.0, 6.0));
@@ -204,7 +202,7 @@ TEST_CASE("Matrix accessors address rows, columns and elements", "[linalg][matri
 
 TEST_CASE("Matrix products follow row-major linear algebra", "[linalg][matrix]")
 {
-  constexpr auto a = Matrix3x3::from_rows({1.0, 2.0, 3.0}, {0.0, 1.0, 4.0}, {5.0, 6.0, 0.0});
+  auto constexpr a = Matrix3x3::from_rows({1.0, 2.0, 3.0}, {0.0, 1.0, 4.0}, {5.0, 6.0, 0.0});
 
   STATIC_CHECK(a * unit_x == Vector3(1.0, 0.0, 5.0));
   STATIC_CHECK(Matrix3x3::identity() * sample_vector == sample_vector);
@@ -216,7 +214,7 @@ TEST_CASE("Matrix products follow row-major linear algebra", "[linalg][matrix]")
   STATIC_CHECK(Matrix3x3() * sample_vector == Vector3());
 
   // integer elements keep the products exact, so associativity holds bit for bit
-  constexpr auto v = Vector3(1.0, -2.0, 3.0);
+  auto constexpr v = Vector3(1.0, -2.0, 3.0);
   STATIC_CHECK((a * a) * v == a * (a * v));
   STATIC_CHECK(a + a == 2.0 * a);
   STATIC_CHECK(a + a == a * 2.0);
@@ -229,7 +227,7 @@ TEST_CASE("Matrix products follow row-major linear algebra", "[linalg][matrix]")
 
 TEST_CASE("Transpose and inverse satisfy their identities", "[linalg][matrix]")
 {
-  constexpr auto a = Matrix3x3::from_rows({1.0, 2.0, 3.0}, {0.0, 1.0, 4.0}, {5.0, 6.0, 0.0});
+  auto constexpr a = Matrix3x3::from_rows({1.0, 2.0, 3.0}, {0.0, 1.0, 4.0}, {5.0, 6.0, 0.0});
 
   STATIC_CHECK(a.transposed().transposed() == a);
   STATIC_CHECK((a * inertia).transposed() == inertia.transposed() * a.transposed());
@@ -249,9 +247,9 @@ TEST_CASE("Transpose and inverse satisfy their identities", "[linalg][matrix]")
 
 TEST_CASE("Inverting a singular or non-finite matrix fails", "[linalg][matrix]")
 {
-  constexpr auto
+  auto constexpr
     dependent_rows = Matrix3x3::from_rows({1.0, 2.0, 3.0}, {2.0, 4.0, 6.0}, {0.0, 1.0, 1.0});
-  auto const broken = Matrix3x3::diagonal({1.0, not_a_number, 1.0});
+  auto const broken = Matrix3x3::diagonal({1.0, NaN, 1.0});
 
   STATIC_CHECK_FALSE(dependent_rows.is_invertible());
   STATIC_CHECK_FALSE(dependent_rows.try_inverse().has_value());
@@ -260,10 +258,10 @@ TEST_CASE("Inverting a singular or non-finite matrix fails", "[linalg][matrix]")
   CHECK_THROWS_AS(Matrix3x3().inverse(), NumericError);
   CHECK_THROWS_AS(dependent_rows.inverse(), NumericError);
   CHECK_THROWS_AS(broken.inverse(), NumericError);
-  CHECK_THROWS_AS(Matrix3x3::diagonal({1.0, infinity, 1.0}).inverse(), NumericError);
+  CHECK_THROWS_AS(Matrix3x3::diagonal({1.0, Inf, 1.0}).inverse(), NumericError);
 
   // the singularity test is relative: tiny but well-conditioned matrices invert
-  constexpr auto tiny = Matrix3x3::diagonal(Vector3::splat(1e-9));
+  auto constexpr tiny = Matrix3x3::diagonal(Vector3::splat(1e-9));
   STATIC_CHECK(tiny.is_invertible());
   CHECK_NOTHROW(tiny.inverse());
   STATIC_CHECK(Matrix3x3::diagonal({1e-9, 1.0, 1e9}).is_invertible());
@@ -271,7 +269,7 @@ TEST_CASE("Inverting a singular or non-finite matrix fails", "[linalg][matrix]")
 
 TEST_CASE("Cross-product matrix computes the cross product", "[linalg][matrix]")
 {
-  constexpr auto a = Vector3(1.0, 2.0, 3.0);
+  auto constexpr a = Vector3(1.0, 2.0, 3.0);
 
   STATIC_CHECK(Matrix3x3::cross_product(a) * sample_vector == a.cross(sample_vector));
   STATIC_CHECK(Matrix3x3::cross_product(a).transposed() == -Matrix3x3::cross_product(a));
@@ -289,12 +287,12 @@ TEST_CASE("Symmetry check accepts inertia tensors and rejects others", "[linalg]
     CHECK((r * inertia * r.transposed()).is_symmetric());
   }
 
-  constexpr auto skewed = Matrix3x3::
+  auto constexpr skewed = Matrix3x3::
     from_rows(inertia.row(0).with_y(inertia.at(0, 1) + 1e-6), inertia.row(1), inertia.row(2));
   STATIC_CHECK_FALSE(skewed.is_symmetric());
   STATIC_CHECK(skewed.is_symmetric(1e-6));
   CHECK_FALSE(
-    Matrix3x3::from_rows(inertia.row(0), inertia.row(1).with_y(not_a_number), inertia.row(2))
+    Matrix3x3::from_rows(inertia.row(0), inertia.row(1).with_y(NaN), inertia.row(2))
       .is_symmetric()
   );
 }
@@ -307,7 +305,7 @@ TEST_CASE("Matrices format, stream and hash", "[linalg][matrix]")
     == "[(1.0, 0.0, 0.0), (0.0, 2.0, 0.0), (0.0, 0.0, 3.0)]"
   );
   CHECK(Matrix3x3::identity().is_finite());
-  CHECK_FALSE(Matrix3x3::diagonal({1.0, infinity, 1.0}).is_finite());
+  CHECK_FALSE(Matrix3x3::diagonal({1.0, Inf, 1.0}).is_finite());
 
   auto const values = std::unordered_set<Matrix3x3> {inertia};
   CHECK(values.contains(inertia));
@@ -315,10 +313,10 @@ TEST_CASE("Matrices format, stream and hash", "[linalg][matrix]")
 
 TEST_CASE("Hamilton product follows the quaternion basis rules", "[linalg][quaternion]")
 {
-  constexpr auto one = Quaternion();
-  constexpr auto i = Quaternion(0.0, 1.0, 0.0, 0.0);
-  constexpr auto j = Quaternion(0.0, 0.0, 1.0, 0.0);
-  constexpr auto k = Quaternion(0.0, 0.0, 0.0, 1.0);
+  auto constexpr one = Quaternion();
+  auto constexpr i = Quaternion(0.0, 1.0, 0.0, 0.0);
+  auto constexpr j = Quaternion(0.0, 0.0, 1.0, 0.0);
+  auto constexpr k = Quaternion(0.0, 0.0, 0.0, 1.0);
 
   STATIC_CHECK(one == Quaternion::identity());
   STATIC_CHECK(i * j == k);
@@ -328,7 +326,7 @@ TEST_CASE("Hamilton product follows the quaternion basis rules", "[linalg][quate
   STATIC_CHECK(i * i == -one);
   STATIC_CHECK(i * j * k == -one);
 
-  constexpr auto q = Quaternion(0.5, -1.0, 2.0, 0.25);
+  auto constexpr q = Quaternion(0.5, -1.0, 2.0, 0.25);
 
   STATIC_CHECK(q * q.conjugate() == Quaternion(q.length_squared(), 0.0, 0.0, 0.0));
   STATIC_CHECK(q + q == 2.0 * q);
@@ -337,7 +335,7 @@ TEST_CASE("Hamilton product follows the quaternion basis rules", "[linalg][quate
   STATIC_CHECK(Quaternion(0.5, Vector3(-1.0, 2.0, 0.25)) == q);
   STATIC_CHECK(q.vector() == Vector3(-1.0, 2.0, 0.25));
   STATIC_CHECK(q.is_finite());
-  STATIC_CHECK_FALSE(Quaternion(not_a_number, 0.0, 0.0, 0.0).is_finite());
+  STATIC_CHECK_FALSE(Quaternion(NaN, 0.0, 0.0, 0.0).is_finite());
 }
 
 TEST_CASE("Axis-angle rotations are right-handed", "[linalg][quaternion]")
@@ -352,7 +350,7 @@ TEST_CASE("Axis-angle rotations are right-handed", "[linalg][quaternion]")
   CHECK_THAT(about_x.rotate(unit_y), is_close_to(unit_z));
   CHECK_THAT(Quaternion::from_axis_angle(unit_y, 0_rad), is_close_to(Quaternion()));
   CHECK_THROWS_AS(Quaternion::from_axis_angle(Vector3(), 1_rad), NumericError);
-  CHECK_THROWS_AS(Quaternion::from_axis_angle(Vector3(not_a_number, 0, 0), 1_rad), NumericError);
+  CHECK_THROWS_AS(Quaternion::from_axis_angle(Vector3(NaN, 0, 0), 1_rad), NumericError);
 }
 
 TEST_CASE("Rotations compose as Hamilton products", "[linalg][quaternion]")
@@ -417,14 +415,14 @@ TEST_CASE("Normalizing a quaternion keeps its rotation", "[linalg][quaternion]")
   CHECK(drifted.try_normalized() == drifted.normalized());
   CHECK_FALSE(Quaternion(0.0, 0.0, 0.0, 0.0).try_normalized().has_value());
   CHECK_THROWS_AS(Quaternion(0.0, 0.0, 0.0, 0.0).normalized(), NumericError);
-  CHECK_THROWS_AS(Quaternion(not_a_number, 0.0, 0.0, 0.0).normalized(), NumericError);
+  CHECK_THROWS_AS(Quaternion(NaN, 0.0, 0.0, 0.0).normalized(), NumericError);
 }
 
 TEST_CASE("Quaternion derivative integrates to the axis-angle rotation", "[linalg][quaternion]")
 {
-  constexpr auto omega_body = Vector3(0.4, -1.1, 2.3);
-  constexpr auto duration = 2.0;
-  constexpr auto steps = 2'000;
+  auto constexpr omega_body = Vector3(0.4, -1.1, 2.3);
+  auto constexpr duration = 2.0;
+  auto constexpr steps = 2'000;
   constexpr auto dt = duration / steps;
   auto const initial = sample_rotations().at(1);
 

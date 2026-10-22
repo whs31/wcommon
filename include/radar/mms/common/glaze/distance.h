@@ -26,7 +26,7 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> miles;
   };
 
-  inline constexpr auto distance_reading = QuantityReading<Distance, DistanceFields, 13, 6> {
+  inline auto constexpr distance_reading = QuantityReading<Distance, DistanceFields, 13, 6> {
     .fields =
       {
         field_unit(&DistanceFields::meters, &Distance::from_meters),
@@ -71,6 +71,6 @@ RADAR_COMMON_NAMESPACE_END
 template <>
 struct glz::meta<radar::mms::common::Distance>
 {
-  static constexpr auto value = radar::mms::common::_glaze_impl::QuantityAdapter<
+  static auto constexpr value = radar::mms::common::_glaze_impl::QuantityAdapter<
     radar::mms::common::_glaze_impl::distance_reading>::value;
 };

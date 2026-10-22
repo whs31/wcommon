@@ -233,12 +233,12 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
   {
     // note: [whs31 : 2026-10-10]
     // readability-redundant-parentheses misreads every use of a reference template parameter
-    static constexpr auto const& reading = Reading;  // NOLINT(readability-redundant-parentheses)
+    static auto constexpr const& reading = Reading;  // NOLINT(readability-redundant-parentheses)
 
     using quantity_type = std::remove_cvref_t<decltype(reading)>::quantity_type;
     using fields_type = std::remove_cvref_t<decltype(reading)>::fields_type;
 
-    static constexpr auto value = glz::custom<
+    static auto constexpr value = glz::custom<
       [](quantity_type& value, QuantityInput<fields_type> const& input, glz::context& ctx) {
         read_quantity(value, ctx, input, reading);
       },

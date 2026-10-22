@@ -15,7 +15,7 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> milliohms;
   };
 
-  inline constexpr auto resistance_reading = QuantityReading<Resistance, ResistanceFields, 2, 2> {
+  inline auto constexpr resistance_reading = QuantityReading<Resistance, ResistanceFields, 2, 2> {
     .fields =
       {
         field_unit(&ResistanceFields::ohms, &Resistance::from_ohms),
@@ -41,6 +41,6 @@ RADAR_COMMON_NAMESPACE_END
 template <>
 struct glz::meta<radar::mms::common::Resistance>
 {
-  static constexpr auto value = radar::mms::common::_glaze_impl::QuantityAdapter<
+  static auto constexpr value = radar::mms::common::_glaze_impl::QuantityAdapter<
     radar::mms::common::_glaze_impl::resistance_reading>::value;
 };

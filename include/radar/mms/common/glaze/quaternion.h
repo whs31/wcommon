@@ -25,7 +25,7 @@ RADAR_COMMON_NAMESPACE_END
 template <>
 struct glz::meta<radar::mms::common::Quaternion>
 {
-  static constexpr auto value = glz::custom<
+  static auto constexpr value = glz::custom<
     [](
       radar::mms::common::Quaternion& quaternion,
       radar::mms::common::_glaze_impl::QuaternionFields const& fields

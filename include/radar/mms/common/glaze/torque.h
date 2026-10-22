@@ -14,7 +14,7 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> newton_meters;
   };
 
-  inline constexpr auto torque_reading = QuantityReading<Torque, TorqueFields, 1, 1> {
+  inline auto constexpr torque_reading = QuantityReading<Torque, TorqueFields, 1, 1> {
     .fields =
       {
         field_unit(&TorqueFields::newton_meters, &Torque::from_newton_meters),
@@ -38,6 +38,6 @@ RADAR_COMMON_NAMESPACE_END
 template <>
 struct glz::meta<radar::mms::common::Torque>
 {
-  static constexpr auto value = radar::mms::common::_glaze_impl::QuantityAdapter<
+  static auto constexpr value = radar::mms::common::_glaze_impl::QuantityAdapter<
     radar::mms::common::_glaze_impl::torque_reading>::value;
 };

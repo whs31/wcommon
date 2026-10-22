@@ -15,7 +15,7 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> microfarads;
   };
 
-  inline constexpr auto
+  inline auto constexpr
     capacitance_reading = QuantityReading<Capacitance, CapacitanceFields, 2, 2> {
       .fields =
         {
@@ -42,6 +42,6 @@ RADAR_COMMON_NAMESPACE_END
 template <>
 struct glz::meta<radar::mms::common::Capacitance>
 {
-  static constexpr auto value = radar::mms::common::_glaze_impl::QuantityAdapter<
+  static auto constexpr value = radar::mms::common::_glaze_impl::QuantityAdapter<
     radar::mms::common::_glaze_impl::capacitance_reading>::value;
 };

@@ -15,7 +15,7 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> millivolts;
   };
 
-  inline constexpr auto voltage_reading = QuantityReading<Voltage, VoltageFields, 2, 2> {
+  inline auto constexpr voltage_reading = QuantityReading<Voltage, VoltageFields, 2, 2> {
     .fields =
       {
         field_unit(&VoltageFields::volts, &Voltage::from_volts),
@@ -41,6 +41,6 @@ RADAR_COMMON_NAMESPACE_END
 template <>
 struct glz::meta<radar::mms::common::Voltage>
 {
-  static constexpr auto value = radar::mms::common::_glaze_impl::QuantityAdapter<
+  static auto constexpr value = radar::mms::common::_glaze_impl::QuantityAdapter<
     radar::mms::common::_glaze_impl::voltage_reading>::value;
 };

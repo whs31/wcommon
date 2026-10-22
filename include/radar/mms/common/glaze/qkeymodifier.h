@@ -17,7 +17,7 @@
 template <>
 struct glz::meta<Qt::KeyboardModifiers>
 {
-  static constexpr auto value = glz::custom<
+  static auto constexpr value = glz::custom<
     [](Qt::KeyboardModifiers& value, int const number) {
       value = Qt::KeyboardModifiers::fromInt(number);
     },

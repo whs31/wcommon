@@ -11,10 +11,10 @@ using namespace radar::mms::common;
 
 TEST_CASE("Geometry JSON adapters round-trip their coordinate objects", "[geometry][json]")
 {
-  constexpr auto point2 = Point2::from_xy(4.5, 5.5);
-  constexpr auto point3 = Point3::from_xyz(4.5, 5.5, 6.5);
-  constexpr auto vector2 = Vector2::from_xy(1.5, 2.5);
-  constexpr auto vector3 = Vector3::from_xyz(1.5, 2.5, 3.5);
+  auto constexpr point2 = Point2::from_xy(4.5, 5.5);
+  auto constexpr point3 = Point3::from_xyz(4.5, 5.5, 6.5);
+  auto constexpr vector2 = Vector2::from_xy(1.5, 2.5);
+  auto constexpr vector3 = Vector3::from_xyz(1.5, 2.5, 3.5);
 
   REQUIRE(nlohmann::json(point2) == nlohmann::json({{"x", 4.5}, {"y", 5.5}}));
   REQUIRE(nlohmann::json(point3) == nlohmann::json({{"x", 4.5}, {"y", 5.5}, {"z", 6.5}}));

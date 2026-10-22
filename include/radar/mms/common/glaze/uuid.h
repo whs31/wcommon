@@ -14,7 +14,7 @@
 template <>
 struct glz::meta<radar::mms::common::Uuid>
 {
-  static constexpr auto value = glz::custom<
+  static auto constexpr value = glz::custom<
     [](radar::mms::common::Uuid& uuid, std::string const& text, glz::context& ctx) {
       try {
         uuid = radar::mms::common::Uuid(text);

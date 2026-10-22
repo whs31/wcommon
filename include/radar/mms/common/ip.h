@@ -249,7 +249,7 @@ class RADAR_COMMON_API Ipv6Addr
 
   [[nodiscard]] constexpr bool is_loopback() const noexcept
   {
-    constexpr auto localhost = std::array<std::uint8_t, 16> {
+    auto constexpr localhost = std::array<std::uint8_t, 16> {
       0,
       0,
       0,

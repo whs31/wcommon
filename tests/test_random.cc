@@ -16,7 +16,7 @@ using namespace radar::mms;
 
 namespace
 {
-  constexpr auto world_seed = std::uint64_t {1};
+  auto constexpr world_seed = std::uint64_t {1};
 
   // distance in units in the last place between two finite doubles of the same sign
   [[nodiscard]] std::int64_t ulps_between(double const a, double const b)
@@ -35,7 +35,7 @@ TEST_CASE("Random stream is a trivially copyable aggregate", "[random]")
 
 TEST_CASE("SplitMix64 matches its reference implementation", "[random]")
 {
-  constexpr auto expected = std::array<std::uint64_t, 5> {
+  auto constexpr expected = std::array<std::uint64_t, 5> {
     6'457'827'717'110'365'317U,
     3'203'168'211'198'807'973U,
     9'817'491'932'198'370'423U,
@@ -49,7 +49,7 @@ TEST_CASE("SplitMix64 matches its reference implementation", "[random]")
 
 TEST_CASE("xoshiro256** matches its reference implementation", "[random]")
 {
-  constexpr auto expected = std::array<std::uint64_t, 6> {
+  auto constexpr expected = std::array<std::uint64_t, 6> {
     11'520U,
     0U,
     1'509'978'240U,
@@ -74,7 +74,7 @@ TEST_CASE("Golden values of a known stream are identical on every platform", "[r
   CHECK(uniforms.uniform() == 0x1.437b059a7e7ecp-2);
   CHECK(uniforms.uniform() == 0x1.8cdc0f24a9e8cp-2);
 
-  constexpr auto expected = std::array {
+  auto constexpr expected = std::array {
     -0x1.a744e8a1d9995p-5,
     -0x1.2e70c65f89a6ap+1,
     0x1.126dbbe26383fp-6,
@@ -93,7 +93,7 @@ TEST_CASE("Golden values of a known stream are identical on every platform", "[r
 
 TEST_CASE("Stream seeds depend on the seed, scope and stream only", "[random]")
 {
-  constexpr auto gyro = stream_seed(world_seed, "vt30-1", "imu.gyro");
+  auto constexpr gyro = stream_seed(world_seed, "vt30-1", "imu.gyro");
 
   STATIC_CHECK(gyro == stream_seed(world_seed, "vt30-1", "imu.gyro"));
   STATIC_CHECK(gyro != stream_seed(world_seed + 1, "vt30-1", "imu.gyro"));
@@ -122,7 +122,7 @@ TEST_CASE("Uniform samples stay in their interval", "[random]")
 {
   auto stream = RandomStream::derive(world_seed, "vt30-1", "uniform");
   auto sum = 0.0;
-  constexpr auto count = 100'000;
+  auto constexpr count = 100'000;
   for(auto draw = 0; draw < count; ++draw) {
     auto const value = stream.uniform();
 
@@ -152,7 +152,7 @@ TEST_CASE("Whole numbers below a bound are uniform", "[random]")
   for(auto const count : counts)
     CHECK(std::abs(count - 10'000) < 500);
 
-  constexpr auto huge = (std::uint64_t {1} << 63U) + 1U;
+  auto constexpr huge = (std::uint64_t {1} << 63U) + 1U;
   for(auto draw = 0; draw < 1'000; ++draw)
     REQUIRE(stream.below(huge) < huge);
   CHECK(stream.below(1) == 0);
@@ -162,7 +162,7 @@ TEST_CASE("Whole numbers below a bound are uniform", "[random]")
 TEST_CASE("Normal samples have the requested mean and deviation", "[random]")
 {
   auto stream = RandomStream::derive(world_seed, "vt30-1", "normal");
-  constexpr auto count = 200'000;
+  auto constexpr count = 200'000;
   auto sum = 0.0;
   auto sum_of_squares = 0.0;
   auto beyond_three_sigma = 0;

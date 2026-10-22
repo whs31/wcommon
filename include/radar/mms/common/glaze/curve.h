@@ -34,7 +34,7 @@ struct glz::meta<radar::mms::common::Curve<X, Y, MaxPoints>>
   using Curve = radar::mms::common::Curve<X, Y, MaxPoints>;
   using Fields = radar::mms::common::_glaze_impl::CurveFields<X, Y>;
 
-  static constexpr auto value = glz::custom<
+  static auto constexpr value = glz::custom<
     [](Curve& curve, Fields const& fields, glz::context& ctx) {
       try {
         curve = Curve(fields.arguments, fields.values);

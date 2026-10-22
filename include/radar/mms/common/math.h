@@ -18,6 +18,26 @@
 
 RADAR_COMMON_NAMESPACE_BEGIN
 
+// NOLINTBEGIN(*-identifier-naming)
+
+/**
+ * @brief Quiet not-a-number (NaN) constant.
+ * @details Represents an undefined or unrepresentable floating-point result.
+ * Comparisons with NaN are unordered, including equality with itself.
+ * @ingroup core_math
+ */
+inline auto constexpr NaN = std::numeric_limits<double>::quiet_NaN();
+
+/**
+ * @brief Positive infinity constant.
+ * @details Represents positive infinity in IEEE 754 floating-point arithmetic.
+ * Useful for representing unbounded values and initializing extrema.
+ * @ingroup core_math
+ */
+inline auto constexpr Inf = std::numeric_limits<double>::infinity();
+
+// NOLINTEND(*-identifier-naming)
+
 /**
  * @brief Rounds `val` down to the nearest integer.
  * @details This is a constexpr version of std::floor.
@@ -31,7 +51,7 @@ template <std::floating_point T>
   if consteval {
     // values of at least 2^(digits - 1) have no fractional bits; zeros, infinities and NaNs map to
     // themselves
-    constexpr auto integral_bound = T(1) / std::numeric_limits<T>::epsilon();
+    auto constexpr integral_bound = T(1) / std::numeric_limits<T>::epsilon();
     if(val == T(0) or not(val > -integral_bound and val < integral_bound))
       return val;
     auto const truncated = static_cast<T>(static_cast<std::int64_t>(val));
@@ -363,7 +383,7 @@ template <Number T>
 {
   if(min == max) {
     if constexpr(std::floating_point<T>)
-      return std::numeric_limits<T>::quiet_NaN();
+      return NaN;
     else
       return T {0};
   }

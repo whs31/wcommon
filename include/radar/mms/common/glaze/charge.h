@@ -16,7 +16,7 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> milliampere_hours;
   };
 
-  inline constexpr auto charge_reading = QuantityReading<Charge, ChargeFields, 3, 2> {
+  inline auto constexpr charge_reading = QuantityReading<Charge, ChargeFields, 3, 2> {
     .fields =
       {
         field_unit(&ChargeFields::coulombs, &Charge::from_coulombs),
@@ -44,6 +44,6 @@ RADAR_COMMON_NAMESPACE_END
 template <>
 struct glz::meta<radar::mms::common::Charge>
 {
-  static constexpr auto value = radar::mms::common::_glaze_impl::QuantityAdapter<
+  static auto constexpr value = radar::mms::common::_glaze_impl::QuantityAdapter<
     radar::mms::common::_glaze_impl::charge_reading>::value;
 };
