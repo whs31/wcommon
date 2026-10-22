@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 #include <filesystem>
 #include <string_view>
 #include <system_error>
@@ -142,6 +144,98 @@ class RADAR_COMMON_API PathError : public Error
 [[nodiscard]] RADAR_COMMON_API std::filesystem::path application_local_data_dir_path(
   std::string_view app_dir,
   std::string_view app_name,
+  std::error_code& ec
+) noexcept;
+
+/**
+ * @brief Category of the per-user files of an application.
+ * @ingroup core_filesystem
+ * @see application_directory_path()
+ */
+enum class ApplicationDirectory : std::uint8_t
+{
+  Root,     ///< Parent of the other categories where they share one; the data directory on Linux.
+  Config,   ///< Configuration the user may edit, e.g. settings.
+  Data,     ///< Durable user data, e.g. plugins or documents.
+  State,    ///< Session state, history and logs.
+  Cache,    ///< Data that can be deleted and computed or downloaded again.
+  Runtime,  ///< Locks, sockets and other files of the running session.
+};
+
+/**
+ * @brief Where application_directory_path() places the per-user files of an application.
+ * @ingroup core_filesystem
+ */
+enum class ApplicationLayout : std::uint8_t
+{
+  Portable,  ///< Under `data/` next to the executable.
+  Standard,  ///< The platform's per-user folders: AppData on Windows, XDG base directories on
+             ///< Linux.
+};
+
+/**
+ * @brief Returns the directory of one category of the per-user files of an application.
+ * @details Every application of the organization lays its files out the same way, so that two
+ * programs naming the same vendor and product, e.g. a command-line tool and an MMS application,
+ * share them. In the standard layout:
+ *
+ * | Category | Linux                       | Windows                                   | Other |
+ * |----------|-----------------------------|-------------------------------------------|--------------------------|
+ * | Root     | `$XDG_DATA_HOME/<product>`  | `%APPDATA%/<vendor>/<product>`            |
+ * `~/.local/<product>`     | | Config   | `$XDG_CONFIG_HOME/<product>`| `<root>/config` |
+ * `<root>/config`          | | Data     | `$XDG_DATA_HOME/<product>`  | `<root>/data` |
+ * `<root>/data`            | | State    | `$XDG_STATE_HOME/<product>` | `<root>/data` |
+ * `<root>/data`            | | Cache    | `$XDG_CACHE_HOME/<product>` | `<root>/cache` |
+ * `<root>/cache`           | | Runtime  | `$XDG_RUNTIME_DIR/<product>`|
+ * `%LOCALAPPDATA%/<vendor>/<product>/runtime` | `<root>/runtime`       |
+ *
+ * Unset or relative XDG homes fall back to `~/.config`, `~/.local/share`, `~/.local/state` and
+ * `~/.cache`. The runtime directory has no fallback: `$XDG_RUNTIME_DIR` must be set and absolute.
+ *
+ * The portable layout keeps everything under `<executable directory>/data`: `config`, `data`,
+ * `cache` and `runtime` below it, the state in `data`.
+ *
+ * Nothing is created; whoever writes into a directory creates it.
+ *
+ * @code {.cpp}
+ * using namespace radar::mms;
+ *
+ * auto const settings = application_directory_path(ApplicationDirectory::Config, "Radar MMS",
+ * "ics2") / "settings.json";
+ * @endcode
+ *
+ * @param directory Category to resolve.
+ * @param vendor Vendor component, used on Windows.
+ * @param product Application component, the last component of every standard directory.
+ * @param layout Standard per-user folders or portable.
+ * @return Absolute directory path.
+ * @throws PathError If either name is not a single non-empty path component, or a base directory
+ * cannot be resolved (no home directory, executable or `$XDG_RUNTIME_DIR`).
+ * @ingroup core_filesystem
+ */
+[[nodiscard]] RADAR_COMMON_API std::filesystem::path application_directory_path(
+  ApplicationDirectory directory,
+  std::string_view vendor,
+  std::string_view product,
+  ApplicationLayout layout = ApplicationLayout::Standard
+);
+
+/**
+ * @brief Returns the directory of one category of the per-user files of an application.
+ * @param directory Category to resolve.
+ * @param vendor Vendor component, used on Windows.
+ * @param product Application component.
+ * @param layout Standard per-user folders or portable.
+ * @param ec Receives an error code on failure and is cleared on success.
+ * @return Absolute directory path, or an empty path on failure.
+ * @see application_directory_path(ApplicationDirectory, std::string_view, std::string_view,
+ * ApplicationLayout)
+ */
+[[nodiscard]] RADAR_COMMON_API std::filesystem::path application_directory_path(
+  ApplicationDirectory directory,
+  std::string_view vendor,
+  std::string_view product,
+  ApplicationLayout layout,
   std::error_code& ec
 ) noexcept;
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <exception>
 #include <source_location>
 #include <string>
 #include <system_error>
@@ -93,5 +94,33 @@ class NotImplementedError final : public Error
       )
   {}
 };
+
+/**
+ * @brief Returns the message of a captured exception.
+ * @details Useful where an exception crosses a thread or a callback as a `std::exception_ptr` and
+ * only its message is reported, e.g. in a log line or a notification.
+ *
+ * @code {.cpp}
+ * auto const error = std::make_exception_ptr(radar::mms::NumericError("singular matrix"));
+ * auto const message = radar::mms::describe(error);  // "singular matrix"
+ * @endcode
+ *
+ * @param error Captured exception, or null.
+ * @return `what()` of a `std::exception`, `unknown exception` for anything else thrown, and an
+ * empty string for null.
+ * @ingroup core_errors
+ */
+[[nodiscard]] inline std::string describe(std::exception_ptr const& error)
+{
+  if(not error)
+    return {};
+  try {
+    std::rethrow_exception(error);
+  } catch(std::exception const& exception) {
+    return exception.what();
+  } catch(...) {
+    return "unknown exception";
+  }
+}
 
 RADAR_COMMON_NAMESPACE_END

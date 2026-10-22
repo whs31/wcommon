@@ -66,9 +66,11 @@
 #include <radar/mms/common/energy.h>
 #include <radar/mms/common/error.h>
 #include <radar/mms/common/euler_angles.h>
+#include <radar/mms/common/fatal.h>
 #include <radar/mms/common/force.h>
 #include <radar/mms/common/frequency.h>
 #include <radar/mms/common/functional.h>
+#include <radar/mms/common/geodesy.h>
 #include <radar/mms/common/graph_resolver.h>
 #include <radar/mms/common/ip.h>
 #include <radar/mms/common/lockfile.h>
@@ -102,3 +104,4 @@
 #include <radar/mms/common/version.h>
 #include <radar/mms/common/version_range.h>
 #include <radar/mms/common/voltage.h>
+#include <radar/mms/common/web_mercator.h>

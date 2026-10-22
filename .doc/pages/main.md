@@ -27,11 +27,12 @@ entity is marked accordingly in the reference documentation.
 | @ref core_networking | IPv4/IPv6 and socket addresses |
 | @ref core_logging | spdlog setup and optional Qt log forwarding |
 | @ref core_math | Numeric helpers, range checks, lookup curves, 3×3 matrices and quaternions |
+| @ref core_geodesy | WGS84 positions, local tangent planes and Web Mercator tiles |
 | @ref core_random | Deterministic random streams and noise processes |
 | @ref core_memory | Ownership helpers and pointer utilities |
 | @ref core_functional | Lazy values, overload helpers, and scope guards |
 | @ref core_threading | Mutex and read/write lock helpers |
-| @ref core_filesystem | Lock files and platform paths |
+| @ref core_filesystem | Lock files, platform paths and per-user application directories |
 
 See @ref quantities for the physical quantity types and their units, @ref rotations for the
 vector, matrix and quaternion conventions, and @ref random_streams for reproducible randomness.

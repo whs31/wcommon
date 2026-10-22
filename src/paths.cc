@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <string>
 #include <system_error>
+#include <utility>
 #include <vector>
 
 #ifdef _WIN32
@@ -94,6 +95,25 @@ namespace
   }
 #endif
 
+  // the categories under one root: the portable layout, and the standard one outside linux
+  [[nodiscard]] std::filesystem::path nested_directory_path(
+    std::filesystem::path const& root,
+    radar::mms::common::ApplicationDirectory const directory
+  )
+  {
+    using radar::mms::common::ApplicationDirectory;
+    switch(directory) {
+      case ApplicationDirectory::Root: return root;
+      case ApplicationDirectory::Config: return root / "config";
+      case ApplicationDirectory::Data:
+      case ApplicationDirectory::State: return root / "data";
+      case ApplicationDirectory::Cache: return root / "cache";
+      case ApplicationDirectory::Runtime: return root / "runtime";
+    }
+    throw radar::mms::common::
+      PathError("unknown application directory {}", std::to_underlying(directory));
+  }
+
 #ifdef __linux__
   [[nodiscard]] std::filesystem::path xdg_home_path(
     char const* const variable,
@@ -147,6 +167,20 @@ std::filesystem::path application_local_data_dir_path(
 ) noexcept
 {
   return checked_path([&] { return application_local_data_dir_path(app_dir, app_name); }, ec);
+}
+
+std::filesystem::path application_directory_path(
+  ApplicationDirectory const directory,
+  std::string_view const vendor,
+  std::string_view const product,
+  ApplicationLayout const layout,
+  std::error_code& ec
+) noexcept
+{
+  return checked_path(
+    [&] { return application_directory_path(directory, vendor, product, layout); },
+    ec
+  );
 }
 
 #ifdef _WIN32
@@ -289,6 +323,41 @@ std::filesystem::path application_local_data_dir_path(
   return nix_::xdg_data_home_path() / app_name;
 #else
   return user_home_path() / ".local" / app_name;
+#endif
+}
+
+// note: [whs31 : 2026-10-22]
+// the layout of ApplicationPaths of mms 3: applications without mms (helisim) share its directories
+std::filesystem::path application_directory_path(
+  ApplicationDirectory const directory,
+  std::string_view const vendor,
+  std::string_view const product,
+  ApplicationLayout const layout
+)
+{
+  validate_path_component(vendor, "vendor");
+  validate_path_component(product, "product");
+  if(layout == ApplicationLayout::Portable)
+    return nested_directory_path(application_dir_path() / "data", directory);
+#ifdef __linux__
+  switch(directory) {
+    case ApplicationDirectory::Root:
+    case ApplicationDirectory::Data: return nix_::xdg_data_home_path() / product;
+    case ApplicationDirectory::Config: return nix_::xdg_config_home_path() / product;
+    case ApplicationDirectory::State: return nix_::xdg_state_home_path() / product;
+    case ApplicationDirectory::Cache: return nix_::xdg_cache_home_path() / product;
+    case ApplicationDirectory::Runtime: return nix_::xdg_runtime_dir_path() / product;
+  }
+  throw PathError("unknown application directory {}", std::to_underlying(directory));
+#else
+  if(directory == ApplicationDirectory::Runtime) {
+#  ifdef _WIN32
+    return application_local_data_dir_path(vendor, product) / "runtime";
+#  else
+    return application_data_dir_path(vendor, product) / "runtime";
+#  endif
+  }
+  return nested_directory_path(application_data_dir_path(vendor, product), directory);
 #endif
 }
 

@@ -50,9 +50,10 @@
  * The alternative units and the literal strings are a glaze extension: the nlohmann adapters read
  * the SI unit only.
  *
- * `std::chrono` durations and time points use glaze's built-in support. Durations serialize as
- * their count, as with the nlohmann adapters, but `system_clock` time points serialize as ISO 8601
- * strings.
+ * `std::chrono` durations serialize as their count, as with the nlohmann adapters; with
+ * `glaze/chrono.h` they also read from a unit key or a literal string, `{"milliseconds": 7.5}` or
+ * `"7.5ms"`. Time points use glaze's built-in support: `system_clock` ones serialize as ISO 8601
+ * strings, unlike with the nlohmann adapters.
  */
 
 RADAR_COMMON_NAMESPACE_BEGIN

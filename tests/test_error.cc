@@ -2,6 +2,8 @@
 #include <radar/mms/common/memory/null_pointer_error.h>
 
 #include <cerrno>
+#include <exception>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <system_error>
@@ -30,4 +32,12 @@ TEST_CASE("NotImplementedError has balanced location formatting", "[error]")
 
   REQUIRE(message.starts_with("not implemented (file "));
   REQUIRE(message.ends_with(")"));
+}
+
+TEST_CASE("Exception pointers describe their exception", "[error]")
+{
+  REQUIRE(describe(std::make_exception_ptr(NumericError("singular matrix"))) == "singular matrix");
+  REQUIRE(describe(std::make_exception_ptr(std::runtime_error("disk full"))) == "disk full");
+  REQUIRE(describe(std::make_exception_ptr(42)) == "unknown exception");
+  REQUIRE(describe(std::exception_ptr()).empty());
 }

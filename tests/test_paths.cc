@@ -199,3 +199,97 @@ TEST_CASE("Paths requires an absolute XDG runtime directory", "[paths]")
   }
 }
 #endif
+
+TEST_CASE("Paths lays out the portable application directories", "[paths]")
+{
+  auto const root = application_dir_path() / "data";
+  auto const path = [](ApplicationDirectory const directory) {
+    return application_directory_path(
+      directory,
+      "Radar MMS",
+      "Core Paths Test",
+      ApplicationLayout::Portable
+    );
+  };
+
+  CHECK(path(ApplicationDirectory::Root) == root);
+  CHECK(path(ApplicationDirectory::Config) == root / "config");
+  CHECK(path(ApplicationDirectory::Data) == root / "data");
+  CHECK(path(ApplicationDirectory::State) == root / "data");
+  CHECK(path(ApplicationDirectory::Cache) == root / "cache");
+  CHECK(path(ApplicationDirectory::Runtime) == root / "runtime");
+}
+
+TEST_CASE("Paths rejects application directory names of several components", "[paths]")
+{
+  CHECK_THROWS_AS(
+    application_directory_path(ApplicationDirectory::Config, "../vendor", "app"),
+    PathError
+  );
+  CHECK_THROWS_AS(
+    application_directory_path(
+      ApplicationDirectory::Config,
+      "vendor",
+      "nested/app",
+      ApplicationLayout::Portable
+    ),
+    PathError
+  );
+
+  auto ec = std::error_code();
+  CHECK(application_directory_path(
+          ApplicationDirectory::Data,
+          "vendor",
+          "",
+          ApplicationLayout::Standard,
+          ec
+  )
+          .empty());
+  CHECK(ec);
+}
+
+#ifdef __linux__
+TEST_CASE(
+  "Paths places the standard application directories in the XDG base directories",
+  "[paths]"
+)
+{
+  auto const base = std::filesystem::temp_directory_path() / "rcommon-application-directories";
+  auto config = ScopedEnvironment("XDG_CONFIG_HOME", (base / "config").string());
+  auto data = ScopedEnvironment("XDG_DATA_HOME", (base / "data").string());
+  auto state = ScopedEnvironment("XDG_STATE_HOME", (base / "state").string());
+  auto cache = ScopedEnvironment("XDG_CACHE_HOME", (base / "cache").string());
+  auto runtime = ScopedEnvironment("XDG_RUNTIME_DIR", (base / "runtime").string());
+  auto const path = [](ApplicationDirectory const directory) {
+    return application_directory_path(directory, "Radar MMS", "product");
+  };
+
+  CHECK(path(ApplicationDirectory::Root) == base / "data" / "product");
+  CHECK(path(ApplicationDirectory::Config) == base / "config" / "product");
+  CHECK(path(ApplicationDirectory::Data) == base / "data" / "product");
+  CHECK(path(ApplicationDirectory::State) == base / "state" / "product");
+  CHECK(path(ApplicationDirectory::Cache) == base / "cache" / "product");
+  CHECK(path(ApplicationDirectory::Runtime) == base / "runtime" / "product");
+}
+
+TEST_CASE("Paths has no fallback for the standard runtime application directory", "[paths]")
+{
+  auto runtime = ScopedEnvironment("XDG_RUNTIME_DIR", std::nullopt);
+
+  CHECK_THROWS_AS(
+    application_directory_path(ApplicationDirectory::Runtime, "Radar MMS", "product"),
+    PathError
+  );
+  auto ec = std::error_code();
+  CHECK(application_directory_path(
+          ApplicationDirectory::Runtime,
+          "Radar MMS",
+          "product",
+          ApplicationLayout::Standard,
+          ec
+  )
+          .empty());
+  CHECK(ec);
+  CHECK_NOTHROW(application_directory_path(ApplicationDirectory::Config, "Radar MMS", "product"));
+}
+#endif

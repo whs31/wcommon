@@ -38,7 +38,8 @@ class Memo
    */
   [[nodiscard]] Value const* find(Key const& key) const noexcept
   {
-    // NOLINTNEXTLINE(*-constant-array-index): place_of() masks the place below Size
+    // place_of() masks the place below Size
+    // NOLINTNEXTLINE(*-constant-array-index,*-avoid-unchecked-container-access)
     auto const& entry = this->m_entries[place_of(key)];
     return entry.used and entry.key == key ? &entry.value : nullptr;
   }
@@ -48,7 +49,8 @@ class Memo
    */
   Value const& store(Key const& key, Value const& value) noexcept
   {
-    // NOLINTNEXTLINE(*-constant-array-index): place_of() masks the place below Size
+    // place_of() masks the place below Size
+    // NOLINTNEXTLINE(*-constant-array-index,*-avoid-unchecked-container-access)
     auto& entry = this->m_entries[place_of(key)];
     entry.key = key;
     entry.value = value;
