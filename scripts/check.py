@@ -2,6 +2,8 @@
 """Audits C/C++ code for formatting issues and clang-tidy warnings without modifying anything."""
 
 import argparse
+import functools
+import hashlib
 import json
 import os
 import re
@@ -36,9 +38,12 @@ from clang_tools import (
 )
 
 # only project sources and headers; generated code (export headers) lives in the build tree
-PROJECT_DIRS = r"(include|src|tests)"
+PROJECT_DIRS = ("include", "src", "tests")
 # qt adds gcc-only flags to the compile commands of gcc builds; clang rejects them
 GCC_ONLY_FLAGS = {"-mno-direct-extern-access"}
+
+# bump to invalidate every cached clang-tidy result after changing how results are produced or stored
+CACHE_VERSION = 1
 
 DIAGNOSTIC = re.compile(
   r"^(?P<path>.+?):(?P<line>\d+):(?P<column>\d+): "
@@ -68,6 +73,14 @@ class TidyFailure:
 
   source: str
   output: str
+
+
+@dataclass
+class TidyRun:
+  source: str
+  returncode: int
+  output: str
+  cached: bool
 
 
 @dataclass
@@ -104,6 +117,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     "--verbose",
     action="store_true",
     help="show clang-tidy notes and source excerpts under each finding",
+  )
+  parser.add_argument(
+    "--no-cache",
+    action="store_true",
+    help="re-analyze every source instead of reusing clang-tidy results "
+    "of unchanged ones",
   )
   stages = parser.add_mutually_exclusive_group()
   stages.add_argument(
@@ -249,8 +268,8 @@ def find_compile_commands(build_dir: Path | None) -> Path:
   return candidates[0]
 
 
-def sanitize_compile_commands(source: Path, destination: Path) -> list[str]:
-  """Writes a clang-compatible copy of the compilation database and returns its project sources."""
+def sanitize_compile_commands(source: Path, destination: Path) -> dict[str, str]:
+  """Writes a clang-compatible copy of the compilation database and returns the command of each project source."""
   try:
     entries = json.loads(source.read_text(encoding="utf-8"))
   except (OSError, json.JSONDecodeError) as error:
@@ -267,37 +286,155 @@ def sanitize_compile_commands(source: Path, destination: Path) -> list[str]:
   destination.write_text(json.dumps(entries), encoding="utf-8")
 
   pattern = re.compile(project_filter(), re.IGNORECASE if os.name == "nt" else 0)
-  sources = {
-    str(Path(entry["directory"], entry["file"]).resolve()) for entry in entries
-  }
-  return sorted(source for source in sources if pattern.match(source))
+  commands: dict[str, str] = {}
+  for entry in entries:
+    path = str(Path(entry["directory"], entry["file"]).resolve())
+    if pattern.match(path):
+      # clang-tidy analyzes a source with its first command
+      commands.setdefault(path, json.dumps(entry, sort_keys=True))
+  return dict(sorted(commands.items()))
 
 
 def project_filter() -> str:
   root = re.escape(str(REPO_ROOT).rstrip("/\\"))
-  return rf"^{root}[/\\]{PROJECT_DIRS}[/\\]"
+  return rf"^{root}[/\\]({'|'.join(PROJECT_DIRS)})[/\\]"
+
+
+def tidy_flags() -> list[str]:
+  return [
+    "--quiet",
+    # any finding fails the audit, regardless of the WarningsAsErrors setting editors see in .clang-tidy
+    "--warnings-as-errors=*",
+    f"--header-filter={project_filter()}",
+  ]
+
+
+def short_hash(data: bytes) -> str:
+  return hashlib.blake2b(data, digest_size=16).hexdigest()
+
+
+@functools.cache
+def file_digest(path: str) -> str | None:
+  try:
+    return short_hash(Path(path).read_bytes())
+  except OSError:
+    return None
+
+
+class TidyCache:
+  """
+  Replays clang-tidy results of sources whose compile command, clang-tidy setup and every file they include are
+  unchanged. A header that starts shadowing an included one on the include path is not noticed; use --no-cache then.
+  """
+
+  def __init__(self, directory: Path, tool: Tool, started_ns: int) -> None:
+    self.directory = directory
+    self.started_ns = started_ns
+    configs = [REPO_ROOT / ".clang-tidy"] + [
+      config
+      for name in PROJECT_DIRS
+      for config in sorted((REPO_ROOT / name).rglob(".clang-tidy"))
+    ]
+    self.setup = [
+      CACHE_VERSION,
+      tool.version,
+      tidy_flags(),
+      [(relative(config), file_digest(str(config))) for config in configs],
+    ]
+    directory.mkdir(parents=True, exist_ok=True)
+
+  def entry_path(self, source: str) -> Path:
+    return self.directory / f"{short_hash(source.encode())}.json"
+
+  def key(self, command: str) -> str:
+    return short_hash(json.dumps([self.setup, command]).encode())
+
+  def lookup(self, source: str, command: str) -> TidyRun | None:
+    try:
+      entry = json.loads(self.entry_path(source).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+      return None
+    if entry.get("key") != self.key(command):
+      return None
+    inputs = entry["inputs"].items()
+    if any(file_digest(path) != digest for path, digest in inputs):
+      return None
+    return TidyRun(source, entry["returncode"], entry["output"], cached=True)
+
+  def store(self, run: TidyRun, command: str, inputs: Iterable[str]) -> None:
+    digests: dict[str, str] = {}
+    for path in inputs:
+      digest = file_digest(path)
+      if digest is None or self.modified_during_audit(path):
+        return
+      digests[path] = digest
+    entry = {
+      "key": self.key(command),
+      "inputs": digests,
+      "returncode": run.returncode,
+      "output": run.output,
+    }
+    path = self.entry_path(run.source)
+    temporary = path.with_suffix(".tmp")
+    temporary.write_text(json.dumps(entry), encoding="utf-8")
+    temporary.replace(path)
+
+  def modified_during_audit(self, path: str) -> bool:
+    """A file edited during the audit may have been analyzed in a different state than the one hashed."""
+    try:
+      return os.stat(path).st_mtime_ns >= self.started_ns
+    except OSError:
+      return True
+
+  def prune(self, sources: Iterable[str]) -> None:
+    """Drops entries of sources that are no longer in the compilation database."""
+    keep = {self.entry_path(source).name for source in sources}
+    for path in self.directory.glob("*.json"):
+      if path.name not in keep:
+        path.unlink(missing_ok=True)
+
+
+def read_includes(path: Path) -> list[str] | None:
+  try:
+    text = path.read_text(encoding="utf-8", errors="surrogateescape")
+  except OSError:
+    return None
+  return [line for line in text.splitlines() if line]
 
 
 def clang_tidy_source(
-  tool: Tool, database_dir: Path, source: str
-) -> tuple[str, int, str]:
+  tool: Tool,
+  database_dir: Path,
+  source: str,
+  command: str,
+  cache: TidyCache,
+  use_cached: bool,
+) -> TidyRun:
+  if use_cached and (cached := cache.lookup(source, command)):
+    return cached
+
+  arguments = [tool.executable, "-p", str(database_dir), *tidy_flags()]
+  includes = database_dir / f"{cache.entry_path(source).stem}.includes"
+  # clang's own preprocessor lists every header it opened, system ones included, without touching the output
+  for flag in ("-sys-header-deps", "-header-include-file", str(includes)):
+    arguments += ["--extra-arg=-Xclang", f"--extra-arg={flag}"]
   result = subprocess.run(
-    [
-      tool.executable,
-      "-p",
-      str(database_dir),
-      "--quiet",
-      # any finding fails the audit, regardless of the WarningsAsErrors setting editors see in .clang-tidy
-      "--warnings-as-errors=*",
-      f"--header-filter={project_filter()}",
-      source,
-    ],
+    [*arguments, source],
     cwd=REPO_ROOT,
     text=True,
     capture_output=True,
     check=False,
   )
-  return source, result.returncode, result.stdout + result.stderr
+  run = TidyRun(
+    source, result.returncode, result.stdout + result.stderr, cached=False
+  )
+  # failures without a diagnostic are retried on the next audit
+  included = read_includes(includes)
+  if included is not None and (
+    run.returncode == 0 or parse_diagnostics(run.output)
+  ):
+    cache.store(run, command, [source, *included])
+  return run
 
 
 def print_diagnostic(
@@ -341,16 +478,24 @@ def print_check_counts(diagnostics: Iterable[Diagnostic]) -> None:
     )
 
 
-def run_clang_tidy(build_dir: Path | None, jobs: int, verbose: bool) -> StageResult:
+def run_clang_tidy(
+  build_dir: Path | None, jobs: int, verbose: bool, use_cached: bool
+) -> StageResult:
   stage_header("clang-tidy")
   started = time.monotonic()
+  started_ns = time.time_ns()
   tool = pinned_tool("clang-tidy")
   compile_commands = find_compile_commands(build_dir)
+  file_digest.cache_clear()
 
   with tempfile.TemporaryDirectory(prefix="rcommon-check-") as temp_dir:
     database_dir = Path(temp_dir)
-    sources = sanitize_compile_commands(
+    commands = sanitize_compile_commands(
       compile_commands, database_dir / "compile_commands.json"
+    )
+    sources = list(commands)
+    cache = TidyCache(
+      compile_commands.parent / ".clang-tidy-cache", tool, started_ns
     )
     info_line(
       f"{tool} · {relative(compile_commands)} · "
@@ -360,18 +505,26 @@ def run_clang_tidy(build_dir: Path | None, jobs: int, verbose: bool) -> StageRes
       sources,
       jobs,
       "analyzing",
-      lambda source: clang_tidy_source(tool, database_dir, source),
+      lambda source: clang_tidy_source(
+        tool, database_dir, source, commands[source], cache, use_cached
+      ),
     )
+    cache.prune(sources)
 
   # headers are analyzed once per translation unit that includes them, so findings repeat
   diagnostics: set[Diagnostic] = set()
   failures: list[TidyFailure] = []
-  for source, returncode, output in results:
-    parsed = parse_diagnostics(output)
+  for run in results:
+    parsed = parse_diagnostics(run.output)
     diagnostics.update(parsed)
-    if returncode != 0 and not parsed:
-      failures.append(TidyFailure(relative(source), output.strip()))
+    if run.returncode != 0 and not parsed:
+      failures.append(TidyFailure(relative(run.source), run.output.strip()))
   elapsed = time.monotonic() - started
+  cached = sum(run.cached for run in results)
+  if cached:
+    info_line(
+      f"reused cached results of {cached} unchanged of {plural(len(sources), 'source')}"
+    )
 
   if not diagnostics and not failures:
     ok_line(f"{plural(len(sources), 'source')} analyzed, no findings")
@@ -443,7 +596,9 @@ def main(argv: list[str] | None = None) -> int:
     if not args.tidy_only:
       results.append(run_clang_format(args.jobs))
     if not args.format_only:
-      results.append(run_clang_tidy(args.build_dir, args.jobs, args.verbose))
+      results.append(
+        run_clang_tidy(args.build_dir, args.jobs, args.verbose, not args.no_cache)
+      )
   except ToolError as error:
     error_line(str(error))
     return 1
