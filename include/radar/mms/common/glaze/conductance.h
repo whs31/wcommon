@@ -14,17 +14,20 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> siemens;
   };
 
-  inline auto constexpr
-    conductance_reading = QuantityReading<Conductance, ConductanceFields, 1, 1> {
-      .fields =
-        {
-          field_unit(&ConductanceFields::siemens, &Conductance::from_siemens),
-        },
-      .literals =
-        {
-          literal_unit("siemens", &Conductance::from_siemens),
-        },
-      .unknown_suffix = "a conductance literal needs one of the unit suffixes siemens",
+  inline auto constexpr conductance_reading = QuantityReading<
+    Conductance,
+    ConductanceFields,
+    1,
+    1> {
+    .fields =
+      {
+        field_unit(&ConductanceFields::siemens, &Conductance::from_siemens),
+      },
+    .literals =
+      {
+        literal_unit("siemens", &Conductance::from_siemens),
+      },
+    .unknown_suffix = "a conductance literal needs one of the unit suffixes siemens",
   };
 }  // namespace _glaze_impl
 

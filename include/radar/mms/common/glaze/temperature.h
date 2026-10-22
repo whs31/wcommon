@@ -16,21 +16,24 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> fahrenheit;
   };
 
-  inline auto constexpr
-    temperature_reading = QuantityReading<Temperature, TemperatureFields, 3, 3> {
-      .fields =
-        {
-          field_unit(&TemperatureFields::kelvin, &Temperature::from_kelvin),
-          field_unit(&TemperatureFields::celsius, &Temperature::from_celsius),
-          field_unit(&TemperatureFields::fahrenheit, &Temperature::from_fahrenheit),
-        },
-      .literals =
-        {
-          literal_unit("k", &Temperature::from_kelvin),
-          literal_unit("degc", &Temperature::from_celsius),
-          literal_unit("degf", &Temperature::from_fahrenheit),
-        },
-      .unknown_suffix = "a temperature literal needs one of the unit suffixes k, degc, degf",
+  inline auto constexpr temperature_reading = QuantityReading<
+    Temperature,
+    TemperatureFields,
+    3,
+    3> {
+    .fields =
+      {
+        field_unit(&TemperatureFields::kelvin, &Temperature::from_kelvin),
+        field_unit(&TemperatureFields::celsius, &Temperature::from_celsius),
+        field_unit(&TemperatureFields::fahrenheit, &Temperature::from_fahrenheit),
+      },
+    .literals =
+      {
+        literal_unit("k", &Temperature::from_kelvin),
+        literal_unit("degc", &Temperature::from_celsius),
+        literal_unit("degf", &Temperature::from_fahrenheit),
+      },
+    .unknown_suffix = "a temperature literal needs one of the unit suffixes k, degc, degf",
   };
 }  // namespace _glaze_impl
 

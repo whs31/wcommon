@@ -15,19 +15,22 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> microfarads;
   };
 
-  inline auto constexpr
-    capacitance_reading = QuantityReading<Capacitance, CapacitanceFields, 2, 2> {
-      .fields =
-        {
-          field_unit(&CapacitanceFields::farads, &Capacitance::from_farads),
-          field_unit(&CapacitanceFields::microfarads, &Capacitance::from_microfarads),
-        },
-      .literals =
-        {
-          literal_unit("f", &Capacitance::from_farads),
-          literal_unit("uf", &Capacitance::from_microfarads),
-        },
-      .unknown_suffix = "a capacitance literal needs one of the unit suffixes f, uf",
+  inline auto constexpr capacitance_reading = QuantityReading<
+    Capacitance,
+    CapacitanceFields,
+    2,
+    2> {
+    .fields =
+      {
+        field_unit(&CapacitanceFields::farads, &Capacitance::from_farads),
+        field_unit(&CapacitanceFields::microfarads, &Capacitance::from_microfarads),
+      },
+    .literals =
+      {
+        literal_unit("f", &Capacitance::from_farads),
+        literal_unit("uf", &Capacitance::from_microfarads),
+      },
+    .unknown_suffix = "a capacitance literal needs one of the unit suffixes f, uf",
   };
 }  // namespace _glaze_impl
 

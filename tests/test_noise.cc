@@ -145,8 +145,5 @@ TEST_CASE("Invalid noise parameters are rejected", "[random][noise]")
   CHECK_THROWS_AS(GaussMarkov::with(1.0, 1s, 10ms, NaN), InvalidArgumentError);
   CHECK_THROWS_AS(RandomWalk::with(-0.1, 10ms), InvalidArgumentError);
   CHECK_THROWS_AS(RandomWalk::with(0.1, -10ms), InvalidArgumentError);
-  CHECK_THROWS_AS(
-    RandomWalk::with(0.1, std::chrono::duration<double>(Inf)),
-    InvalidArgumentError
-  );
+  CHECK_THROWS_AS(RandomWalk::with(0.1, std::chrono::duration<double>(Inf)), InvalidArgumentError);
 }

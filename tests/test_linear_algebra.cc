@@ -31,8 +31,8 @@ namespace
   auto constexpr unit_y = Vector3::unit_y();
   auto constexpr unit_z = Vector3::unit_z();
   auto constexpr sample_vector = Vector3(0.3, -1.7, 2.4);
-  auto constexpr
-    inertia = Matrix3x3::from_rows({0.5, -0.02, 0.05}, {-0.02, 3.2, 0.01}, {0.05, 0.01, 3.0});
+  auto constexpr inertia = Matrix3x3::
+    from_rows({0.5, -0.02, 0.05}, {-0.02, 3.2, 0.01}, {0.05, 0.01, 3.0});
 
   [[nodiscard]] double max_difference(Vector3 const a, Vector3 const b)
   {
@@ -247,8 +247,8 @@ TEST_CASE("Transpose and inverse satisfy their identities", "[linalg][matrix]")
 
 TEST_CASE("Inverting a singular or non-finite matrix fails", "[linalg][matrix]")
 {
-  auto constexpr
-    dependent_rows = Matrix3x3::from_rows({1.0, 2.0, 3.0}, {2.0, 4.0, 6.0}, {0.0, 1.0, 1.0});
+  auto constexpr dependent_rows = Matrix3x3::
+    from_rows({1.0, 2.0, 3.0}, {2.0, 4.0, 6.0}, {0.0, 1.0, 1.0});
   auto const broken = Matrix3x3::diagonal({1.0, NaN, 1.0});
 
   STATIC_CHECK_FALSE(dependent_rows.is_invertible());
@@ -292,8 +292,7 @@ TEST_CASE("Symmetry check accepts inertia tensors and rejects others", "[linalg]
   STATIC_CHECK_FALSE(skewed.is_symmetric());
   STATIC_CHECK(skewed.is_symmetric(1e-6));
   CHECK_FALSE(
-    Matrix3x3::from_rows(inertia.row(0), inertia.row(1).with_y(NaN), inertia.row(2))
-      .is_symmetric()
+    Matrix3x3::from_rows(inertia.row(0), inertia.row(1).with_y(NaN), inertia.row(2)).is_symmetric()
   );
 }
 

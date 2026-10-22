@@ -15,19 +15,22 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> standard_gravity;
   };
 
-  inline auto constexpr
-    acceleration_reading = QuantityReading<Acceleration, AccelerationFields, 2, 2> {
-      .fields =
-        {
-          field_unit(&AccelerationFields::meters_per_second_squared, &Acceleration::from_mps2),
-          field_unit(&AccelerationFields::standard_gravity, &Acceleration::from_standard_gravity),
-        },
-      .literals =
-        {
-          literal_unit("mps2", &Acceleration::from_mps2),
-          literal_unit("gn", &Acceleration::from_standard_gravity),
-        },
-      .unknown_suffix = "a acceleration literal needs one of the unit suffixes mps2, gn",
+  inline auto constexpr acceleration_reading = QuantityReading<
+    Acceleration,
+    AccelerationFields,
+    2,
+    2> {
+    .fields =
+      {
+        field_unit(&AccelerationFields::meters_per_second_squared, &Acceleration::from_mps2),
+        field_unit(&AccelerationFields::standard_gravity, &Acceleration::from_standard_gravity),
+      },
+    .literals =
+      {
+        literal_unit("mps2", &Acceleration::from_mps2),
+        literal_unit("gn", &Acceleration::from_standard_gravity),
+      },
+    .unknown_suffix = "a acceleration literal needs one of the unit suffixes mps2, gn",
   };
 }  // namespace _glaze_impl
 

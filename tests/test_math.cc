@@ -30,7 +30,9 @@ TEST_CASE("floor preserves non-finite and large values", "[math]")
 {
   STATIC_CHECK(radar::mms::floor(Inf) == Inf);
   STATIC_CHECK(std::isnan(radar::mms::floor(NaN)));
-  STATIC_CHECK(radar::mms::floor(std::numeric_limits<double>::max()) == std::numeric_limits<double>::max());
+  STATIC_CHECK(
+    radar::mms::floor(std::numeric_limits<double>::max()) == std::numeric_limits<double>::max()
+  );
 }
 
 TEST_CASE("abs and fmod support constexpr values", "[math]")

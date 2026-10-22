@@ -14,20 +14,23 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
     std::optional<double> kilogram_square_meters;
   };
 
-  inline auto constexpr
-    moment_of_inertia_reading = QuantityReading<MomentOfInertia, MomentOfInertiaFields, 1, 1> {
-      .fields =
-        {
-          field_unit(
-            &MomentOfInertiaFields::kilogram_square_meters,
-            &MomentOfInertia::from_kilogram_square_meters
-          ),
-        },
-      .literals =
-        {
-          literal_unit("kg_m2", &MomentOfInertia::from_kilogram_square_meters),
-        },
-      .unknown_suffix = "a moment of inertia literal needs one of the unit suffixes kg_m2",
+  inline auto constexpr moment_of_inertia_reading = QuantityReading<
+    MomentOfInertia,
+    MomentOfInertiaFields,
+    1,
+    1> {
+    .fields =
+      {
+        field_unit(
+          &MomentOfInertiaFields::kilogram_square_meters,
+          &MomentOfInertia::from_kilogram_square_meters
+        ),
+      },
+    .literals =
+      {
+        literal_unit("kg_m2", &MomentOfInertia::from_kilogram_square_meters),
+      },
+    .unknown_suffix = "a moment of inertia literal needs one of the unit suffixes kg_m2",
   };
 }  // namespace _glaze_impl
 
