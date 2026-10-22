@@ -28,7 +28,7 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
           literal_unit("gn", &Acceleration::from_standard_gravity),
         },
       .unknown_suffix = "a acceleration literal needs one of the unit suffixes mps2, gn",
-    };
+  };
 }  // namespace _glaze_impl
 
 RADAR_COMMON_NAMESPACE_END

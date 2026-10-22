@@ -29,12 +29,17 @@ namespace
     void set(int const new_value) noexcept { this->value = new_value; }
   };
 
-  inline auto deleted_value = 0;
+  [[nodiscard]] int& deleted_value() noexcept
+  {
+    static auto value = 0;
+    return value;
+  }
 
   int delete_int(int const* const value) noexcept
   {
-    deleted_value = *value;
-    delete value;
+    deleted_value() = *value;
+    delete value;  // NOLINT(cppcoreguidelines-owning-memory): a raw-pointer deleter is what the
+                   // test exercises
     return 0;
   }
 
@@ -102,8 +107,8 @@ TEST_CASE("observer_ptr observes, resets, releases and swaps raw pointers", "[me
 {
   auto values = std::array {Base {1}, Base {2}};
 
-  auto first = observer_ptr<Base> {&values[0]};
-  auto second = make_observer(&values[1]);
+  auto first = observer_ptr<Base> {values.data()};
+  auto second = make_observer(&values.at(1));
   auto empty = observer_ptr<Base> {};
 
   REQUIRE(first);
@@ -112,7 +117,7 @@ TEST_CASE("observer_ptr observes, resets, releases and swaps raw pointers", "[me
   REQUIRE(nullptr != first);
   REQUIRE(empty == nullptr);
   REQUIRE(nullptr == empty);
-  REQUIRE(first.get() == &values[0]);
+  REQUIRE(first.get() == values.data());
   REQUIRE(first->value == 1);
   REQUIRE(first.ref().value == 1);
   REQUIRE(first != second);
@@ -122,14 +127,14 @@ TEST_CASE("observer_ptr observes, resets, releases and swaps raw pointers", "[me
   REQUIRE(second >= first);
 
   first.swap(second);
-  REQUIRE(first.get() == &values[1]);
-  REQUIRE(second.get() == &values[0]);
+  REQUIRE(first.get() == &values.at(1));
+  REQUIRE(second.get() == values.data());
 
   auto* released = first.release();
-  REQUIRE(released == &values[1]);
+  REQUIRE(released == &values.at(1));
   REQUIRE_FALSE(first);
 
-  first.reset(&values[0]);
+  first.reset(values.data());
   REQUIRE(first == second);
 }
 
@@ -191,13 +196,13 @@ TEST_CASE("Deleter adapts C-style cleanup functions for unique_ptr", "[memory]")
 {
   using IntDeleter = Deleter<int, int const*, delete_int>;
 
-  deleted_value = 0;
+  deleted_value() = 0;
   {
     auto const value = std::unique_ptr<int, IntDeleter> {new int {42}};
     REQUIRE(*value == 42);
   }
 
-  REQUIRE(deleted_value == 42);
+  REQUIRE(deleted_value() == 42);
 }
 
 TEST_CASE("Pimpl wrappers propagate constness to their implementations", "[pimpl]")

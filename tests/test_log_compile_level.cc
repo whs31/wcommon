@@ -1,4 +1,4 @@
-#define RADAR_LOG_ACTIVE_LEVEL 3
+#define RADAR_LOG_ACTIVE_LEVEL 3  // NOLINT(cppcoreguidelines-macro-usage): configures log.h below
 #include <radar/mms/common/log.h>
 
 #include <string>

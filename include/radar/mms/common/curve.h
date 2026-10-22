@@ -5,6 +5,7 @@
 #include <array>
 #include <concepts>
 #include <functional>
+#include <iterator>
 #include <span>
 
 #include <radar/mms/common/check.h>
@@ -154,18 +155,18 @@ class Curve
     if(at >= curve_magnitude(x.back()))
       return y.back();
 
-    auto const i = static_cast<std::size_t>(
-      std::ranges::upper_bound(x, at, {}, curve_magnitude<X>) - x.begin()
-    );
-    auto const x0 = curve_magnitude(x[i - 1]);
-    auto const fraction = (at - x0) / (curve_magnitude(x[i]) - x0);
+    // the end checks above keep the upper bound strictly inside the curve, so both neighbours exist
+    auto const x1 = std::ranges::upper_bound(x, at, {}, curve_magnitude<X>);
+    auto const y1 = std::next(y.begin(), std::distance(x.begin(), x1));
+    auto const x0 = curve_magnitude(*std::prev(x1));
+    auto const fraction = (at - x0) / (curve_magnitude(*x1) - x0);
     if constexpr(std::floating_point<Y>) {
-      return y[i - 1] + static_cast<Y>(fraction) * (y[i] - y[i - 1]);
+      return *std::prev(y1) + static_cast<Y>(fraction) * (*y1 - *std::prev(y1));
     }
     else {
-      auto const y0 = curve_magnitude(y[i - 1]);
+      auto const y0 = curve_magnitude(*std::prev(y1));
       return QuantityTraits<Y>::from_si(
-        y0 + static_cast<double>(fraction) * (curve_magnitude(y[i]) - y0)
+        y0 + static_cast<double>(fraction) * (curve_magnitude(*y1) - y0)
       );
     }
   }

@@ -2,7 +2,7 @@
 #include <radar/mms/common/version.h>
 #include <radar/mms/common/version_range.h>
 
-#if ! defined(RCOMMON_WITH_QT)
+#ifndef RCOMMON_WITH_QT
 #  error "Qt configuration must enable RCOMMON_WITH_QT"
 #endif
 

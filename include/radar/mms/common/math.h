@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+#include <cstdint>
 #include <limits>
 #include <numbers>
 #include <type_traits>
@@ -27,7 +28,18 @@ RADAR_COMMON_NAMESPACE_BEGIN
 template <std::floating_point T>
 [[nodiscard]] constexpr T floor(T val)
 {
-  return std::floor(val);
+  if consteval {
+    // values of at least 2^(digits - 1) have no fractional bits; zeros, infinities and NaNs map to
+    // themselves
+    constexpr auto integral_bound = T(1) / std::numeric_limits<T>::epsilon();
+    if(val == T(0) or not(val > -integral_bound and val < integral_bound))
+      return val;
+    auto const truncated = static_cast<T>(static_cast<std::int64_t>(val));
+    return truncated > val ? truncated - T(1) : truncated;
+  }
+  else {
+    return std::floor(val);
+  }
 }
 
 /**

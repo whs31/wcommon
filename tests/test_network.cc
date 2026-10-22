@@ -18,6 +18,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 using namespace radar::mms;
+using namespace std::string_view_literals;
 
 TEST_CASE("IP address value operations are constexpr", "[network][ip]")
 {
@@ -97,11 +98,7 @@ TEST_CASE("IPv4 parser rejects malformed and non-IPv4 input", "[network][ip]")
     CHECK_THROWS_AS(Ipv4Addr::parse(text), IpError);
   }
 
-  constexpr char embedded_nul[] = "127.0.0.1\0junk";
-  CHECK_THROWS_AS(
-    Ipv4Addr::parse(std::string_view {embedded_nul, sizeof(embedded_nul) - 1}),
-    IpError
-  );
+  CHECK_THROWS_AS(Ipv4Addr::parse("127.0.0.1\0junk"sv), IpError);
 }
 
 TEST_CASE("IPv6 addresses parse, format and expose segments", "[network][ip]")
@@ -136,11 +133,7 @@ TEST_CASE("IPv6 parser rejects malformed and non-IPv6 input", "[network][ip]")
     CHECK_THROWS_AS(Ipv6Addr::parse(text), IpError);
   }
 
-  constexpr char embedded_nul[] = "2001:db8::1\0junk";
-  CHECK_THROWS_AS(
-    Ipv6Addr::parse(std::string_view {embedded_nul, sizeof(embedded_nul) - 1}),
-    IpError
-  );
+  CHECK_THROWS_AS(Ipv6Addr::parse("2001:db8::1\0junk"sv), IpError);
 }
 
 TEST_CASE("IP addresses support ordering and hashing", "[network][ip]")

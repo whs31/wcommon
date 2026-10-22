@@ -414,7 +414,7 @@ RADAR_COMMON_NAMESPACE_END
 #endif
 #define RADAR_LOG_FLUSH(LOGGER)                                                                           \
   do {                                                                                                  \
-    if(std::shared_ptr<spdlog::logger> l = spdlog::get(LOGGER)) {                                       \
+    if(std::shared_ptr<spdlog::logger> const l = spdlog::get(LOGGER)) {                                 \
       l->flush();                                                                                       \
     }                                                                                                   \
   } while(false)

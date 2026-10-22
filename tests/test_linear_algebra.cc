@@ -69,7 +69,9 @@ namespace
       return max_difference(actual, this->m_expected) <= this->m_tolerance;
     }
 
-    [[nodiscard]] std::string describe() const override
+    // Catch2 matchers override describe() publicly, as its documentation shows
+    [[nodiscard]] std::string
+      describe() const override  // NOLINT(misc-override-with-different-visibility)
     {
       return fmt::format("is within {} of {}", this->m_tolerance, this->m_expected);
     }
@@ -159,8 +161,9 @@ TEST_CASE("try_normalized rejects degenerate vectors", "[geometry][linalg]")
   auto const unit = sample_vector.try_normalized();
 
   REQUIRE(unit.has_value());
-  CHECK(unit->length() == Catch::Approx(1.0));
-  CHECK_THAT(*unit * sample_vector.length(), is_close_to(sample_vector));
+  auto const normalized = unit.value_or(Vector3::zero());
+  CHECK(normalized.length() == Catch::Approx(1.0));
+  CHECK_THAT(normalized * sample_vector.length(), is_close_to(sample_vector));
   CHECK_FALSE(Vector3::zero().try_normalized().has_value());
   CHECK_FALSE(Vector3(not_a_number, 0.0, 0.0).try_normalized().has_value());
   CHECK_FALSE(Vector3(infinity, 0.0, 0.0).try_normalized().has_value());
@@ -406,7 +409,7 @@ TEST_CASE("Rotation matrices convert back to their quaternion", "[linalg][quater
 
 TEST_CASE("Normalizing a quaternion keeps its rotation", "[linalg][quaternion]")
 {
-  auto const q = sample_rotations()[0];
+  auto const q = sample_rotations().at(0);
   auto const drifted = 1.01 * q;
 
   CHECK(drifted.normalized().length() == Catch::Approx(1.0));
@@ -423,7 +426,7 @@ TEST_CASE("Quaternion derivative integrates to the axis-angle rotation", "[linal
   constexpr auto duration = 2.0;
   constexpr auto steps = 2'000;
   constexpr auto dt = duration / steps;
-  auto const initial = sample_rotations()[1];
+  auto const initial = sample_rotations().at(1);
 
   // classic runge-kutta 4 on q' = derivative(q, omega), without renormalization
   auto q = initial;

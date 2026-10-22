@@ -40,23 +40,16 @@ namespace _lazy_impl  // NOLINT(readability-identifier-naming)
       , m_f(std::move(m.m_f))
     {}
 
-    [[nodiscard]] result_type const& operator()() const
-    {
-      this->eval();
-      return *this->m_value;
-    }
+    [[nodiscard]] result_type const& operator()() const { return this->eval(); }
 
-    [[nodiscard]] result_type& operator()()
-    {
-      this->eval();
-      return *this->m_value;
-    }
+    [[nodiscard]] result_type& operator()() { return this->eval(); }
 
    private:
-    void eval() const
+    result_type& eval() const
     {
       if(not this->m_value)
         this->m_value = std::invoke(this->m_f);
+      return *this->m_value;
     }
 
     mutable std::optional<result_type> m_value;

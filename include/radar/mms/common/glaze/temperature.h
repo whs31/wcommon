@@ -31,7 +31,7 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
           literal_unit("degf", &Temperature::from_fahrenheit),
         },
       .unknown_suffix = "a temperature literal needs one of the unit suffixes k, degc, degf",
-    };
+  };
 }  // namespace _glaze_impl
 
 RADAR_COMMON_NAMESPACE_END

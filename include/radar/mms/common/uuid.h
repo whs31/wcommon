@@ -266,8 +266,8 @@ class RADAR_COMMON_API Uuid
   {
     auto uuid = Uuid();
     for(auto i = std::size_t {0}; i < 8; ++i) {
-      uuid.m_bytes.at(i) = byte<7>(high_bits << (i * 8));
-      uuid.m_bytes.at(i + 8) = byte<7>(low_bits << (i * 8));
+      uuid.m_bytes.at(i) = static_cast<std::uint8_t>(high_bits >> ((7 - i) * 8));
+      uuid.m_bytes.at(i + 8) = static_cast<std::uint8_t>(low_bits >> ((7 - i) * 8));
     }
     return uuid;
   }

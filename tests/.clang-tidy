@@ -1,0 +1,9 @@
+InheritParentConfig: true
+# Catch2 registers tests through static initialization and do/while assertion macros.
+Checks: >
+  -cppcoreguidelines-avoid-do-while,
+  -bugprone-throwing-static-initialization,
+  -misc-use-anonymous-namespace
+CheckOptions:
+  - key: readability-function-cognitive-complexity.IgnoreMacros
+    value: true

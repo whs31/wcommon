@@ -3,6 +3,7 @@
 #include <array>
 #include <compare>
 #include <limits>
+#include <ranges>
 #include <sstream>
 #include <string_view>
 #include <unordered_set>
@@ -67,8 +68,8 @@ TEST_CASE("Version follows SemVer precedence and has a stable total order", "[ve
     Version("1.0.0-rc.1"),
     Version("1.0.0"),
   };
-  for(auto i = std::size_t {1}; i < ordered.size(); ++i)
-    CHECK(ordered[i - 1].cmp_precedence(ordered[i]) == std::strong_ordering::less);
+  for(auto const& [lower, higher] : ordered | std::views::pairwise)
+    CHECK(lower.cmp_precedence(higher) == std::strong_ordering::less);
 
   auto const build_a = Version("1.0.0+a");
   auto const build_b = Version("1.0.0+b");

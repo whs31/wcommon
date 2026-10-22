@@ -38,7 +38,7 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
         },
       .unknown_suffix =
         "a angular velocity literal needs one of the unit suffixes rad_per_s, deg_per_s, rpm",
-    };
+  };
 }  // namespace _glaze_impl
 
 RADAR_COMMON_NAMESPACE_END

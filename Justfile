@@ -5,15 +5,15 @@ default:
     @echo "Usage: just <command> [options]"
     @just --list
 
-[doc("Formats C/C++ code")]
-[windows]
-format:
-    powershell -NoProfile -ExecutionPolicy Bypass -File scripts/format.ps1
+[doc("Formats C/C++ code with the pinned clang-format")]
+[positional-arguments]
+format *ARGS:
+    @uv run --project . python scripts/format.py "$@"
 
-[unix]
-[doc("Formats C/C++ code")]
-format:
-    sh scripts/format.sh
+[doc("Audits C/C++ code with the pinned clang-format and clang-tidy; pass --help for options")]
+[positional-arguments]
+check *ARGS:
+    @uv run --project . python scripts/check.py "$@"
 
 [windows]
 clean:
@@ -35,11 +35,6 @@ graph:
 [doc("Generates documentation HTML")]
 doc:
     cd .doc && poxy
-
-[unix]
-[doc("Runs all project checks")]
-check build_dir='build/Debug':
-    bash scripts/checks/clang-tidy.sh "{{ build_dir }}"
 
 [unix]
 [doc("Builds and tests Conan configurations with and without Qt and the serialization adapters")]

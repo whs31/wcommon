@@ -28,7 +28,7 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
           literal_unit("uf", &Capacitance::from_microfarads),
         },
       .unknown_suffix = "a capacitance literal needs one of the unit suffixes f, uf",
-    };
+  };
 }  // namespace _glaze_impl
 
 RADAR_COMMON_NAMESPACE_END

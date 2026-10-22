@@ -14,8 +14,12 @@ namespace
   struct ThrowingMoveCallable
   {
     ThrowingMoveCallable() = default;
+    ~ThrowingMoveCallable() = default;
+    ThrowingMoveCallable(ThrowingMoveCallable const&) = delete;
+    ThrowingMoveCallable& operator=(ThrowingMoveCallable const&) = delete;
+    ThrowingMoveCallable& operator=(ThrowingMoveCallable&&) = delete;
 
-    ThrowingMoveCallable(ThrowingMoveCallable&&) noexcept(false) {}
+    ThrowingMoveCallable(ThrowingMoveCallable&& /*other*/) noexcept(false) {}
 
     int operator()() const { return 42; }
   };
@@ -52,14 +56,18 @@ namespace
 
   double overloaded_function(double const value) { return value + 0.5; }
 
+  // overload<> has to pick between non-static member functions, so these cannot be static
+  // NOLINTBEGIN(readability-convert-member-functions-to-static)
   struct OverloadedMember
   {
-    int value(int const input) { return input + 1; }
+    [[nodiscard]] int value(int const input) { return input + 1; }
 
-    int value(int const input) const { return input + 2; }
+    [[nodiscard]] int value(int const input) const { return input + 2; }
 
-    std::string value(char const* input) const { return input; }
+    [[nodiscard]] std::string value(char const* input) const { return input; }
   };
+
+  // NOLINTEND(readability-convert-member-functions-to-static)
 }  // namespace
 
 TEST_CASE("Overload has proper type traits", "[core][functional]")

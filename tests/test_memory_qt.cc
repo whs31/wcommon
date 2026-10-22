@@ -1,6 +1,6 @@
 #include <radar/mms/common/memory/observer_ptr.h>
 
-#if ! defined(RCOMMON_WITH_QT)
+#ifndef RCOMMON_WITH_QT
 #  error "Qt configuration must enable RCOMMON_WITH_QT"
 #endif
 
@@ -14,7 +14,8 @@
 
 using namespace radar::mms;
 
-class ObserverPtrQtObject final : public QObject
+// moc generates code that refers to the class from outside an anonymous namespace
+class ObserverPtrQtObject final : public QObject  // NOLINT(misc-use-internal-linkage)
 {
   Q_OBJECT
   Q_PROPERTY(
@@ -24,6 +25,8 @@ class ObserverPtrQtObject final : public QObject
  public:
   [[nodiscard]] observer_ptr<int> watched() const noexcept { return this->m_watched; }
 
+  // Qt property and signal naming; moc defines the signal with its own parameter names
+  // NOLINTBEGIN(readability-identifier-naming,readability-inconsistent-declaration-parameter-name)
   void setWatched(observer_ptr<int> const watched)
   {
     if(this->m_watched == watched)
@@ -35,6 +38,7 @@ class ObserverPtrQtObject final : public QObject
 
  signals:
   void watchedChanged(observer_ptr<int> watched);
+  // NOLINTEND(readability-identifier-naming,readability-inconsistent-declaration-parameter-name)
 
  private:
   observer_ptr<int> m_watched;

@@ -41,6 +41,11 @@ namespace
 
     ~ScopedSpdlogDrop() { spdlog::drop(this->m_name); }
 
+    ScopedSpdlogDrop(ScopedSpdlogDrop const&) = delete;
+    ScopedSpdlogDrop& operator=(ScopedSpdlogDrop const&) = delete;
+    ScopedSpdlogDrop(ScopedSpdlogDrop&&) = delete;
+    ScopedSpdlogDrop& operator=(ScopedSpdlogDrop&&) = delete;
+
    private:
     std::string m_name;
   };
@@ -74,6 +79,11 @@ namespace
         static_cast<void>(::unsetenv(this->m_name.c_str()));
 #endif
     }
+
+    ScopedEnvironment(ScopedEnvironment const&) = delete;
+    ScopedEnvironment& operator=(ScopedEnvironment const&) = delete;
+    ScopedEnvironment(ScopedEnvironment&&) = delete;
+    ScopedEnvironment& operator=(ScopedEnvironment&&) = delete;
 
    private:
     std::string m_name;

@@ -19,8 +19,8 @@ using namespace radar::mms;
 
 namespace
 {
-  constexpr auto UUID_TEXT = "00112233-4455-6677-8899-aAbBcCdDeEfF";
-  constexpr auto UUID_BYTES = std::array<std::uint8_t, 16> {
+  constexpr auto uuid_text = "00112233-4455-6677-8899-aAbBcCdDeEfF";
+  constexpr auto uuid_bytes = std::array<std::uint8_t, 16> {
     0x00,
     0x11,
     0x22,
@@ -38,7 +38,7 @@ namespace
     0xee,
     0xff,
   };
-  constexpr auto FIELD_BYTES = std::array<std::uint8_t, 8> {
+  constexpr auto field_bytes = std::array<std::uint8_t, 8> {
     0x88,
     0x99,
     0xaa,
@@ -51,22 +51,23 @@ namespace
 
   [[nodiscard]] std::span<std::uint8_t const> bytes(std::string_view const text) noexcept
   {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast): chars may be viewed as bytes
     return {reinterpret_cast<std::uint8_t const*>(text.data()), text.size()};
   }
 }  // namespace
 
 TEST_CASE("Uuid supports constexpr construction and inspection", "[uuid]")
 {
-  constexpr auto uuid = Uuid(UUID_TEXT);
-  constexpr auto little = Uuid::from_fields_le(0x00112233, 0x4455, 0x6677, FIELD_BYTES);
-  constexpr auto custom = Uuid::new_v8(UUID_BYTES);
+  constexpr auto uuid = Uuid(uuid_text);
+  constexpr auto little = Uuid::from_fields_le(0x00112233, 0x4455, 0x6677, field_bytes);
+  constexpr auto custom = Uuid::new_v8(uuid_bytes);
 
   STATIC_CHECK(Uuid::SHORT_STRING_LEN == 36);
   STATIC_CHECK(Uuid::LONG_STRING_LEN == 38);
   STATIC_CHECK(Uuid() == Uuid::nil());
-  STATIC_CHECK(std::ranges::equal(uuid.bytes(), UUID_BYTES));
+  STATIC_CHECK(std::ranges::equal(uuid.bytes(), uuid_bytes));
   STATIC_CHECK(uuid.version() == Uuid::Version::SortMac);
-  STATIC_CHECK(Uuid::from_fields(0x00112233, 0x4455, 0x6677, FIELD_BYTES) == uuid);
+  STATIC_CHECK(Uuid::from_fields(0x00112233, 0x4455, 0x6677, field_bytes) == uuid);
   STATIC_CHECK(Uuid::from_u64_pair(0x0011223344556677, 0x8899aabbccddeeff) == uuid);
   STATIC_CHECK(little == Uuid("33221100-5544-7766-8899-aabbccddeeff"));
   STATIC_CHECK(custom.version() == Uuid::Version::Custom);
@@ -78,7 +79,7 @@ TEST_CASE("Uuid supports constexpr construction and inspection", "[uuid]")
 
 TEST_CASE("Uuid parses and formats every supported representation", "[uuid]")
 {
-  auto const uuid = Uuid(UUID_TEXT);
+  auto const uuid = Uuid(uuid_text);
 
   CHECK(uuid == Uuid("{00112233-4455-6677-8899-aabbccddeeff}"));
   CHECK(uuid.to_string(Uuid::Format::Simple) == "00112233445566778899aabbccddeeff");
@@ -89,7 +90,7 @@ TEST_CASE("Uuid parses and formats every supported representation", "[uuid]")
   CHECK(d1 == 0x00112233);
   CHECK(d2 == 0x4455);
   CHECK(d3 == 0x6677);
-  CHECK(std::ranges::equal(d4, FIELD_BYTES));
+  CHECK(std::ranges::equal(d4, field_bytes));
 }
 
 TEST_CASE("Uuid rejects malformed strings even when their length is valid", "[uuid]")
@@ -143,7 +144,7 @@ TEST_CASE("Uuid random and time generators set RFC bits", "[uuid]")
   auto const second = Uuid::new_v7(timestamp);
 
   CHECK(random.version() == Uuid::Version::Random);
-  CHECK((random.bytes()[8] & 0xc0U) == 0x80U);
+  CHECK((random.bytes().subspan<8>().front() & 0xc0U) == 0x80U);
   CHECK(first.version() == Uuid::Version::SortRand);
   CHECK(first < second);
   CHECK(Uuid::now_v7().version() == Uuid::Version::SortRand);
@@ -151,7 +152,7 @@ TEST_CASE("Uuid random and time generators set RFC bits", "[uuid]")
 
 TEST_CASE("Uuid supports streams fmt ordering and hashing", "[uuid]")
 {
-  auto const uuid = Uuid(UUID_TEXT);
+  auto const uuid = Uuid(uuid_text);
   auto stream = std::ostringstream();
   stream << Uuid::Format::Braced << uuid;
 
@@ -182,8 +183,8 @@ TEST_CASE("Uuid supports byte construction and mutation", "[uuid]")
     std::byte {0xff},
   };
   auto uuid = Uuid(storage);
-  CHECK(std::ranges::equal(uuid.bytes(), UUID_BYTES));
+  CHECK(std::ranges::equal(uuid.bytes(), uuid_bytes));
 
   uuid.bytes().front() = 0xff;
-  CHECK(uuid != Uuid(UUID_TEXT));
+  CHECK(uuid != Uuid(uuid_text));
 }

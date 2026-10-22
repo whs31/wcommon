@@ -35,6 +35,11 @@ namespace
         static_cast<void>(::unsetenv(this->m_name.c_str()));
     }
 
+    ScopedEnvironment(ScopedEnvironment const&) = delete;
+    ScopedEnvironment& operator=(ScopedEnvironment const&) = delete;
+    ScopedEnvironment(ScopedEnvironment&&) = delete;
+    ScopedEnvironment& operator=(ScopedEnvironment&&) = delete;
+
    private:
     std::string m_name;
     std::optional<std::string> m_previous;
@@ -84,10 +89,10 @@ TEST_CASE("Paths creates application data paths from app names", "[paths]")
   REQUIRE(data.filename() == "Core Paths Test");
   REQUIRE(local.filename() == "Core Paths Test");
 
-#if defined(__linux__)
+#ifdef __linux__
   REQUIRE(data == nix_::xdg_data_home_path() / "Core Paths Test");
   REQUIRE(local == data);
-#elif ! defined(_WIN32)
+#elifndef _WIN32
   REQUIRE(data == user_home_path() / ".local" / "Core Paths Test");
   REQUIRE(local == data);
 #endif

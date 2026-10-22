@@ -93,10 +93,10 @@ TEST_CASE("Euclidean division returns a nonnegative remainder", "[math]")
   };
 
   for(auto const [a, b, quotient, remainder] : {
-        Case {7, 4, 1, 3},
-        Case {-7, 4, -2, 1},
-        Case {7, -4, -1, 3},
-        Case {-7, -4, 2, 1},
+        Case {.a = 7, .b = 4, .quotient = 1, .remainder = 3},
+        Case {.a = -7, .b = 4, .quotient = -2, .remainder = 1},
+        Case {.a = 7, .b = -4, .quotient = -1, .remainder = 3},
+        Case {.a = -7, .b = -4, .quotient = 2, .remainder = 1},
       }) {
     REQUIRE(div_euclid(a, b) == quotient);
     REQUIRE(rem_euclid(a, b) == remainder);

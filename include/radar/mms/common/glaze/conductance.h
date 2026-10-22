@@ -25,7 +25,7 @@ namespace _glaze_impl  // NOLINT(readability-identifier-naming)
           literal_unit("siemens", &Conductance::from_siemens),
         },
       .unknown_suffix = "a conductance literal needs one of the unit suffixes siemens",
-    };
+  };
 }  // namespace _glaze_impl
 
 RADAR_COMMON_NAMESPACE_END

@@ -6,7 +6,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <chrono>
+#include <iterator>
 #include <limits>
+#include <numeric>
 #include <type_traits>
 #include <vector>
 
@@ -33,9 +35,8 @@ namespace
   // the sample autocovariance at a lag of `lag` samples, about the known mean 0
   [[nodiscard]] double autocovariance(std::vector<double> const& values, std::size_t const lag)
   {
-    auto sum = 0.0;
-    for(auto index = lag; index < values.size(); ++index)
-      sum += values[index] * values[index - lag];
+    auto const lagged = std::next(values.begin(), static_cast<std::ptrdiff_t>(lag));
+    auto const sum = std::transform_reduce(lagged, values.end(), values.begin(), 0.0);
     return sum / static_cast<double>(values.size() - lag);
   }
 }  // namespace

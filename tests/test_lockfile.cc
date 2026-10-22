@@ -113,7 +113,7 @@ TEST_CASE("LockFile transfers ownership when moved", "[lockfile]")
   REQUIRE(lock.try_lock());
 
   auto moved = radar::mms::common::LockFile(std::move(lock));
-  REQUIRE_FALSE(lock.is_locked());
+  REQUIRE_FALSE(lock.is_locked());  // NOLINT(bugprone-use-after-move): checks the moved-from state
   REQUIRE(moved.is_locked());
   REQUIRE(std::filesystem::exists(path));
 

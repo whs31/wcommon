@@ -22,7 +22,7 @@ TEST_CASE("Version macros encode and decode components", "[core][config]")
 
 TEST_CASE("Preprocessor helpers expand arguments", "[core][config]")
 {
-#define RCOMMON_TEST_NUMBER 42
+#define RCOMMON_TEST_NUMBER 42  // NOLINT(cppcoreguidelines-macro-usage): the helpers expand macros
   constexpr auto RCOMMON_TEST_TOKEN_SUFFIX = 8;
 
   STATIC_CHECK(std::string_view {RADAR_STRINGIFY(RCOMMON_TEST_NUMBER)} == "42");
