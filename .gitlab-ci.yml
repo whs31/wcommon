@@ -75,7 +75,7 @@ test:linux:
         ! grep -Fq "libQt6Gui" <<< "$RCOMMON_LINKAGE"
         ! grep -Fq "libQt6Network" <<< "$RCOMMON_LINKAGE"
       fi
-    - bash scripts/checks/cmake-package.sh "$BUILD_DIR"
+    - bash ci/cmake-package.sh "$BUILD_DIR"
     - ctest --test-dir "$BUILD_DIR" --output-on-failure --output-junit "$CI_PROJECT_DIR/test-linux-$RCOMMON_WITH_QT-$RCOMMON_WITH_ADAPTERS.xml"
   artifacts:
     when: always

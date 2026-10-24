@@ -7,7 +7,7 @@ if [[ $# -ne 1 ]]; then
 fi
 
 build_dir="$(cd "$1" && pwd)"
-repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 install_dir="$build_dir/package-smoke/install"
 build_type="$(sed -n 's/^CMAKE_BUILD_TYPE:STRING=//p' "$build_dir/CMakeCache.txt")"
 
