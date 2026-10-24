@@ -6,7 +6,7 @@ include:
     ref: main
     file: "v2/conan.yml"
     inputs:
-      package: "rcommon"
+      package: "wcommon"
       build_type: RelWithDebInfo
       linux_build_args: >-
         -o=&:shared=True
@@ -47,8 +47,13 @@ test:linux:
   needs: []
   parallel:
     matrix:
-      - RCOMMON_WITH_QT: ["False", "True"]
-        RCOMMON_WITH_ADAPTERS: ["False", "True"]
+      - WCOMMON_WITH_QT: ["False", "True"]
+        WCOMMON_WITH_ADAPTERS: ["False", "True"]
+        WCOMMON_NAMESPACE: ["whs31"]
+      # Any other namespace builds a respelled copy of the sources.
+      - WCOMMON_WITH_QT: ["True"]
+        WCOMMON_WITH_ADAPTERS: ["True"]
+        WCOMMON_NAMESPACE: ["acme::util"]
   script:
     - >
       conan build .
@@ -59,24 +64,25 @@ test:linux:
       -s:b build_type="$CONAN_BUILD_TYPE"
       -o "&:shared=True"
       -o "&:test=True"
-      -o "&:with_qt=$RCOMMON_WITH_QT"
-      -o "&:with_nlohmann=$RCOMMON_WITH_ADAPTERS"
-      -o "&:with_glaze=$RCOMMON_WITH_ADAPTERS"
+      -o "&:with_qt=$WCOMMON_WITH_QT"
+      -o "&:with_nlohmann=$WCOMMON_WITH_ADAPTERS"
+      -o "&:with_glaze=$WCOMMON_WITH_ADAPTERS"
+      -o "&:namespace=$WCOMMON_NAMESPACE"
     - |
-      mapfile -t RCOMMON_LIBRARIES < <(find "$BUILD_DIR" -type f -name 'librcommon.so*')
-      test "${#RCOMMON_LIBRARIES[@]}" -gt 0
-      RCOMMON_LINKAGE="$(ldd "${RCOMMON_LIBRARIES[0]}")"
-      if [[ "$RCOMMON_WITH_QT" == "True" ]]; then
-        grep -Fq "libQt6Core" <<< "$RCOMMON_LINKAGE"
-        grep -Fq "libQt6Gui" <<< "$RCOMMON_LINKAGE"
-        grep -Fq "libQt6Network" <<< "$RCOMMON_LINKAGE"
+      mapfile -t WCOMMON_LIBRARIES < <(find "$BUILD_DIR" -type f -name 'libwcommon.so*')
+      test "${#WCOMMON_LIBRARIES[@]}" -gt 0
+      WCOMMON_LINKAGE="$(ldd "${WCOMMON_LIBRARIES[0]}")"
+      if [[ "$WCOMMON_WITH_QT" == "True" ]]; then
+        grep -Fq "libQt6Core" <<< "$WCOMMON_LINKAGE"
+        grep -Fq "libQt6Gui" <<< "$WCOMMON_LINKAGE"
+        grep -Fq "libQt6Network" <<< "$WCOMMON_LINKAGE"
       else
-        ! grep -Fq "libQt6Core" <<< "$RCOMMON_LINKAGE"
-        ! grep -Fq "libQt6Gui" <<< "$RCOMMON_LINKAGE"
-        ! grep -Fq "libQt6Network" <<< "$RCOMMON_LINKAGE"
+        ! grep -Fq "libQt6Core" <<< "$WCOMMON_LINKAGE"
+        ! grep -Fq "libQt6Gui" <<< "$WCOMMON_LINKAGE"
+        ! grep -Fq "libQt6Network" <<< "$WCOMMON_LINKAGE"
       fi
     - bash ci/cmake-package.sh "$BUILD_DIR"
-    - ctest --test-dir "$BUILD_DIR" --output-on-failure --output-junit "$CI_PROJECT_DIR/test-linux-$RCOMMON_WITH_QT-$RCOMMON_WITH_ADAPTERS.xml"
+    - ctest --test-dir "$BUILD_DIR" --output-on-failure --output-junit "$CI_PROJECT_DIR/test-linux-$WCOMMON_WITH_QT-$WCOMMON_WITH_ADAPTERS-${WCOMMON_NAMESPACE//::/-}.xml"
   artifacts:
     when: always
     reports:

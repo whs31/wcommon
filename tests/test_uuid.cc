@@ -1,4 +1,4 @@
-#include <radar/mms/common/uuid.h>
+#include <whs31/common/uuid.h>
 
 #include <algorithm>
 #include <array>
@@ -15,7 +15,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-using namespace radar::mms;
+using namespace whs31;
 
 namespace
 {

@@ -1,9 +1,9 @@
-#include <radar/mms/common/glaze/angle.h>
-#include <radar/mms/common/glaze/mass.h>
-#include <radar/mms/common/glaze/uuid.h>
+#include <whs31/common/glaze/angle.h>
+#include <whs31/common/glaze/mass.h>
+#include <whs31/common/glaze/uuid.h>
 
-#ifdef RCOMMON_WITH_QT
-#  include <radar/mms/common/glaze/qgeocoordinate.h>
+#ifdef WHS31_COMMON_WITH_QT
+#  include <whs31/common/glaze/qgeocoordinate.h>
 #endif
 
 #include <glaze/json.hpp>
@@ -21,11 +21,11 @@ namespace
 
 int main()
 {
-  using namespace radar::mms::common;
+  using namespace whs31::common;
 
   auto success = round_trips(Angle::from_degrees(180.0)) and round_trips(Mass::from_grams(250.0))
              and round_trips(Uuid("67e55044-10b1-426f-9247-bb680e5fe0c8"));
-#ifdef RCOMMON_WITH_QT
+#ifdef WHS31_COMMON_WITH_QT
   success = success and round_trips(QGeoCoordinate(55.7558, 37.6173, 156.5));
 #endif
   return success ? 0 : 1;

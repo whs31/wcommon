@@ -1,28 +1,28 @@
-#include <radar/mms/common/acceleration.h>
-#include <radar/mms/common/angle.h>
-#include <radar/mms/common/angular_acceleration.h>
-#include <radar/mms/common/angular_velocity.h>
-#include <radar/mms/common/capacitance.h>
-#include <radar/mms/common/charge.h>
-#include <radar/mms/common/concepts.h>
-#include <radar/mms/common/conductance.h>
-#include <radar/mms/common/current.h>
-#include <radar/mms/common/density.h>
-#include <radar/mms/common/distance.h>
-#include <radar/mms/common/energy.h>
-#include <radar/mms/common/force.h>
-#include <radar/mms/common/frequency.h>
-#include <radar/mms/common/magnetic_flux_density.h>
-#include <radar/mms/common/mass.h>
-#include <radar/mms/common/math.h>
-#include <radar/mms/common/moment_of_inertia.h>
-#include <radar/mms/common/power.h>
-#include <radar/mms/common/pressure.h>
-#include <radar/mms/common/resistance.h>
-#include <radar/mms/common/temperature.h>
-#include <radar/mms/common/torque.h>
-#include <radar/mms/common/velocity.h>
-#include <radar/mms/common/voltage.h>
+#include <whs31/common/acceleration.h>
+#include <whs31/common/angle.h>
+#include <whs31/common/angular_acceleration.h>
+#include <whs31/common/angular_velocity.h>
+#include <whs31/common/capacitance.h>
+#include <whs31/common/charge.h>
+#include <whs31/common/concepts.h>
+#include <whs31/common/conductance.h>
+#include <whs31/common/current.h>
+#include <whs31/common/density.h>
+#include <whs31/common/distance.h>
+#include <whs31/common/energy.h>
+#include <whs31/common/force.h>
+#include <whs31/common/frequency.h>
+#include <whs31/common/magnetic_flux_density.h>
+#include <whs31/common/mass.h>
+#include <whs31/common/math.h>
+#include <whs31/common/moment_of_inertia.h>
+#include <whs31/common/power.h>
+#include <whs31/common/pressure.h>
+#include <whs31/common/resistance.h>
+#include <whs31/common/temperature.h>
+#include <whs31/common/torque.h>
+#include <whs31/common/velocity.h>
+#include <whs31/common/voltage.h>
 
 #include <bit>
 #include <chrono>
@@ -38,7 +38,7 @@
 #include <catch2/catch_template_test_macros.hpp>
 #include <catch2/catch_test_macros.hpp>
 
-using namespace radar::mms;
+using namespace whs31;
 using namespace std::chrono_literals;
 
 namespace

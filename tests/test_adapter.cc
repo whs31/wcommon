@@ -1,10 +1,10 @@
-#include <radar/mms/common/adapter.h>
+#include <whs31/common/adapter.h>
 
 #include <type_traits>
 
 #include <catch2/catch_test_macros.hpp>
 
-using namespace radar::mms;
+using namespace whs31;
 
 namespace
 {

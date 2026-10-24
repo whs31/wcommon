@@ -1,4 +1,4 @@
-#include <radar/mms/common/threading.h>
+#include <whs31/common/threading.h>
 
 #include <mutex>
 #include <shared_mutex>
@@ -7,7 +7,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-using namespace radar::mms;
+using namespace whs31;
 
 namespace
 {

@@ -1,27 +1,27 @@
-#include <radar/mms/common/glaze/acceleration.h>
-#include <radar/mms/common/glaze/angle.h>
-#include <radar/mms/common/glaze/angular_acceleration.h>
-#include <radar/mms/common/glaze/angular_velocity.h>
-#include <radar/mms/common/glaze/capacitance.h>
-#include <radar/mms/common/glaze/charge.h>
-#include <radar/mms/common/glaze/conductance.h>
-#include <radar/mms/common/glaze/current.h>
-#include <radar/mms/common/glaze/density.h>
-#include <radar/mms/common/glaze/distance.h>
-#include <radar/mms/common/glaze/energy.h>
-#include <radar/mms/common/glaze/euler_angles.h>
-#include <radar/mms/common/glaze/force.h>
-#include <radar/mms/common/glaze/frequency.h>
-#include <radar/mms/common/glaze/magnetic_flux_density.h>
-#include <radar/mms/common/glaze/mass.h>
-#include <radar/mms/common/glaze/moment_of_inertia.h>
-#include <radar/mms/common/glaze/power.h>
-#include <radar/mms/common/glaze/pressure.h>
-#include <radar/mms/common/glaze/resistance.h>
-#include <radar/mms/common/glaze/temperature.h>
-#include <radar/mms/common/glaze/torque.h>
-#include <radar/mms/common/glaze/velocity.h>
-#include <radar/mms/common/glaze/voltage.h>
+#include <whs31/common/glaze/acceleration.h>
+#include <whs31/common/glaze/angle.h>
+#include <whs31/common/glaze/angular_acceleration.h>
+#include <whs31/common/glaze/angular_velocity.h>
+#include <whs31/common/glaze/capacitance.h>
+#include <whs31/common/glaze/charge.h>
+#include <whs31/common/glaze/conductance.h>
+#include <whs31/common/glaze/current.h>
+#include <whs31/common/glaze/density.h>
+#include <whs31/common/glaze/distance.h>
+#include <whs31/common/glaze/energy.h>
+#include <whs31/common/glaze/euler_angles.h>
+#include <whs31/common/glaze/force.h>
+#include <whs31/common/glaze/frequency.h>
+#include <whs31/common/glaze/magnetic_flux_density.h>
+#include <whs31/common/glaze/mass.h>
+#include <whs31/common/glaze/moment_of_inertia.h>
+#include <whs31/common/glaze/power.h>
+#include <whs31/common/glaze/pressure.h>
+#include <whs31/common/glaze/resistance.h>
+#include <whs31/common/glaze/temperature.h>
+#include <whs31/common/glaze/torque.h>
+#include <whs31/common/glaze/velocity.h>
+#include <whs31/common/glaze/voltage.h>
 
 #include <numbers>
 #include <string>
@@ -35,9 +35,9 @@
 
 #include "glaze_support.h"
 
-using namespace radar::mms;
+using namespace whs31;
 using namespace glaze_support;
-using namespace radar::mms::literals;
+using namespace whs31::literals;
 
 namespace
 {
@@ -152,7 +152,7 @@ TEST_CASE("Quantity glaze adapters read literal strings in text formats", "[glaz
   // the object form is still what is written
   REQUIRE(write(read<Frequency>(R"("1khz")")) == R"({"hertz":1000})");
 
-  using namespace radar::mms::common::_glaze_impl;
+  using namespace whs31::common::_glaze_impl;
   check_literals<Acceleration, acceleration_reading>();
   check_literals<Angle, angle_reading>();
   check_literals<AngularAcceleration, angular_acceleration_reading>();

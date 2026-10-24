@@ -1,0 +1,20 @@
+#pragma once
+
+#include <nlohmann/json.hpp>
+
+#include <whs31/common/vector3.h>
+
+WHS31_COMMON_NAMESPACE_BEGIN
+
+inline void to_json(nlohmann::json& json, Vector3 const vector)
+{
+  json = {{"x", vector.x()}, {"y", vector.y()}, {"z", vector.z()}};
+}
+
+inline void from_json(nlohmann::json const& json, Vector3& vector)
+{
+  vector = Vector3::
+    from_xyz(json.at("x").get<double>(), json.at("y").get<double>(), json.at("z").get<double>());
+}
+
+WHS31_COMMON_NAMESPACE_END

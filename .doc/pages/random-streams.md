@@ -1,17 +1,17 @@
 # Random streams {#random_streams}
 
-Randomness from `radar/mms/common/random.h` is reproducible: the same seed gives bit-identical
+Randomness from `whs31/common/random.h` is reproducible: the same seed gives bit-identical
 draws on Linux, MinGW and MSVC builds, however many streams a program creates and in whatever
-order. Use it wherever results must replay exactly: simulations, regression tests, radar target
+order. Use it wherever results must replay exactly: simulations, regression tests, synthetic target
 generators.
 
 ## Using a stream
 
 ```cpp
-#include <radar/mms/common/noise.h>
-#include <radar/mms/common/random.h>
+#include <whs31/common/noise.h>
+#include <whs31/common/random.h>
 
-using namespace radar::mms;
+using namespace whs31;
 using namespace std::chrono_literals;
 
 // when the owner is created: one stream per independent noise source
@@ -33,10 +33,10 @@ auto const bias_rad_per_s = gyro_bias.advance(gyro_noise);
 - **State**: `RandomStream` is the 32-byte xoshiro256** state in a trivially copyable aggregate.
   Keep it inside the object that draws from it, never in a global, so a snapshot of that object
   also restores its noise. Copying a stream forks it: both copies give the same draws. The JSON
-  adapter in `radar/mms/common/json/random.h` saves and restores the state.
+  adapter in `whs31/common/json/random.h` saves and restores the state.
 - **Samplers**: `next()` (64 bits), `uniform()` in `[0, 1)`, `uniform(lo, hi)`, `below(n)` (a whole
   number in `[0, n)` without modulo bias), `normal()` and `normal(mean, stddev)`.
-- **Noise processes** (`radar/mms/common/noise.h`): `WhiteNoise` (from a power spectral density),
+- **Noise processes** (`whs31/common/noise.h`): `WhiteNoise` (from a power spectral density),
   `GaussMarkov` (first order, by correlation time), `RandomWalk` and `turn_on_bias`. Each sample
   draws exactly once from its stream, whatever the parameters.
 

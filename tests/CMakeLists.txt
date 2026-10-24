@@ -1,57 +1,57 @@
 find_package(Catch2 REQUIRED)
 
-file(GLOB RCOMMON_TEST_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.cc")
-file(GLOB RCOMMON_JSON_TEST_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*_json.cc")
-file(GLOB RCOMMON_GLAZE_TEST_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*_glaze.cc")
-set(RCOMMON_QT_TEST_SOURCES
-  "${CMAKE_CURRENT_SOURCE_DIR}/test_geodesy_qt.cc"
-  "${CMAKE_CURRENT_SOURCE_DIR}/test_geometry_qt.cc"
-  "${CMAKE_CURRENT_SOURCE_DIR}/test_identifiers_qt.cc"
-  "${CMAKE_CURRENT_SOURCE_DIR}/test_linear_algebra_qt.cc"
-  "${CMAKE_CURRENT_SOURCE_DIR}/test_memory_qt.cc"
-  "${CMAKE_CURRENT_SOURCE_DIR}/test_measurements_qt.cc"
-  "${CMAKE_CURRENT_SOURCE_DIR}/test_network_qt.cc"
-  "${CMAKE_CURRENT_SOURCE_DIR}/test_quantities_qt.cc"
+file(GLOB WCOMMON_TEST_SOURCES CONFIGURE_DEPENDS "${WCOMMON_SOURCE_ROOT}/tests/*.cc")
+file(GLOB WCOMMON_JSON_TEST_SOURCES CONFIGURE_DEPENDS "${WCOMMON_SOURCE_ROOT}/tests/*_json.cc")
+file(GLOB WCOMMON_GLAZE_TEST_SOURCES CONFIGURE_DEPENDS "${WCOMMON_SOURCE_ROOT}/tests/*_glaze.cc")
+set(WCOMMON_QT_TEST_SOURCES
+  "${WCOMMON_SOURCE_ROOT}/tests/test_geodesy_qt.cc"
+  "${WCOMMON_SOURCE_ROOT}/tests/test_geometry_qt.cc"
+  "${WCOMMON_SOURCE_ROOT}/tests/test_identifiers_qt.cc"
+  "${WCOMMON_SOURCE_ROOT}/tests/test_linear_algebra_qt.cc"
+  "${WCOMMON_SOURCE_ROOT}/tests/test_memory_qt.cc"
+  "${WCOMMON_SOURCE_ROOT}/tests/test_measurements_qt.cc"
+  "${WCOMMON_SOURCE_ROOT}/tests/test_network_qt.cc"
+  "${WCOMMON_SOURCE_ROOT}/tests/test_quantities_qt.cc"
 )
-set(RCOMMON_JSON_QT_TEST_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/test_json_qt.cc")
-set(RCOMMON_GLAZE_QT_TEST_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/test_glaze_qt.cc")
-list(REMOVE_ITEM RCOMMON_TEST_SOURCES
-  "${CMAKE_CURRENT_SOURCE_DIR}/test_main.cc"
-  ${RCOMMON_JSON_TEST_SOURCES}
-  ${RCOMMON_GLAZE_TEST_SOURCES}
-  ${RCOMMON_QT_TEST_SOURCES}
-  ${RCOMMON_JSON_QT_TEST_SOURCES}
-  ${RCOMMON_GLAZE_QT_TEST_SOURCES}
+set(WCOMMON_JSON_QT_TEST_SOURCES "${WCOMMON_SOURCE_ROOT}/tests/test_json_qt.cc")
+set(WCOMMON_GLAZE_QT_TEST_SOURCES "${WCOMMON_SOURCE_ROOT}/tests/test_glaze_qt.cc")
+list(REMOVE_ITEM WCOMMON_TEST_SOURCES
+  "${WCOMMON_SOURCE_ROOT}/tests/test_main.cc"
+  ${WCOMMON_JSON_TEST_SOURCES}
+  ${WCOMMON_GLAZE_TEST_SOURCES}
+  ${WCOMMON_QT_TEST_SOURCES}
+  ${WCOMMON_JSON_QT_TEST_SOURCES}
+  ${WCOMMON_GLAZE_QT_TEST_SOURCES}
 )
 
 add_executable(${PROJECT_NAME}_tests
-  test_main.cc
-  ${RCOMMON_TEST_SOURCES}
+  "${WCOMMON_SOURCE_ROOT}/tests/test_main.cc"
+  ${WCOMMON_TEST_SOURCES}
 )
 
 target_link_libraries(${PROJECT_NAME}_tests
   PRIVATE
-  radar::mms::common
+  ${WCOMMON_TARGET_NAMESPACE}
   Catch2::Catch2
 )
 
-if(RCOMMON_WITH_NLOHMANN)
-  target_sources(${PROJECT_NAME}_tests PRIVATE ${RCOMMON_JSON_TEST_SOURCES})
-  target_link_libraries(${PROJECT_NAME}_tests PRIVATE radar::mms::common::json)
+if(WCOMMON_WITH_NLOHMANN)
+  target_sources(${PROJECT_NAME}_tests PRIVATE ${WCOMMON_JSON_TEST_SOURCES})
+  target_link_libraries(${PROJECT_NAME}_tests PRIVATE ${WCOMMON_TARGET_NAMESPACE}::json)
 endif()
 
-if(RCOMMON_WITH_GLAZE)
-  target_sources(${PROJECT_NAME}_tests PRIVATE ${RCOMMON_GLAZE_TEST_SOURCES})
-  target_link_libraries(${PROJECT_NAME}_tests PRIVATE radar::mms::common::glaze)
+if(WCOMMON_WITH_GLAZE)
+  target_sources(${PROJECT_NAME}_tests PRIVATE ${WCOMMON_GLAZE_TEST_SOURCES})
+  target_link_libraries(${PROJECT_NAME}_tests PRIVATE ${WCOMMON_TARGET_NAMESPACE}::glaze)
 endif()
 
-if(RCOMMON_WITH_QT)
-  target_sources(${PROJECT_NAME}_tests PRIVATE ${RCOMMON_QT_TEST_SOURCES})
-  if(RCOMMON_WITH_NLOHMANN)
-    target_sources(${PROJECT_NAME}_tests PRIVATE ${RCOMMON_JSON_QT_TEST_SOURCES})
+if(WCOMMON_WITH_QT)
+  target_sources(${PROJECT_NAME}_tests PRIVATE ${WCOMMON_QT_TEST_SOURCES})
+  if(WCOMMON_WITH_NLOHMANN)
+    target_sources(${PROJECT_NAME}_tests PRIVATE ${WCOMMON_JSON_QT_TEST_SOURCES})
   endif()
-  if(RCOMMON_WITH_GLAZE)
-    target_sources(${PROJECT_NAME}_tests PRIVATE ${RCOMMON_GLAZE_QT_TEST_SOURCES})
+  if(WCOMMON_WITH_GLAZE)
+    target_sources(${PROJECT_NAME}_tests PRIVATE ${WCOMMON_GLAZE_QT_TEST_SOURCES})
   endif()
   set_target_properties(${PROJECT_NAME}_tests PROPERTIES AUTOMOC ON)
 endif()

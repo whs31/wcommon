@@ -1,10 +1,10 @@
-#include <radar/mms/common/angle.h>
-#include <radar/mms/common/error.h>
-#include <radar/mms/common/euler_angles.h>
-#include <radar/mms/common/matrix3x3.h>
-#include <radar/mms/common/quaternion.h>
-#include <radar/mms/common/vector2.h>
-#include <radar/mms/common/vector3.h>
+#include <whs31/common/angle.h>
+#include <whs31/common/error.h>
+#include <whs31/common/euler_angles.h>
+#include <whs31/common/matrix3x3.h>
+#include <whs31/common/quaternion.h>
+#include <whs31/common/vector2.h>
+#include <whs31/common/vector3.h>
 
 #include <cmath>
 #include <algorithm>
@@ -23,7 +23,7 @@
 #include <catch2/generators/catch_generators.hpp>
 #include <catch2/matchers/catch_matchers_templated.hpp>
 
-using namespace radar::mms;
+using namespace whs31;
 
 namespace
 {

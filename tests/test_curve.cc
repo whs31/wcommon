@@ -1,7 +1,7 @@
-#include <radar/mms/common/angle.h>
-#include <radar/mms/common/curve.h>
-#include <radar/mms/common/distance.h>
-#include <radar/mms/common/error.h>
+#include <whs31/common/angle.h>
+#include <whs31/common/curve.h>
+#include <whs31/common/distance.h>
+#include <whs31/common/error.h>
 
 #include <array>
 #include <limits>
@@ -10,7 +10,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-using namespace radar::mms;
+using namespace whs31;
 
 TEST_CASE("Curve stays trivially copyable for embedding into state", "[curve]")
 {

@@ -1,9 +1,9 @@
-#include <radar/mms/common/angle.h>
-#include <radar/mms/common/distance.h>
-#include <radar/mms/common/error.h>
-#include <radar/mms/common/geodesy.h>
-#include <radar/mms/common/math.h>
-#include <radar/mms/common/vector3.h>
+#include <whs31/common/angle.h>
+#include <whs31/common/distance.h>
+#include <whs31/common/error.h>
+#include <whs31/common/geodesy.h>
+#include <whs31/common/math.h>
+#include <whs31/common/vector3.h>
 
 #include <cmath>
 #include <algorithm>
@@ -16,7 +16,7 @@
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <catch2/matchers/catch_matchers_templated.hpp>
 
-using namespace radar::mms;
+using namespace whs31;
 using Catch::Matchers::WithinAbs;
 
 namespace

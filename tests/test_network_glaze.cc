@@ -1,12 +1,12 @@
-#include <radar/mms/common/glaze/ip.h>
-#include <radar/mms/common/glaze/sockaddr.h>
-#include <radar/mms/common/glaze/uuid.h>
+#include <whs31/common/glaze/ip.h>
+#include <whs31/common/glaze/sockaddr.h>
+#include <whs31/common/glaze/uuid.h>
 
 #include <catch2/catch_test_macros.hpp>
 
 #include "glaze_support.h"
 
-using namespace radar::mms;
+using namespace whs31;
 using namespace glaze_support;
 
 TEST_CASE("UUID glaze adapter uses the canonical string", "[glaze][uuid]")

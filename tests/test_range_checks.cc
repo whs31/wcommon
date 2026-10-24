@@ -1,18 +1,18 @@
-#include <radar/mms/common/angle.h>
-#include <radar/mms/common/concepts.h>
-#include <radar/mms/common/distance.h>
-#include <radar/mms/common/math.h>
-#include <radar/mms/common/vector3.h>
-#include <radar/mms/common/velocity.h>
+#include <whs31/common/angle.h>
+#include <whs31/common/concepts.h>
+#include <whs31/common/distance.h>
+#include <whs31/common/math.h>
+#include <whs31/common/vector3.h>
+#include <whs31/common/velocity.h>
 
 #include <limits>
 
 #include <catch2/catch_template_test_macros.hpp>
 #include <catch2/catch_test_macros.hpp>
 
-using namespace radar::mms;
+using namespace whs31;
 
-TEST_CASE("Quantity concept accepts RCommon quantities only", "[concepts][math]")
+TEST_CASE("Quantity concept accepts WCommon quantities only", "[concepts][math]")
 {
   STATIC_CHECK(Quantity<Angle>);
   STATIC_CHECK(Quantity<Distance>);

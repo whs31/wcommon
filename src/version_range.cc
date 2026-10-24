@@ -1,4 +1,4 @@
-#include <radar/mms/common/version_range.h>
+#include <whs31/common/version_range.h>
 
 #include <algorithm>
 #include <charconv>
@@ -9,14 +9,14 @@
 #include <string>
 #include <system_error>
 
-#ifdef RCOMMON_WITH_QT
+#ifdef WHS31_COMMON_WITH_QT
 #  include <qstring.h>
 #  include <qstringview.h>
 #endif
 
-#include <radar/mms/common/char_utils.h>
+#include <whs31/common/char_utils.h>
 
-RADAR_COMMON_NAMESPACE_BEGIN
+WHS31_COMMON_NAMESPACE_BEGIN
 
 namespace
 {
@@ -540,7 +540,7 @@ VersionRange::VersionRange(std::string_view const expression)
 bool VersionRange::contains(Version const& version) const noexcept
 {
   return std::ranges::any_of(this->m_alternatives, [&](Alternative const& alternative) {
-    return ::radar::mms::common::contains(alternative, version, this->m_include_prerelease);
+    return ::whs31::common::contains(alternative, version, this->m_include_prerelease);
   });
 }
 
@@ -568,7 +568,7 @@ VersionRange VersionRange::parse(std::string_view const expression)
   return VersionRange(expression);
 }
 
-#ifdef RCOMMON_WITH_QT
+#ifdef WHS31_COMMON_WITH_QT
 QString VersionRange::to_qstring() const { return QString::fromStdString(this->to_string()); }
 
 VersionRange VersionRange::from_qstring(QStringView const text)
@@ -587,4 +587,4 @@ std::ostream& operator<<(std::ostream& stream, VersionRange const& range)
   return stream << range.to_string();
 }
 
-RADAR_COMMON_NAMESPACE_END
+WHS31_COMMON_NAMESPACE_END

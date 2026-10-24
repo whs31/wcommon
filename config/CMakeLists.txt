@@ -1,13 +1,18 @@
-project(rcommon_config LANGUAGES NONE)
+project(wcommon_config LANGUAGES NONE)
 
 add_library(${PROJECT_NAME} INTERFACE)
-add_library("radar::mms::common::config" ALIAS ${PROJECT_NAME})
+add_library("${WCOMMON_TARGET_NAMESPACE}::config" ALIAS ${PROJECT_NAME})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES EXPORT_NAME config)
 
+# config.h.in tests the feature macros by their prefixed name, so they are set under that name.
+foreach(feature IN ITEMS QT NLOHMANN GLAZE)
+  set(${WCOMMON_MACRO_PREFIX}_COMMON_WITH_${feature} ${WCOMMON_WITH_${feature}})
+endforeach()
+
 configure_file(
-  config.h.in
-  "${CMAKE_CURRENT_BINARY_DIR}/radar/mms/common/config.h"
+  "${WCOMMON_SOURCE_ROOT}/config/config.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/${WCOMMON_INCLUDE_PREFIX}/config.h"
   @ONLY
 )
 
@@ -16,11 +21,11 @@ target_include_directories(${PROJECT_NAME} INTERFACE
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/radar/mms/common/config.h"
-  DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/radar/mms/common"
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${WCOMMON_INCLUDE_PREFIX}/config.h"
+  DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${WCOMMON_INCLUDE_PREFIX}"
 )
 
 install(TARGETS ${PROJECT_NAME}
-  EXPORT rcommonTargets
+  EXPORT wcommonTargets
   INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )

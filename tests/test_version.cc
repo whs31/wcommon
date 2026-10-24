@@ -1,4 +1,4 @@
-#include <radar/mms/common/version.h>
+#include <whs31/common/version.h>
 
 #include <array>
 #include <compare>
@@ -12,7 +12,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-using namespace radar::mms;
+using namespace whs31;
 
 TEST_CASE("Version parses and formats semantic versions", "[version]")
 {

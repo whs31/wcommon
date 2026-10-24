@@ -1,11 +1,11 @@
-#include <radar/mms/common/geodesy.h>
-#include <radar/mms/common/json/geodesy.h>
+#include <whs31/common/geodesy.h>
+#include <whs31/common/json/geodesy.h>
 
 #include <nlohmann/json.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 
-using namespace radar::mms;
+using namespace whs31;
 
 TEST_CASE("Geodetic position JSON adapter round-trips its quantities", "[geodesy][json]")
 {

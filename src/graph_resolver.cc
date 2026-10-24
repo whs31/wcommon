@@ -1,6 +1,6 @@
-#include <radar/mms/common/graph_resolver.h>
+#include <whs31/common/graph_resolver.h>
 
-RADAR_COMMON_NAMESPACE_BEGIN
+WHS31_COMMON_NAMESPACE_BEGIN
 
 void GraphResolver::enqueue(Uuid const& node, std::unordered_set<Uuid> const& leafs)
 {
@@ -56,4 +56,4 @@ std::unordered_map<Uuid, std::unordered_set<Uuid>> const& GraphResolver::tree() 
 
 std::unordered_map<Uuid, std::unordered_set<Uuid>>& GraphResolver::tree() { return this->m_tree; }
 
-RADAR_COMMON_NAMESPACE_END
+WHS31_COMMON_NAMESPACE_END

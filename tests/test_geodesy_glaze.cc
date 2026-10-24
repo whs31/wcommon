@@ -1,6 +1,6 @@
-#include <radar/mms/common/geodesy.h>
-#include <radar/mms/common/glaze/angle.h>
-#include <radar/mms/common/glaze/distance.h>
+#include <whs31/common/geodesy.h>
+#include <whs31/common/glaze/angle.h>
+#include <whs31/common/glaze/distance.h>
 
 #include <string>
 
@@ -11,7 +11,7 @@
 
 #include "glaze_support.h"
 
-using namespace radar::mms;
+using namespace whs31;
 using namespace glaze_support;
 
 TEST_CASE("Geodetic positions glaze-reflect into their quantities", "[glaze][geodesy]")

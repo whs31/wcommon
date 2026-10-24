@@ -1,5 +1,5 @@
-#include <radar/mms/common/error.h>
-#include <radar/mms/common/memory/null_pointer_error.h>
+#include <whs31/common/error.h>
+#include <whs31/common/memory/null_pointer_error.h>
 
 #include <cerrno>
 #include <exception>
@@ -10,7 +10,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-using namespace radar::mms;
+using namespace whs31;
 
 TEST_CASE("Errors retain formatted diagnostics", "[error]")
 {

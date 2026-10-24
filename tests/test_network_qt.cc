@@ -1,8 +1,8 @@
-#include <radar/mms/common/ip.h>
-#include <radar/mms/common/sockaddr.h>
+#include <whs31/common/ip.h>
+#include <whs31/common/sockaddr.h>
 
-#ifndef RCOMMON_WITH_QT
-#  error "Qt configuration must enable RCOMMON_WITH_QT"
+#ifndef WHS31_COMMON_WITH_QT
+#  error "Qt configuration must enable WHS31_COMMON_WITH_QT"
 #endif
 
 #include <qbytearrayview.h>
@@ -14,7 +14,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-using namespace radar::mms;
+using namespace whs31;
 
 TEST_CASE("IP addresses expose Qt conversions and metatypes", "[network][qt][ip]")
 {

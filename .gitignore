@@ -10,6 +10,7 @@
 /cmake-build-*/
 /cmake-visual-studio-*/
 /.cache/
+/.clang-tidy-cache
 compile_commands.json
 
 # Misc

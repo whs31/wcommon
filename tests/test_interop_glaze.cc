@@ -1,34 +1,34 @@
-#include <radar/mms/common/config.h>
+#include <whs31/common/config.h>
 
-#ifdef RCOMMON_WITH_NLOHMANN
+#ifdef WHS31_COMMON_WITH_NLOHMANN
 
-#  include <radar/mms/common/geodesy.h>
-#  include <radar/mms/common/glaze/angle.h>
-#  include <radar/mms/common/glaze/chrono.h>
-#  include <radar/mms/common/glaze/curve.h>
-#  include <radar/mms/common/glaze/distance.h>
-#  include <radar/mms/common/glaze/euler_angles.h>
-#  include <radar/mms/common/glaze/matrix3x3.h>
-#  include <radar/mms/common/glaze/pressure.h>
-#  include <radar/mms/common/glaze/quaternion.h>
-#  include <radar/mms/common/glaze/random.h>
-#  include <radar/mms/common/glaze/sockaddr.h>
-#  include <radar/mms/common/glaze/uuid.h>
-#  include <radar/mms/common/glaze/vector3.h>
-#  include <radar/mms/common/glaze/velocity.h>
-#  include <radar/mms/common/json/angle.h>
-#  include <radar/mms/common/json/chrono.h>
-#  include <radar/mms/common/json/curve.h>
-#  include <radar/mms/common/json/euler_angles.h>
-#  include <radar/mms/common/json/geodesy.h>
-#  include <radar/mms/common/json/matrix3x3.h>
-#  include <radar/mms/common/json/pressure.h>
-#  include <radar/mms/common/json/quaternion.h>
-#  include <radar/mms/common/json/random.h>
-#  include <radar/mms/common/json/sockaddr.h>
-#  include <radar/mms/common/json/uuid.h>
-#  include <radar/mms/common/json/vector3.h>
-#  include <radar/mms/common/json/velocity.h>
+#  include <whs31/common/geodesy.h>
+#  include <whs31/common/glaze/angle.h>
+#  include <whs31/common/glaze/chrono.h>
+#  include <whs31/common/glaze/curve.h>
+#  include <whs31/common/glaze/distance.h>
+#  include <whs31/common/glaze/euler_angles.h>
+#  include <whs31/common/glaze/matrix3x3.h>
+#  include <whs31/common/glaze/pressure.h>
+#  include <whs31/common/glaze/quaternion.h>
+#  include <whs31/common/glaze/random.h>
+#  include <whs31/common/glaze/sockaddr.h>
+#  include <whs31/common/glaze/uuid.h>
+#  include <whs31/common/glaze/vector3.h>
+#  include <whs31/common/glaze/velocity.h>
+#  include <whs31/common/json/angle.h>
+#  include <whs31/common/json/chrono.h>
+#  include <whs31/common/json/curve.h>
+#  include <whs31/common/json/euler_angles.h>
+#  include <whs31/common/json/geodesy.h>
+#  include <whs31/common/json/matrix3x3.h>
+#  include <whs31/common/json/pressure.h>
+#  include <whs31/common/json/quaternion.h>
+#  include <whs31/common/json/random.h>
+#  include <whs31/common/json/sockaddr.h>
+#  include <whs31/common/json/uuid.h>
+#  include <whs31/common/json/vector3.h>
+#  include <whs31/common/json/velocity.h>
 
 #  include <array>
 #  include <chrono>
@@ -40,7 +40,7 @@
 
 #  include "glaze_support.h"
 
-using namespace radar::mms;
+using namespace whs31;
 using namespace glaze_support;
 
 namespace

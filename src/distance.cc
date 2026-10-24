@@ -1,10 +1,10 @@
-#include <radar/mms/common/distance.h>
+#include <whs31/common/distance.h>
 
 #include <cmath>
 
 #include <fmt/format.h>
 
-RADAR_COMMON_NAMESPACE_BEGIN
+WHS31_COMMON_NAMESPACE_BEGIN
 
 std::string Distance::to_string() const
 {
@@ -18,4 +18,4 @@ std::string Distance::to_string() const
   return fmt::format("{:.6g} km", this->as_km());
 }
 
-RADAR_COMMON_NAMESPACE_END
+WHS31_COMMON_NAMESPACE_END

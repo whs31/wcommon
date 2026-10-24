@@ -1,4 +1,4 @@
-#include <radar/mms/common/log.h>
+#include <whs31/common/log.h>
 
 #include <algorithm>
 #include <atomic>
@@ -10,7 +10,7 @@
 #include <sstream>
 #include <string>
 
-#ifdef RCOMMON_WITH_QT
+#ifdef WHS31_COMMON_WITH_QT
 #  include <qdebug.h>
 #endif
 
@@ -18,7 +18,7 @@
 #include <spdlog/sinks/callback_sink.h>
 #include <spdlog/sinks/ostream_sink.h>
 
-using namespace radar::mms;
+using namespace whs31;
 
 namespace
 {
@@ -115,7 +115,7 @@ TEST_CASE("Environment controls the default log level", "[log]")
   SECTION("build default")
   {
     auto env = ScopedEnvironment("LOG_LEVEL", std::nullopt);
-#ifdef RADAR_DEBUG
+#ifdef WHS31_DEBUG
     REQUIRE(get_env_log_level() == spdlog::level::debug);
 #else
     REQUIRE(get_env_log_level() == spdlog::level::info);
@@ -125,7 +125,7 @@ TEST_CASE("Environment controls the default log level", "[log]")
   SECTION("invalid value falls back to the build default")
   {
     auto env = ScopedEnvironment("LOG_LEVEL", "verbose");
-#ifdef RADAR_DEBUG
+#ifdef WHS31_DEBUG
     REQUIRE(get_env_log_level() == spdlog::level::debug);
 #else
     REQUIRE(get_env_log_level() == spdlog::level::info);
@@ -135,7 +135,7 @@ TEST_CASE("Environment controls the default log level", "[log]")
 
 TEST_CASE("create_logger creates and registers a stdout logger", "[log]")
 {
-  auto const name = std::string {"rcommon_log_test_stdout"};
+  auto const name = std::string {"wcommon_log_test_stdout"};
   auto const drop = ScopedSpdlogDrop(name);
 
   auto const logger = create_logger(stdout_config(name));
@@ -147,7 +147,7 @@ TEST_CASE("create_logger creates and registers a stdout logger", "[log]")
 
 TEST_CASE("create_logger invokes callback sink only for warnings and errors", "[log]")
 {
-  auto const name = std::string {"rcommon_log_test_callback"};
+  auto const name = std::string {"wcommon_log_test_callback"};
   auto const drop = ScopedSpdlogDrop(name);
   auto callback_count = std::atomic_int {0};
   auto config = stdout_config(name);
@@ -163,7 +163,7 @@ TEST_CASE("create_logger invokes callback sink only for warnings and errors", "[
 
 TEST_CASE("create_logger installs additional sinks during construction", "[log]")
 {
-  auto const name = std::string {"rcommon_log_test_additional_sink"};
+  auto const name = std::string {"wcommon_log_test_additional_sink"};
   auto const drop = ScopedSpdlogDrop(name);
   auto callback_count = std::atomic_int {0};
   auto config = stdout_config(name);
@@ -180,7 +180,7 @@ TEST_CASE("create_logger installs additional sinks during construction", "[log]"
 
 TEST_CASE("aligned_log_pattern pads every column to a fixed width", "[log]")
 {
-  auto const name = std::string {"rcommon.pattern"};
+  auto const name = std::string {"wcommon.pattern"};
   auto const drop = ScopedSpdlogDrop(name);
   auto stream = std::ostringstream();
   auto config = stdout_config(name);
@@ -205,16 +205,16 @@ TEST_CASE("aligned_log_pattern pads every column to a fixed width", "[log]")
   // `[13:43:05.120] ` is 15 characters wide
   REQUIRE(
     with_source.substr(15)
-    == "info     rcommon.pattern          parameters.cc:53   loaded parameters"
+    == "info     wcommon.pattern          parameters.cc:53   loaded parameters"
   );
   REQUIRE(
-    without_source.substr(15) == "critical rcommon.pattern                       :     no source"
+    without_source.substr(15) == "critical wcommon.pattern                       :     no source"
   );
 }
 
 TEST_CASE("Dynamic log sinks can be attached and detached at runtime", "[log]")
 {
-  auto const name = std::string {"rcommon_log_test_dynamic_sink"};
+  auto const name = std::string {"wcommon_log_test_dynamic_sink"};
   auto const drop = ScopedSpdlogDrop(name);
   auto callback_count = std::atomic_int {0};
 
@@ -237,7 +237,7 @@ TEST_CASE("Dynamic log sinks can be attached and detached at runtime", "[log]")
 
 TEST_CASE("Logging macros target registered loggers", "[log]")
 {
-  auto const name = std::string {"rcommon_log_test_macros"};
+  auto const name = std::string {"wcommon_log_test_macros"};
   auto const drop = ScopedSpdlogDrop(name);
   auto callback_count = std::atomic_int {0};
   auto config = stdout_config(name);
@@ -246,10 +246,10 @@ TEST_CASE("Logging macros target registered loggers", "[log]")
   auto const logger = create_logger(config);
   static_cast<void>(logger);
 
-  RADAR_LOG_TO(name, warn, "macro warning reaches callback sink");
-  RADAR_LOG_TO("rcommon_log_test_missing", warn, "missing logger is ignored");
-  RADAR_LOG_FLUSH(name);
-  RADAR_LOG_FLUSH("rcommon_log_test_missing");
+  WHS31_LOG_TO(name, warn, "macro warning reaches callback sink");
+  WHS31_LOG_TO("wcommon_log_test_missing", warn, "missing logger is ignored");
+  WHS31_LOG_FLUSH(name);
+  WHS31_LOG_FLUSH("wcommon_log_test_missing");
 
   REQUIRE(callback_count == 1);
 }
@@ -264,21 +264,21 @@ TEST_CASE("create_logger validates configuration", "[log]")
 
   SECTION("invalid target mask")
   {
-    auto config = stdout_config("rcommon_log_test_invalid_mask");
+    auto config = stdout_config("wcommon_log_test_invalid_mask");
     config.target = static_cast<LogTarget>(4);
     REQUIRE_THROWS_AS(create_logger(config), LogError);
   }
 
   SECTION("file target without filename")
   {
-    auto config = stdout_config("rcommon_log_test_missing_filename");
+    auto config = stdout_config("wcommon_log_test_missing_filename");
     config.target = LogTarget::File;
     REQUIRE_THROWS_AS(create_logger(config), LogError);
   }
 
   SECTION("file target with empty filename")
   {
-    auto config = stdout_config("rcommon_log_test_empty_filename");
+    auto config = stdout_config("wcommon_log_test_empty_filename");
     config.target = LogTarget::File;
     config.filename = "";
     REQUIRE_THROWS_AS(create_logger(config), LogError);
@@ -286,7 +286,7 @@ TEST_CASE("create_logger validates configuration", "[log]")
 
   SECTION("non-positive file size")
   {
-    auto config = stdout_config("rcommon_log_test_bad_size");
+    auto config = stdout_config("wcommon_log_test_bad_size");
     config.target = LogTarget::File;
     config.filename = "bad-size.log";
     config.max_file_size_mb = 0.0f;
@@ -295,7 +295,7 @@ TEST_CASE("create_logger validates configuration", "[log]")
 
   SECTION("non-finite file size")
   {
-    auto config = stdout_config("rcommon_log_test_non_finite_size");
+    auto config = stdout_config("wcommon_log_test_non_finite_size");
     config.target = LogTarget::File;
     config.filename = "bad-size.log";
 
@@ -308,7 +308,7 @@ TEST_CASE("create_logger validates configuration", "[log]")
 
   SECTION("zero retained files")
   {
-    auto config = stdout_config("rcommon_log_test_bad_count");
+    auto config = stdout_config("wcommon_log_test_bad_count");
     config.target = LogTarget::File;
     config.filename = "bad-count.log";
     config.max_files = 0;
@@ -317,7 +317,7 @@ TEST_CASE("create_logger validates configuration", "[log]")
 
   SECTION("null additional sink")
   {
-    auto config = stdout_config("rcommon_log_test_null_additional_sink");
+    auto config = stdout_config("wcommon_log_test_null_additional_sink");
     config.additional_sinks.emplace_back();
     REQUIRE_THROWS_AS(create_logger(config), LogError);
   }
@@ -325,9 +325,9 @@ TEST_CASE("create_logger validates configuration", "[log]")
 
 TEST_CASE("create_logger creates rotating file sink folders", "[log]")
 {
-  auto const name = std::string {"rcommon_log_test_file"};
+  auto const name = std::string {"wcommon_log_test_file"};
   auto const drop = ScopedSpdlogDrop(name);
-  auto const folder = std::filesystem::temp_directory_path() / "rcommon_log_tests";
+  auto const folder = std::filesystem::temp_directory_path() / "wcommon_log_tests";
   auto const filename = std::string {"file.log"};
   std::filesystem::remove_all(folder);
   auto config = LoggerConfig {
@@ -350,10 +350,10 @@ TEST_CASE("create_logger creates rotating file sink folders", "[log]")
   std::filesystem::remove_all(folder);
 }
 
-#ifdef RCOMMON_WITH_QT
+#ifdef WHS31_COMMON_WITH_QT
 TEST_CASE("Qt message handler owns its target logger name", "[log][qt]")
 {
-  auto const name = std::string {"rcommon_log_test_qt_owned_name"};
+  auto const name = std::string {"wcommon_log_test_qt_owned_name"};
   auto const drop = ScopedSpdlogDrop(name);
   auto callback_count = std::atomic_int {0};
   auto config = stdout_config(name);
@@ -372,7 +372,7 @@ TEST_CASE("Qt message handler owns its target logger name", "[log][qt]")
 
 TEST_CASE("Qt logger installation is idempotent and validates its target", "[log][qt]")
 {
-  auto const name = std::string {"rcommon_log_test_qt_idempotent"};
+  auto const name = std::string {"wcommon_log_test_qt_idempotent"};
   auto const drop = ScopedSpdlogDrop(name);
   auto const logger = create_logger(stdout_config(name));
   static_cast<void>(logger);
@@ -388,7 +388,7 @@ TEST_CASE("Qt logger installation is idempotent and validates its target", "[log
 
 TEST_CASE("Logging shutdown uninstalls the Qt message handler", "[log][qt]")
 {
-  auto const name = std::string {"rcommon_log_test_qt_shutdown"};
+  auto const name = std::string {"wcommon_log_test_qt_shutdown"};
   auto callback_count = std::atomic_int {0};
   auto config = stdout_config(name);
   config.on_warn_or_error = [&](auto const&) { ++callback_count; };

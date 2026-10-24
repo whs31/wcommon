@@ -1,13 +1,13 @@
-#include <radar/mms/common/fatal.h>
+#include <whs31/common/fatal.h>
 
 #include <cstdio>
 #include <cstdlib>
 
 #include <fmt/color.h>
 
-#include <radar/mms/common/log.h>
+#include <whs31/common/log.h>
 
-RADAR_COMMON_NAMESPACE_BEGIN
+WHS31_COMMON_NAMESPACE_BEGIN
 
 void fatal(std::string const& message)
 {
@@ -23,4 +23,4 @@ void fatal(std::string const& message)
   std::exit(EXIT_FAILURE);
 }
 
-RADAR_COMMON_NAMESPACE_END
+WHS31_COMMON_NAMESPACE_END

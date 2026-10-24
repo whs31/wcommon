@@ -1,18 +1,18 @@
-#include <radar/mms/common/version.h>
+#include <whs31/common/version.h>
 
 #include <algorithm>
 #include <charconv>
 #include <system_error>
 #include <utility>
 
-#ifdef RCOMMON_WITH_QT
+#ifdef WHS31_COMMON_WITH_QT
 #  include <qstring.h>
 #  include <qstringview.h>
 #endif
 
-#include <radar/mms/common/char_utils.h>
+#include <whs31/common/char_utils.h>
 
-RADAR_COMMON_NAMESPACE_BEGIN
+WHS31_COMMON_NAMESPACE_BEGIN
 
 namespace
 {
@@ -291,7 +291,7 @@ Version operator""_version(char const* const text, std::size_t const length)
   return Version(std::string_view {text, length});
 }
 
-#ifdef RCOMMON_WITH_QT
+#ifdef WHS31_COMMON_WITH_QT
 QString Version::prerelease_qstring() const { return QString::fromStdString(this->m_pre.as_str()); }
 
 QString Version::build_metadata_qstring() const
@@ -324,4 +324,4 @@ std::ostream& operator<<(std::ostream& stream, Version const& value)
   return stream << value.to_string();
 }
 
-RADAR_COMMON_NAMESPACE_END
+WHS31_COMMON_NAMESPACE_END

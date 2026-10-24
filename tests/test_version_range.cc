@@ -1,4 +1,4 @@
-#include <radar/mms/common/version_range.h>
+#include <whs31/common/version_range.h>
 
 #include <array>
 #include <sstream>
@@ -9,7 +9,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-using namespace radar::mms;
+using namespace whs31;
 
 TEST_CASE("VersionRange matches comparators alternatives and partial versions", "[version_range]")
 {

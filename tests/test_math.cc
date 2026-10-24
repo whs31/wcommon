@@ -1,5 +1,5 @@
-#include <radar/mms/common/constants.h>
-#include <radar/mms/common/math.h>
+#include <whs31/common/constants.h>
+#include <whs31/common/math.h>
 
 #include <cmath>
 #include <cstdint>
@@ -8,7 +8,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-using namespace radar::mms;
+using namespace whs31;
 
 TEST_CASE("Measurement constants preserve their unit relationships", "[constants][math]")
 {
@@ -20,28 +20,28 @@ TEST_CASE("Measurement constants preserve their unit relationships", "[constants
 
 TEST_CASE("floor supports constexpr values", "[math]")
 {
-  STATIC_CHECK(radar::mms::floor(3.75) == 3.0);
-  STATIC_CHECK(radar::mms::floor(3.0) == 3.0);
-  STATIC_CHECK(radar::mms::floor(-3.75) == -4.0);
-  STATIC_CHECK(radar::mms::floor(-3.0) == -3.0);
+  STATIC_CHECK(whs31::floor(3.75) == 3.0);
+  STATIC_CHECK(whs31::floor(3.0) == 3.0);
+  STATIC_CHECK(whs31::floor(-3.75) == -4.0);
+  STATIC_CHECK(whs31::floor(-3.0) == -3.0);
 }
 
 TEST_CASE("floor preserves non-finite and large values", "[math]")
 {
-  STATIC_CHECK(radar::mms::floor(Inf) == Inf);
-  STATIC_CHECK(std::isnan(radar::mms::floor(NaN)));
+  STATIC_CHECK(whs31::floor(Inf) == Inf);
+  STATIC_CHECK(std::isnan(whs31::floor(NaN)));
   STATIC_CHECK(
-    radar::mms::floor(std::numeric_limits<double>::max()) == std::numeric_limits<double>::max()
+    whs31::floor(std::numeric_limits<double>::max()) == std::numeric_limits<double>::max()
   );
 }
 
 TEST_CASE("abs and fmod support constexpr values", "[math]")
 {
-  STATIC_CHECK(radar::mms::abs(-12) == 12);
-  STATIC_CHECK(radar::mms::abs(12) == 12);
-  STATIC_CHECK(radar::mms::fmod(5.5F, 2.0F) == 1.5F);
-  STATIC_CHECK(radar::mms::fmod(-5.5F, 2.0F) == 0.5F);
-  STATIC_CHECK(radar::mms::fmod(5.5F, -2.0F) == -0.5F);
+  STATIC_CHECK(whs31::abs(-12) == 12);
+  STATIC_CHECK(whs31::abs(12) == 12);
+  STATIC_CHECK(whs31::fmod(5.5F, 2.0F) == 1.5F);
+  STATIC_CHECK(whs31::fmod(-5.5F, 2.0F) == 0.5F);
+  STATIC_CHECK(whs31::fmod(5.5F, -2.0F) == -0.5F);
 }
 
 TEST_CASE("Radians and degrees conversions support constexpr values", "[math]")

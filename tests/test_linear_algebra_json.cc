@@ -1,9 +1,9 @@
-#include <radar/mms/common/error.h>
-#include <radar/mms/common/json/angle.h>
-#include <radar/mms/common/json/curve.h>
-#include <radar/mms/common/json/matrix3x3.h>
-#include <radar/mms/common/json/quaternion.h>
-#include <radar/mms/common/json/random.h>
+#include <whs31/common/error.h>
+#include <whs31/common/json/angle.h>
+#include <whs31/common/json/curve.h>
+#include <whs31/common/json/matrix3x3.h>
+#include <whs31/common/json/quaternion.h>
+#include <whs31/common/json/random.h>
 
 #include <array>
 #include <tuple>
@@ -12,7 +12,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-using namespace radar::mms::common;
+using namespace whs31::common;
 
 TEST_CASE("Matrix JSON adapter round-trips rows", "[linalg][json]")
 {

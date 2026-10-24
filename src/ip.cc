@@ -1,4 +1,4 @@
-#include <radar/mms/common/ip.h>
+#include <whs31/common/ip.h>
 
 #include <algorithm>
 #include <array>
@@ -39,7 +39,7 @@ namespace
   }
 }  // namespace
 
-RADAR_COMMON_NAMESPACE_BEGIN
+WHS31_COMMON_NAMESPACE_BEGIN
 
 Ipv4Addr const Ipv4Addr::LOCALHOST = Ipv4Addr::from_octets(127, 0, 0, 1);
 Ipv4Addr const Ipv4Addr::UNSPECIFIED = Ipv4Addr::from_octets(0, 0, 0, 0);
@@ -58,7 +58,7 @@ IpError IpError::invalid_v6_string(std::string_view const text)
   return IpError("invalid ipv6 string: {}", text);
 }
 
-#ifdef RCOMMON_WITH_QT
+#ifdef WHS31_COMMON_WITH_QT
 IpError IpError::invalid_qhostaddress_v4()
 {
   return IpError("QHostAddress does not contain an ipv4");
@@ -138,7 +138,7 @@ std::ostream& operator<<(std::ostream& stream, Ipv6Addr const& address)
   return stream << address.to_string();
 }
 
-#ifdef RCOMMON_WITH_QT
+#ifdef WHS31_COMMON_WITH_QT
 Ipv4Addr Ipv4Addr::from_qstring(QStringView const text)
 {
   return parse(text.toString().toStdString());
@@ -185,4 +185,4 @@ QHostAddress Ipv6Addr::to_qhostaddress() const
 QString Ipv6Addr::to_qstring() const { return QString::fromStdString(this->to_string()); }
 #endif
 
-RADAR_COMMON_NAMESPACE_END
+WHS31_COMMON_NAMESPACE_END

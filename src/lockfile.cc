@@ -1,5 +1,5 @@
-#include <radar/mms/common/lockfile.h>
-#include <radar/mms/common/uuid.h>
+#include <whs31/common/lockfile.h>
+#include <whs31/common/uuid.h>
 
 #include <cerrno>
 #include <fstream>
@@ -41,7 +41,7 @@ namespace
     auto ec = std::error_code();
     std::filesystem::create_directories(parent, ec);
     if(ec)
-      throw radar::mms::common::LockFileError::cannot_create_directory(parent, ec);
+      throw whs31::common::LockFileError::cannot_create_directory(parent, ec);
   }
 
 #ifdef _WIN32
@@ -60,8 +60,8 @@ namespace
     if(handle == INVALID_HANDLE_VALUE) {
       auto const error = ::GetLastError();
       if(error == ERROR_FILE_EXISTS or error == ERROR_ALREADY_EXISTS)
-        throw radar::mms::common::LockFileError::already_locked(path);
-      throw radar::mms::common::LockFileError::cannot_create(path, static_cast<int>(error));
+        throw whs31::common::LockFileError::already_locked(path);
+      throw whs31::common::LockFileError::cannot_create(path, static_cast<int>(error));
     }
 
     auto written = DWORD();
@@ -75,7 +75,7 @@ namespace
         error = ERROR_WRITE_FAULT;
       ::CloseHandle(handle);
       std::filesystem::remove(path);
-      throw radar::mms::common::LockFileError::cannot_write(path, static_cast<int>(error));
+      throw whs31::common::LockFileError::cannot_write(path, static_cast<int>(error));
     }
     ::CloseHandle(handle);
   }
@@ -89,8 +89,8 @@ namespace
     );
     if(fd == -1) {
       if(errno == EEXIST)
-        throw radar::mms::common::LockFileError::already_locked(path);
-      throw radar::mms::common::LockFileError::cannot_create(path, errno);
+        throw whs31::common::LockFileError::already_locked(path);
+      throw whs31::common::LockFileError::cannot_create(path, errno);
     }
 
     auto const written = ::write(fd, contents.data(), contents.size());
@@ -98,7 +98,7 @@ namespace
       auto const error = written == -1 ? errno : EIO;
       ::close(fd);
       std::filesystem::remove(path);
-      throw radar::mms::common::LockFileError::cannot_write(path, error);
+      throw whs31::common::LockFileError::cannot_write(path, error);
     }
 
     ::close(fd);
@@ -106,7 +106,7 @@ namespace
 #endif
 }  // namespace
 
-RADAR_COMMON_NAMESPACE_BEGIN
+WHS31_COMMON_NAMESPACE_BEGIN
 
 LockFileError LockFileError::already_locked(std::filesystem::path const& path)
 {
@@ -233,4 +233,4 @@ void LockFile::unlock() noexcept
   }
 }
 
-RADAR_COMMON_NAMESPACE_END
+WHS31_COMMON_NAMESPACE_END

@@ -1,4 +1,4 @@
-#include <radar/mms/common/quaternion.h>
+#include <whs31/common/quaternion.h>
 
 #include <cmath>
 #include <numbers>
@@ -6,7 +6,7 @@
 
 #include <fmt/format.h>
 
-RADAR_COMMON_NAMESPACE_BEGIN
+WHS31_COMMON_NAMESPACE_BEGIN
 
 Quaternion Quaternion::normalized() const
 {
@@ -43,7 +43,7 @@ EulerAngles Quaternion::to_euler_angles() const noexcept
   );
 }
 
-#ifdef RCOMMON_WITH_QT
+#ifdef WHS31_COMMON_WITH_QT
 Quaternion::Quaternion(QQuaternion const& quaternion) noexcept
   : m_w(quaternion.scalar())
   , m_x(quaternion.x())
@@ -64,7 +64,7 @@ QQuaternion Quaternion::to_qquaternion() const noexcept
 
 std::string Quaternion::to_string() const { return fmt::format("{}", *this); }
 
-#ifdef RCOMMON_WITH_QT
+#ifdef WHS31_COMMON_WITH_QT
 QString Quaternion::to_qstring() const { return QString::fromStdString(this->to_string()); }
 #endif
 
@@ -126,7 +126,7 @@ Quaternion Quaternion::from_rotation_matrix(Matrix3x3 const& matrix) noexcept
   return result / result.length();
 }
 
-#ifdef RCOMMON_WITH_QT
+#ifdef WHS31_COMMON_WITH_QT
 Quaternion Quaternion::from_qquaternion(QQuaternion const& quaternion) noexcept
 {
   return Quaternion(quaternion);
@@ -138,4 +138,4 @@ std::ostream& operator<<(std::ostream& os, Quaternion const& quaternion)
   return os << quaternion.to_string();
 }
 
-RADAR_COMMON_NAMESPACE_END
+WHS31_COMMON_NAMESPACE_END

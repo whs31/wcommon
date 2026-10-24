@@ -2,76 +2,76 @@
 
 // NOLINTBEGIN(cppcoreguidelines-macro-usage, readability-use-concise-preprocessor-directives)
 
-#cmakedefine RCOMMON_WITH_QT
-#cmakedefine RCOMMON_WITH_NLOHMANN
-#cmakedefine RCOMMON_WITH_GLAZE
+#cmakedefine WHS31_COMMON_WITH_QT
+#cmakedefine WHS31_COMMON_WITH_NLOHMANN
+#cmakedefine WHS31_COMMON_WITH_GLAZE
 
 #if defined(NDEBUG)
-#  define RADAR_NO_DEBUG
+#  define WHS31_NO_DEBUG
 #else
-#  define RADAR_DEBUG
+#  define WHS31_DEBUG
 #endif
 
-#if defined(RADAR_VERSION_ENCODE)
-#  undef RADAR_VERSION_ENCODE
+#if defined(WHS31_VERSION_ENCODE)
+#  undef WHS31_VERSION_ENCODE
 #endif
-#define RADAR_VERSION_ENCODE(major,minor,patch) (((major) * 1000000) + ((minor) * 1000) + (patch))
+#define WHS31_VERSION_ENCODE(major,minor,patch) (((major) * 1000000) + ((minor) * 1000) + (patch))
 
-#if defined(RADAR_VERSION_DECODE_MAJOR)
-#  undef RADAR_VERSION_DECODE_MAJOR
+#if defined(WHS31_VERSION_DECODE_MAJOR)
+#  undef WHS31_VERSION_DECODE_MAJOR
 #endif
-#define RADAR_VERSION_DECODE_MAJOR(version) ((version) / 1000000)
+#define WHS31_VERSION_DECODE_MAJOR(version) ((version) / 1000000)
 
-#if defined(RADAR_VERSION_DECODE_MINOR)
-#  undef RADAR_VERSION_DECODE_MINOR
+#if defined(WHS31_VERSION_DECODE_MINOR)
+#  undef WHS31_VERSION_DECODE_MINOR
 #endif
-#define RADAR_VERSION_DECODE_MINOR(version) (((version) % 1000000) / 1000)
+#define WHS31_VERSION_DECODE_MINOR(version) (((version) % 1000000) / 1000)
 
-#if defined(RADAR_VERSION_DECODE_PATCH)
-#  undef RADAR_VERSION_DECODE_PATCH
+#if defined(WHS31_VERSION_DECODE_PATCH)
+#  undef WHS31_VERSION_DECODE_PATCH
 #endif
-#define RADAR_VERSION_DECODE_PATCH(version) ((version) % 1000)
+#define WHS31_VERSION_DECODE_PATCH(version) ((version) % 1000)
 
-#if defined(RADAR_STRINGIFY_EX)
-#  undef RADAR_STRINGIFY_EX
+#if defined(WHS31_STRINGIFY_EX)
+#  undef WHS31_STRINGIFY_EX
 #endif
-#define RADAR_STRINGIFY_EX(x) #x
+#define WHS31_STRINGIFY_EX(x) #x
 
-#if defined(RADAR_STRINGIFY)
-#  undef RADAR_STRINGIFY
+#if defined(WHS31_STRINGIFY)
+#  undef WHS31_STRINGIFY
 #endif
-#define RADAR_STRINGIFY(x) RADAR_STRINGIFY_EX(x)
+#define WHS31_STRINGIFY(x) WHS31_STRINGIFY_EX(x)
 
-#if defined(RADAR_CONCAT_EX)
-#  undef RADAR_CONCAT_EX
+#if defined(WHS31_CONCAT_EX)
+#  undef WHS31_CONCAT_EX
 #endif
-#define RADAR_CONCAT_EX(a,b) a##b
+#define WHS31_CONCAT_EX(a,b) a##b
 
-#if defined(RADAR_CONCAT)
-#  undef RADAR_CONCAT
+#if defined(WHS31_CONCAT)
+#  undef WHS31_CONCAT
 #endif
-#define RADAR_CONCAT(a,b) RADAR_CONCAT_EX(a,b)
+#define WHS31_CONCAT(a,b) WHS31_CONCAT_EX(a,b)
 
-#if defined(RADAR_CONCAT3_EX)
-#  undef RADAR_CONCAT3_EX
+#if defined(WHS31_CONCAT3_EX)
+#  undef WHS31_CONCAT3_EX
 #endif
-#define RADAR_CONCAT3_EX(a,b,c) a##b##c
+#define WHS31_CONCAT3_EX(a,b,c) a##b##c
 
-#if defined(RADAR_CONCAT3)
-#  undef RADAR_CONCAT3
+#if defined(WHS31_CONCAT3)
+#  undef WHS31_CONCAT3
 #endif
-#define RADAR_CONCAT3(a,b,c) RADAR_CONCAT3_EX(a,b,c)
+#define WHS31_CONCAT3(a,b,c) WHS31_CONCAT3_EX(a,b,c)
 
 #ifdef __cplusplus
-#  define RADAR_C_DECL extern "C"
-#  define RADAR_EXTERN_C_BEGIN extern "C" {
-#  define RADAR_EXTERN_C_END }
+#  define WHS31_C_DECL extern "C"
+#  define WHS31_EXTERN_C_BEGIN extern "C" {
+#  define WHS31_EXTERN_C_END }
 #else
-#  define RADAR_C_DECL
-#  define RADAR_EXTERN_C_BEGIN
-#  define RADAR_EXTERN_C_END
+#  define WHS31_C_DECL
+#  define WHS31_EXTERN_C_BEGIN
+#  define WHS31_EXTERN_C_END
 #endif
 
-#define RADAR_C_FORWARD_DECLARE(TYPE) RADAR_EXTERN_C_BEGIN TYPE; RADAR_EXTERN_C_END
+#define WHS31_C_FORWARD_DECLARE(TYPE) WHS31_EXTERN_C_BEGIN TYPE; WHS31_EXTERN_C_END
 
 // NOLINTEND(cppcoreguidelines-macro-usage, readability-use-concise-preprocessor-directives)

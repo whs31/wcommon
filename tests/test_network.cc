@@ -1,5 +1,5 @@
-#include <radar/mms/common/ip.h>
-#include <radar/mms/common/sockaddr.h>
+#include <whs31/common/ip.h>
+#include <whs31/common/sockaddr.h>
 
 #ifdef NLOHMANN_JSON_VERSION_MAJOR
 #  error "Base networking headers must not include nlohmann_json"
@@ -17,7 +17,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-using namespace radar::mms;
+using namespace whs31;
 using namespace std::string_view_literals;
 
 TEST_CASE("IP address value operations are constexpr", "[network][ip]")

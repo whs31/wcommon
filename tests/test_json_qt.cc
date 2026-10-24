@@ -1,13 +1,13 @@
-#include <radar/mms/common/json/qgeocoordinate.h>
-#include <radar/mms/common/json/qkey.h>
-#include <radar/mms/common/json/qkeymodifier.h>
-#include <radar/mms/common/json/qmousebutton.h>
-#include <radar/mms/common/json/qmouseeventsource.h>
-#include <radar/mms/common/json/qpoint.h>
-#include <radar/mms/common/json/qsize.h>
+#include <whs31/common/json/qgeocoordinate.h>
+#include <whs31/common/json/qkey.h>
+#include <whs31/common/json/qkeymodifier.h>
+#include <whs31/common/json/qmousebutton.h>
+#include <whs31/common/json/qmouseeventsource.h>
+#include <whs31/common/json/qpoint.h>
+#include <whs31/common/json/qsize.h>
 
-#ifndef RCOMMON_WITH_QT
-#  error "Qt configuration must enable RCOMMON_WITH_QT"
+#ifndef WHS31_COMMON_WITH_QT
+#  error "Qt configuration must enable WHS31_COMMON_WITH_QT"
 #endif
 
 #include <qevent.h>

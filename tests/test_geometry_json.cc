@@ -1,13 +1,13 @@
-#include <radar/mms/common/json/point2.h>
-#include <radar/mms/common/json/point3.h>
-#include <radar/mms/common/json/vector2.h>
-#include <radar/mms/common/json/vector3.h>
+#include <whs31/common/json/point2.h>
+#include <whs31/common/json/point3.h>
+#include <whs31/common/json/vector2.h>
+#include <whs31/common/json/vector3.h>
 
 #include <nlohmann/json.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 
-using namespace radar::mms::common;
+using namespace whs31::common;
 
 TEST_CASE("Geometry JSON adapters round-trip their coordinate objects", "[geometry][json]")
 {

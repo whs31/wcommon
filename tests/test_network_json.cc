@@ -1,5 +1,5 @@
-#include <radar/mms/common/json/ip.h>
-#include <radar/mms/common/json/sockaddr.h>
+#include <whs31/common/json/ip.h>
+#include <whs31/common/json/sockaddr.h>
 
 #include <cstdint>
 #include <limits>
@@ -9,7 +9,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-using namespace radar::mms;
+using namespace whs31;
 
 TEST_CASE("IP addresses serialize as JSON strings", "[network][json][ip]")
 {

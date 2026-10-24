@@ -1,5 +1,5 @@
-#include <radar/mms/common/matrix3x3.h>
-#include <radar/mms/common/quaternion.h>
+#include <whs31/common/matrix3x3.h>
+#include <whs31/common/quaternion.h>
 
 #include <qgenericmatrix.h>
 #include <qmetatype.h>
@@ -8,7 +8,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-using namespace radar::mms::common;
+using namespace whs31::common;
 
 TEST_CASE("Linear algebra values round-trip Qt Gui types", "[linalg][qt]")
 {

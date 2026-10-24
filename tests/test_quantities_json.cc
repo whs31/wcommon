@@ -1,23 +1,23 @@
-#include <radar/mms/common/json/acceleration.h>
-#include <radar/mms/common/json/angular_acceleration.h>
-#include <radar/mms/common/json/angular_velocity.h>
-#include <radar/mms/common/json/capacitance.h>
-#include <radar/mms/common/json/charge.h>
-#include <radar/mms/common/json/conductance.h>
-#include <radar/mms/common/json/current.h>
-#include <radar/mms/common/json/density.h>
-#include <radar/mms/common/json/energy.h>
-#include <radar/mms/common/json/force.h>
-#include <radar/mms/common/json/frequency.h>
-#include <radar/mms/common/json/magnetic_flux_density.h>
-#include <radar/mms/common/json/mass.h>
-#include <radar/mms/common/json/moment_of_inertia.h>
-#include <radar/mms/common/json/power.h>
-#include <radar/mms/common/json/pressure.h>
-#include <radar/mms/common/json/resistance.h>
-#include <radar/mms/common/json/temperature.h>
-#include <radar/mms/common/json/torque.h>
-#include <radar/mms/common/json/voltage.h>
+#include <whs31/common/json/acceleration.h>
+#include <whs31/common/json/angular_acceleration.h>
+#include <whs31/common/json/angular_velocity.h>
+#include <whs31/common/json/capacitance.h>
+#include <whs31/common/json/charge.h>
+#include <whs31/common/json/conductance.h>
+#include <whs31/common/json/current.h>
+#include <whs31/common/json/density.h>
+#include <whs31/common/json/energy.h>
+#include <whs31/common/json/force.h>
+#include <whs31/common/json/frequency.h>
+#include <whs31/common/json/magnetic_flux_density.h>
+#include <whs31/common/json/mass.h>
+#include <whs31/common/json/moment_of_inertia.h>
+#include <whs31/common/json/power.h>
+#include <whs31/common/json/pressure.h>
+#include <whs31/common/json/resistance.h>
+#include <whs31/common/json/temperature.h>
+#include <whs31/common/json/torque.h>
+#include <whs31/common/json/voltage.h>
 
 #include <string>
 #include <vector>
@@ -27,7 +27,7 @@
 #include <catch2/catch_template_test_macros.hpp>
 #include <catch2/catch_test_macros.hpp>
 
-using namespace radar::mms;
+using namespace whs31;
 
 namespace
 {

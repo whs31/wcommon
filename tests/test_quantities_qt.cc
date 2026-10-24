@@ -1,4 +1,4 @@
-#include <radar/mms/common/all.h>
+#include <whs31/common/all.h>
 
 #include <qmetatype.h>
 #include <qstring.h>
@@ -7,7 +7,7 @@
 #include <catch2/catch_template_test_macros.hpp>
 #include <catch2/catch_test_macros.hpp>
 
-using namespace radar::mms;
+using namespace whs31;
 
 TEMPLATE_TEST_CASE(
   "Quantities are Qt gadgets with string and finite properties",

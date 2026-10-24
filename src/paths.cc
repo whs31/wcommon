@@ -1,4 +1,4 @@
-#include <radar/mms/common/paths.h>
+#include <whs31/common/paths.h>
 
 #include <array>
 #include <cerrno>
@@ -35,7 +35,7 @@ namespace
       auto path = fn();
       ec.clear();
       return path;
-    } catch(radar::mms::common::PathError const&) {
+    } catch(whs31::common::PathError const&) {
       ec = std::make_error_code(std::errc::io_error);
       return {};
     } catch(std::system_error const& e) {
@@ -57,7 +57,7 @@ namespace
       value.empty() or value == "." or value == ".." or value.contains('/') or value.contains('\\')
       or value.contains('\0') or path.has_root_path() or path.has_parent_path()
     )
-      throw radar::mms::common::PathError("{} must be a single non-empty path component", name);
+      throw whs31::common::PathError("{} must be a single non-empty path component", name);
   }
 
 #ifdef _WIN32
@@ -67,7 +67,7 @@ namespace
     auto const result = ::SHGetKnownFolderPath(id, 0, nullptr, &buffer);
     if(FAILED(result)) {
       ::CoTaskMemFree(buffer);
-      throw radar::mms::common::PathError(
+      throw whs31::common::PathError(
         "failed to get known folder path: {}",
         std::system_error(result, std::system_category()).what()
       );
@@ -78,19 +78,19 @@ namespace
     return path;
   }
 
-  [[nodiscard]] radar::mms::common::PathError last_path_error(
+  [[nodiscard]] whs31::common::PathError last_path_error(
     char const* operation,
     std::errc const fallback
   )
   {
     auto const error = ::GetLastError();
     if(error != 0)
-      return radar::mms::common::PathError(
+      return whs31::common::PathError(
         "failed to {}: {}",
         operation,
         std::system_error(static_cast<int>(error), std::system_category()).what()
       );
-    return radar::mms::common::
+    return whs31::common::
       PathError("failed to {}: {}", operation, std::make_error_code(fallback).message());
   }
 #endif
@@ -98,10 +98,10 @@ namespace
   // the categories under one root: the portable layout, and the standard one outside linux
   [[nodiscard]] std::filesystem::path nested_directory_path(
     std::filesystem::path const& root,
-    radar::mms::common::ApplicationDirectory const directory
+    whs31::common::ApplicationDirectory const directory
   )
   {
-    using radar::mms::common::ApplicationDirectory;
+    using whs31::common::ApplicationDirectory;
     switch(directory) {
       case ApplicationDirectory::Root: return root;
       case ApplicationDirectory::Config: return root / "config";
@@ -110,7 +110,7 @@ namespace
       case ApplicationDirectory::Cache: return root / "cache";
       case ApplicationDirectory::Runtime: return root / "runtime";
     }
-    throw radar::mms::common::
+    throw whs31::common::
       PathError("unknown application directory {}", std::to_underlying(directory));
   }
 
@@ -124,17 +124,15 @@ namespace
       if(auto path = std::filesystem::path(value); path.is_absolute())
         return path;
     }
-    auto const home = radar::mms::common::user_home_path();
+    auto const home = whs31::common::user_home_path();
     if(not home.is_absolute())
-      throw radar::mms::common::PathError(
-        "failed to get XDG base directory: $HOME is not absolute"
-      );
+      throw whs31::common::PathError("failed to get XDG base directory: $HOME is not absolute");
     return home / fallback;
   }
 #endif
 }  // namespace
 
-RADAR_COMMON_NAMESPACE_BEGIN
+WHS31_COMMON_NAMESPACE_BEGIN
 
 std::filesystem::path user_home_path(std::error_code& ec) noexcept
 {
@@ -361,4 +359,4 @@ std::filesystem::path application_directory_path(
 #endif
 }
 
-RADAR_COMMON_NAMESPACE_END
+WHS31_COMMON_NAMESPACE_END

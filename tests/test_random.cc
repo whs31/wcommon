@@ -1,5 +1,5 @@
-#include <radar/mms/common/error.h>
-#include <radar/mms/common/random.h>
+#include <whs31/common/error.h>
+#include <whs31/common/random.h>
 
 #include <cmath>
 #include <cstdint>
@@ -12,7 +12,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-using namespace radar::mms;
+using namespace whs31;
 
 namespace
 {

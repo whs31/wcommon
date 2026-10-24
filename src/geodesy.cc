@@ -1,4 +1,4 @@
-#include <radar/mms/common/geodesy.h>
+#include <whs31/common/geodesy.h>
 
 #include <cmath>
 
@@ -7,12 +7,12 @@
 #include <string_view>
 #include <utility>
 
-#include <radar/mms/common/bit.h>
-#include <radar/mms/common/check.h>
-#include <radar/mms/common/error.h>
-#include <radar/mms/common/memo.h>
+#include <whs31/common/bit.h>
+#include <whs31/common/check.h>
+#include <whs31/common/error.h>
+#include <whs31/common/memo.h>
 
-RADAR_COMMON_NAMESPACE_BEGIN
+WHS31_COMMON_NAMESPACE_BEGIN
 
 namespace
 {
@@ -95,7 +95,7 @@ namespace
 
   void require_finite(GeodeticPosition const& position, std::string_view const what)
   {
-    RADAR_HARD_CHECK(  // NOLINT(*-avoid-do-while)
+    WHS31_HARD_CHECK(  // NOLINT(*-avoid-do-while)
       position.is_finite(),
       InvalidArgumentError,
       "{} must be finite, got {}",
@@ -115,7 +115,7 @@ std::string GeodeticPosition::to_string() const
   );
 }
 
-#ifdef RCOMMON_WITH_QT
+#ifdef WHS31_COMMON_WITH_QT
 QString GeodeticPosition::to_qstring() const { return QString::fromStdString(this->to_string()); }
 #endif
 
@@ -134,7 +134,7 @@ LocalTangentPlane::LocalTangentPlane(GeodeticPosition const& origin)
   require_finite(origin, "tangent plane origin");
   // the macro negates the whole conjunction, which clang-tidy would distribute
   // NOLINTNEXTLINE(*-avoid-do-while,readability-simplify-boolean-expr)
-  RADAR_HARD_CHECK(
+  WHS31_HARD_CHECK(
     std::abs(origin.latitude.degrees()) < 90.0 and std::abs(origin.longitude.degrees()) <= 180.0,
     InvalidArgumentError,
     "tangent plane origin must lie between the poles with its longitude in [-180, 180] deg, got "
@@ -148,7 +148,7 @@ LocalTangentPlane::LocalTangentPlane(GeodeticPosition const& origin)
 
 GeodeticPosition LocalTangentPlane::lla_from_ned(Vector3 const& position_ned) const
 {
-  RADAR_HARD_CHECK(  // NOLINT(*-avoid-do-while)
+  WHS31_HARD_CHECK(  // NOLINT(*-avoid-do-while)
     position_ned.is_finite(),
     InvalidArgumentError,
     "tangent plane position must be finite, got {} m",
@@ -186,7 +186,7 @@ GeodeticPosition LocalTangentPlane::lla_from_ned(Vector3 const& position_ned) co
 Vector3 LocalTangentPlane::ned_from_lla(GeodeticPosition const& position) const
 {
   require_finite(position, "geodetic position");
-  RADAR_HARD_CHECK(  // NOLINT(*-avoid-do-while)
+  WHS31_HARD_CHECK(  // NOLINT(*-avoid-do-while)
     std::abs(position.latitude.degrees()) <= 90.0,
     InvalidArgumentError,
     "latitude must be in [-90, 90] deg, got {} deg",
@@ -201,7 +201,7 @@ Vector3 LocalTangentPlane::ned_from_lla(GeodeticPosition const& position) const
   auto const up = -ecef_to_ned(position.latitude, position.longitude).row(2);
   auto const origin_up = -this->m_ecef_to_ned.row(2);
   auto const alignment = dot(up, origin_up);
-  RADAR_HARD_CHECK(  // NOLINT(*-avoid-do-while)
+  WHS31_HARD_CHECK(  // NOLINT(*-avoid-do-while)
     alignment > 0.0,
     NumericError,
     "{} deg, {} deg is too far from the tangent plane origin {} deg, {} deg to map onto the plane",
@@ -219,4 +219,4 @@ Vector3 LocalTangentPlane::ned_from_lla(GeodeticPosition const& position) const
   };
 }
 
-RADAR_COMMON_NAMESPACE_END
+WHS31_COMMON_NAMESPACE_END

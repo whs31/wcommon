@@ -1,4 +1,4 @@
-#include <radar/mms/common/functional.h>
+#include <whs31/common/functional.h>
 
 #include <string>
 #include <stdexcept>
@@ -7,7 +7,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-using namespace radar::mms;
+using namespace whs31;
 
 namespace
 {

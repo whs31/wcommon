@@ -1,5 +1,5 @@
-#include <radar/mms/common/memory.h>
-#include <radar/mms/common/pimpl.h>
+#include <whs31/common/memory.h>
+#include <whs31/common/pimpl.h>
 
 #include <array>
 #include <memory>
@@ -8,7 +8,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-using namespace radar::mms;
+using namespace whs31;
 
 namespace
 {
@@ -166,7 +166,7 @@ TEST_CASE("observer_ptr ordering follows the standard pointer total order", "[me
 
 TEST_CASE("observer_ptr reports null dereferences in debug builds", "[memory]")
 {
-#ifdef RADAR_DEBUG
+#ifdef WHS31_DEBUG
   auto empty = observer_ptr<int> {};
   auto const const_empty = observer_ptr<int> {};
 

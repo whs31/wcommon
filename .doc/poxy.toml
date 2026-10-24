@@ -1,11 +1,11 @@
-name = 'RCommon'
+name = 'WCommon'
 author = 'whs31 <whs31@github.io>'
-description = 'Radar common utility library'
+description = 'Common C++23 utility library'
 cpp = 23
 show_includes = true
 navbar = ['all']
 theme = 'dark'
-inline_namespaces = ['radar::mms::common']
+inline_namespaces = ['whs31::common']
 
 [warnings]
 enabled = true
@@ -27,10 +27,10 @@ strip_paths = [
 [macros]
 'NLOHMANN_JSON_NAMESPACE_BEGIN' = 'namespace nlohmann {'
 'NLOHMANN_JSON_NAMESPACE_END' = '}'
-'RADAR_COMMON_NAMESPACE_BEGIN' = 'namespace radar { namespace mms { namespace common {'
-'RADAR_COMMON_NAMESPACE_END' = '} } }'
-'RADAR_COMMON_API' = ''
-'RCOMMON_WITH_QT' = '1'
+'WHS31_COMMON_NAMESPACE_BEGIN' = 'namespace whs31 { namespace common {'
+'WHS31_COMMON_NAMESPACE_END' = '} }'
+'WHS31_COMMON_API' = ''
+'WHS31_COMMON_WITH_QT' = '1'
 '__DOXYGEN__' = '1'
 'Q_ENUM' = ''
 'Q_GADGET' = ''
@@ -45,4 +45,4 @@ strip_paths = [
 'tagfiles/qtpositioning.tag.xml' = 'https://doc.qt.io/qt-6'
 
 [code_blocks]
-macros = ['RADAR_COMMON_[A-Z0-9_]+?', 'Q[A-Z0-9_]+?']
+macros = ['WHS31_COMMON_[A-Z0-9_]+?', 'Q[A-Z0-9_]+?']

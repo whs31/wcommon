@@ -1,21 +1,21 @@
-#include <radar/mms/common/noise.h>
+#include <whs31/common/noise.h>
 
 #include <cmath>
 
-#include <radar/mms/common/check.h>
-#include <radar/mms/common/error.h>
-#include <radar/mms/common/math.h>
+#include <whs31/common/check.h>
+#include <whs31/common/error.h>
+#include <whs31/common/math.h>
 
 // see random.cc: the samples must round identically on every platform
 #ifdef __FAST_MATH__
 #  error "deterministic noise processes cannot be built with -ffast-math"
 #endif
 
-RADAR_COMMON_NAMESPACE_BEGIN
+WHS31_COMMON_NAMESPACE_BEGIN
 
 double white_noise_sigma(double const psd, std::chrono::duration<double> const sample_period)
 {
-  RADAR_HARD_CHECK(  // NOLINT(*-avoid-do-while)
+  WHS31_HARD_CHECK(  // NOLINT(*-avoid-do-while)
     nonnegative(psd) and positive(sample_period.count()),
     InvalidArgumentError,
     "white noise needs a non-negative density and a positive sample period, got {} and {} s",
@@ -37,7 +37,7 @@ GaussMarkov GaussMarkov::with(
   double const initial
 )
 {
-  RADAR_HARD_CHECK(  // NOLINT(*-avoid-do-while)
+  WHS31_HARD_CHECK(  // NOLINT(*-avoid-do-while)
     nonnegative(sigma) and positive(correlation_time.count()) and positive(sample_period.count())
       and is_finite(initial),
     InvalidArgumentError,
@@ -64,7 +64,7 @@ RandomWalk RandomWalk::with(
   double const initial
 )
 {
-  RADAR_HARD_CHECK(  // NOLINT(*-avoid-do-while)
+  WHS31_HARD_CHECK(  // NOLINT(*-avoid-do-while)
     nonnegative(density) and positive(sample_period.count()) and is_finite(initial),
     InvalidArgumentError,
     "random walk needs a non-negative density, a positive period and a finite start, got {}, "
@@ -87,4 +87,4 @@ double turn_on_bias(double const fixed, double const sigma, RandomStream& stream
   return fixed + sigma * stream.normal();
 }
 
-RADAR_COMMON_NAMESPACE_END
+WHS31_COMMON_NAMESPACE_END

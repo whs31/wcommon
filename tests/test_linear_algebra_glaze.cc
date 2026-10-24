@@ -1,12 +1,12 @@
-#include <radar/mms/common/glaze/angle.h>
-#include <radar/mms/common/glaze/curve.h>
-#include <radar/mms/common/glaze/matrix3x3.h>
-#include <radar/mms/common/glaze/point2.h>
-#include <radar/mms/common/glaze/point3.h>
-#include <radar/mms/common/glaze/quaternion.h>
-#include <radar/mms/common/glaze/random.h>
-#include <radar/mms/common/glaze/vector2.h>
-#include <radar/mms/common/glaze/vector3.h>
+#include <whs31/common/glaze/angle.h>
+#include <whs31/common/glaze/curve.h>
+#include <whs31/common/glaze/matrix3x3.h>
+#include <whs31/common/glaze/point2.h>
+#include <whs31/common/glaze/point3.h>
+#include <whs31/common/glaze/quaternion.h>
+#include <whs31/common/glaze/random.h>
+#include <whs31/common/glaze/vector2.h>
+#include <whs31/common/glaze/vector3.h>
 
 #include <array>
 
@@ -14,7 +14,7 @@
 
 #include "glaze_support.h"
 
-using namespace radar::mms;
+using namespace whs31;
 using namespace glaze_support;
 
 TEST_CASE("Vector and point glaze adapters use named coordinates", "[glaze][geometry]")

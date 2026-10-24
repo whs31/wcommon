@@ -1,8 +1,8 @@
-#include <radar/mms/common/math.h>
-#include <radar/mms/common/point2.h>
-#include <radar/mms/common/point3.h>
-#include <radar/mms/common/vector2.h>
-#include <radar/mms/common/vector3.h>
+#include <whs31/common/math.h>
+#include <whs31/common/point2.h>
+#include <whs31/common/point3.h>
+#include <whs31/common/vector2.h>
+#include <whs31/common/vector3.h>
 
 #include <cmath>
 #include <limits>
@@ -13,7 +13,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-using namespace radar::mms::common;
+using namespace whs31::common;
 
 TEST_CASE("Geometry values support constexpr vector math", "[geometry]")
 {

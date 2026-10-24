@@ -1,6 +1,6 @@
-#include <radar/mms/common/angle.h>
-#include <radar/mms/common/distance.h>
-#include <radar/mms/common/web_mercator.h>
+#include <whs31/common/angle.h>
+#include <whs31/common/distance.h>
+#include <whs31/common/web_mercator.h>
 
 #include <cstdint>
 
@@ -8,7 +8,7 @@
 #include <catch2/generators/catch_generators.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
-using namespace radar::mms;
+using namespace whs31;
 using Catch::Matchers::WithinAbs;
 using Catch::Matchers::WithinRel;
 

@@ -1,6 +1,6 @@
 [project]
-name = "rcommon"
-description = "Radar common utility library"
+name = "wcommon"
+description = "Common C++23 utility library"
 languages = ["cpp"]
 wkit = ">=0.1.1"
 

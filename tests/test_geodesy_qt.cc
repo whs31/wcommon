@@ -1,4 +1,4 @@
-#include <radar/mms/common/geodesy.h>
+#include <whs31/common/geodesy.h>
 
 #include <qmetatype.h>
 #include <qstring.h>
@@ -6,7 +6,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-using namespace radar::mms::common;
+using namespace whs31::common;
 
 TEST_CASE("Geodetic positions are Qt gadgets with plain-number properties", "[geodesy][qt]")
 {

@@ -1,10 +1,10 @@
-#include <radar/mms/common/json/uuid.h>
+#include <whs31/common/json/uuid.h>
 
 #include <nlohmann/json.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 
-using namespace radar::mms;
+using namespace whs31;
 
 TEST_CASE("Uuid JSON uses the canonical string representation", "[uuid][json]")
 {

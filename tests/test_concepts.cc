@@ -1,10 +1,10 @@
-#include <radar/mms/common/concepts.h>
+#include <whs31/common/concepts.h>
 
 #include <memory>
 
 #include <catch2/catch_test_macros.hpp>
 
-using namespace radar::mms;
+using namespace whs31;
 
 TEST_CASE("Concepts classify numbers and pointers", "[concepts]")
 {

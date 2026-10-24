@@ -1,10 +1,10 @@
-#include <radar/mms/common/char_utils.h>
+#include <whs31/common/char_utils.h>
 
 #include <cstdint>
 
 #include <catch2/catch_test_macros.hpp>
 
-using namespace radar::mms;
+using namespace whs31;
 
 TEST_CASE("ASCII character helpers classify their inputs", "[char_utils]")
 {

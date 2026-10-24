@@ -1,13 +1,13 @@
-#include <radar/mms/common/glaze/qgeocoordinate.h>
-#include <radar/mms/common/glaze/qkey.h>
-#include <radar/mms/common/glaze/qkeymodifier.h>
-#include <radar/mms/common/glaze/qmousebutton.h>
-#include <radar/mms/common/glaze/qmouseeventsource.h>
-#include <radar/mms/common/glaze/qpoint.h>
-#include <radar/mms/common/glaze/qsize.h>
+#include <whs31/common/glaze/qgeocoordinate.h>
+#include <whs31/common/glaze/qkey.h>
+#include <whs31/common/glaze/qkeymodifier.h>
+#include <whs31/common/glaze/qmousebutton.h>
+#include <whs31/common/glaze/qmouseeventsource.h>
+#include <whs31/common/glaze/qpoint.h>
+#include <whs31/common/glaze/qsize.h>
 
-#ifndef RCOMMON_WITH_QT
-#  error "Qt configuration must enable RCOMMON_WITH_QT"
+#ifndef WHS31_COMMON_WITH_QT
+#  error "Qt configuration must enable WHS31_COMMON_WITH_QT"
 #endif
 
 #include <string>

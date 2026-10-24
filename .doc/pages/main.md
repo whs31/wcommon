@@ -1,18 +1,22 @@
-# RCommon Documentation {#mainpage}
+# WCommon Documentation {#mainpage}
 
-**RCommon** is the shared C++23 utility library for Radar MMS projects. Its
-public API lives in the `radar::mms::common` inline namespace.
+**WCommon** is a general-purpose C++23 utility library by whs31. Its
+public API lives in the `whs31::common` inline namespace.
+
+This reference uses the default namespace. A package built with the Conan option `namespace`
+(CMake `WCOMMON_NAMESPACE`), e.g. `acme::util`, spells every name accordingly: `acme::util::Angle`,
+`<acme/util/common/angle.h>`, the `acme::util::common` target and the `ACME_UTIL_` macro prefix.
 
 ## CMake targets
 
-- `radar::mms::common` provides the base library.
-- `radar::mms::common::json` adds the nlohmann/json adapters under
-  `radar/mms/common/json/`. It is built only with the Conan option `with_nlohmann=True`.
-- `radar::mms::common::glaze` adds the glaze adapters under `radar/mms/common/glaze/`. It is built
+- `whs31::common` provides the base library.
+- `whs31::common::json` adds the nlohmann/json adapters under
+  `whs31/common/json/`. It is built only with the Conan option `with_nlohmann=True`.
+- `whs31::common::glaze` adds the glaze adapters under `whs31/common/glaze/`. It is built
   only with the Conan option `with_glaze=True`. See @ref core_glaze.
 
-Both adapter sets write the same JSON. `radar/mms/common/config.h` defines
-`RCOMMON_WITH_NLOHMANN` and `RCOMMON_WITH_GLAZE` when the package was built with them.
+Both adapter sets write the same JSON. `whs31/common/config.h` defines
+`WHS31_COMMON_WITH_NLOHMANN` and `WHS31_COMMON_WITH_GLAZE` when the package was built with them.
 
 Qt integration is controlled by the Conan `with_qt` option. Qt-specific API is
 available only when the package is built with `with_qt=True`; each conditional
@@ -37,5 +41,5 @@ entity is marked accordingly in the reference documentation.
 See @ref quantities for the physical quantity types and their units, @ref rotations for the
 vector, matrix and quaternion conventions, and @ref random_streams for reproducible randomness.
 
-Include `radar/mms/common/all.h` for the complete base API. The serialization adapters remain
-opt-in and are provided under `radar/mms/common/json/` and `radar/mms/common/glaze/`.
+Include `whs31/common/all.h` for the complete base API. The serialization adapters remain
+opt-in and are provided under `whs31/common/json/` and `whs31/common/glaze/`.

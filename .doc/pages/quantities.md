@@ -1,6 +1,6 @@
 # Physical quantities {#quantities}
 
-RCommon has a named type for each common scalar physical quantity, such as `Distance`, `Mass` or
+WCommon has a named type for each common scalar physical quantity, such as `Distance`, `Mass` or
 `Voltage`. A quantity stores one `double` in its SI unit and cannot be mixed with a quantity of
 another type, so a torque cannot be passed where a force is expected, and a magnitude in grams
 cannot be read back as kilograms.
@@ -16,8 +16,8 @@ Every quantity derives from `QuantityBase` and has the same operations:
 - `to_string()`, `std::ostream` output, `fmt` formatting and `std::hash`;
 - a Qt gadget with one property per unit plus `isFinite` and `string`, when built
   `with_qt=True`;
-- a JSON adapter in `radar/mms/common/json/<quantity>.h` and a glaze adapter in
-  `radar/mms/common/glaze/<quantity>.h`, which both store the SI magnitude under the unit name,
+- a JSON adapter in `whs31/common/json/<quantity>.h` and a glaze adapter in
+  `whs31/common/glaze/<quantity>.h`, which both store the SI magnitude under the unit name,
   e.g. `{"kilograms": 2.5}`.
 
 Each quantity is standard layout and trivially copyable, and its object representation is exactly
@@ -29,12 +29,12 @@ accept quantities directly. `std::min` and `std::max` work as they are.
 
 ## Literals
 
-User-defined literals live in the inline namespace `radar::mms::literals`. Import them alone with
-`using namespace radar::mms::literals;`, or together with the rest of the API with
-`using namespace radar::mms;`.
+User-defined literals live in the inline namespace `whs31::literals`. Import them alone with
+`using namespace whs31::literals;`, or together with the rest of the API with
+`using namespace whs31;`.
 
 ```cpp
-using namespace radar::mms::literals;
+using namespace whs31::literals;
 
 auto const pack = 3.7_v * 6.0;          // 22.2 V
 auto const qnh = 1013.25_hpa;           // 101325 Pa
@@ -102,7 +102,7 @@ Kinematic quantities relate through `std::chrono` durations of any representatio
 
 ```cpp
 using namespace std::chrono_literals;
-using namespace radar::mms::literals;
+using namespace whs31::literals;
 
 auto const speed = 100_m / 4s;               // 25 m/s
 auto const turned = 90_deg_per_s * 500ms;    // 45 deg

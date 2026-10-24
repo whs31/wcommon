@@ -1,4 +1,4 @@
-#include <radar/mms/common/sockaddr.h>
+#include <whs31/common/sockaddr.h>
 
 #include <charconv>
 #include <ostream>
@@ -6,7 +6,7 @@
 
 #include <fmt/format.h>
 
-RADAR_COMMON_NAMESPACE_BEGIN
+WHS31_COMMON_NAMESPACE_BEGIN
 
 namespace
 {
@@ -118,7 +118,7 @@ std::strong_ordering SockAddr::operator<=>(SockAddr const& other) const noexcept
   return std::strong_ordering::equal;
 }
 
-#ifdef RCOMMON_WITH_QT
+#ifdef WHS31_COMMON_WITH_QT
 SockAddrV4 SockAddrV4::from_qstring(QStringView const text)
 {
   return parse(text.toString().toStdString());
@@ -168,4 +168,4 @@ std::ostream& operator<<(std::ostream& stream, SockAddr const& address)
   return stream << address.to_string();
 }
 
-RADAR_COMMON_NAMESPACE_END
+WHS31_COMMON_NAMESPACE_END

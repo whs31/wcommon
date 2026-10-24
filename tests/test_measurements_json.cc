@@ -1,7 +1,7 @@
-#include <radar/mms/common/json/angle.h>
-#include <radar/mms/common/json/distance.h>
-#include <radar/mms/common/json/euler_angles.h>
-#include <radar/mms/common/json/velocity.h>
+#include <whs31/common/json/angle.h>
+#include <whs31/common/json/distance.h>
+#include <whs31/common/json/euler_angles.h>
+#include <whs31/common/json/velocity.h>
 
 #include <numbers>
 
@@ -9,7 +9,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-using namespace radar::mms::common;
+using namespace whs31::common;
 
 TEST_CASE("Measurement JSON adapters preserve their schemas", "[measurements][json]")
 {

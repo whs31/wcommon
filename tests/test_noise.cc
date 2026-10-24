@@ -1,7 +1,7 @@
-#include <radar/mms/common/error.h>
-#include <radar/mms/common/noise.h>
-#include <radar/mms/common/random.h>
-#include <radar/mms/common/math.h>
+#include <whs31/common/error.h>
+#include <whs31/common/noise.h>
+#include <whs31/common/random.h>
+#include <whs31/common/math.h>
 
 #include <cmath>
 #include <cstddef>
@@ -16,7 +16,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
-using namespace radar::mms;
+using namespace whs31;
 using namespace std::chrono_literals;
 
 using Catch::Matchers::WithinAbs;

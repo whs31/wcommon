@@ -1,14 +1,14 @@
-#include <radar/mms/common/vector2.h>
+#include <whs31/common/vector2.h>
 
 #include <ostream>
 
 #include <fmt/format.h>
 
-RADAR_COMMON_NAMESPACE_BEGIN
+WHS31_COMMON_NAMESPACE_BEGIN
 
 std::string Vector2::to_string() const { return fmt::format("{}", *this); }
 
-#ifdef RCOMMON_WITH_QT
+#ifdef WHS31_COMMON_WITH_QT
 Vector2::Vector2(QPointF const point) noexcept
   : m_x(static_cast<double>(point.x()))
   , m_y(static_cast<double>(point.y()))
@@ -38,4 +38,4 @@ std::ostream& operator<<(std::ostream& os, Vector2 const vector)
   return os << vector.to_string();
 }
 
-RADAR_COMMON_NAMESPACE_END
+WHS31_COMMON_NAMESPACE_END

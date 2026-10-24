@@ -1,4 +1,4 @@
-#include <radar/mms/common/paths.h>
+#include <whs31/common/paths.h>
 
 #include <cstdlib>
 #include <filesystem>
@@ -8,7 +8,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-using namespace radar::mms;
+using namespace whs31;
 
 #ifdef __linux__
 namespace
@@ -79,8 +79,8 @@ TEST_CASE("Paths creates application data paths from app names", "[paths]")
 {
   auto data_ec = std::error_code();
   auto local_ec = std::error_code();
-  auto const data = application_data_dir_path("Radar MMS", "Core Paths Test", data_ec);
-  auto const local = application_local_data_dir_path("Radar MMS", "Core Paths Test", local_ec);
+  auto const data = application_data_dir_path("WCommon", "Core Paths Test", data_ec);
+  auto const local = application_local_data_dir_path("WCommon", "Core Paths Test", local_ec);
 
   REQUIRE_FALSE(data_ec);
   REQUIRE_FALSE(local_ec);
@@ -111,9 +111,9 @@ TEST_CASE("Paths rejects application data path traversal", "[paths]")
       }) {
     CAPTURE(invalid);
     auto ec = std::error_code();
-    CHECK(application_data_dir_path("Radar MMS", invalid, ec).empty());
+    CHECK(application_data_dir_path("WCommon", invalid, ec).empty());
     CHECK(ec);
-    CHECK_THROWS_AS(application_data_dir_path("Radar MMS", invalid), PathError);
+    CHECK_THROWS_AS(application_data_dir_path("WCommon", invalid), PathError);
   }
 
   CHECK_THROWS_AS(application_data_dir_path("../vendor", "app"), PathError);
@@ -133,7 +133,7 @@ TEST_CASE("Paths rejects an empty user home", "[paths]")
 
 TEST_CASE("Paths resolves absolute XDG overrides without HOME", "[paths]")
 {
-  auto const base = std::filesystem::temp_directory_path() / "rcommon-xdg-overrides";
+  auto const base = std::filesystem::temp_directory_path() / "wcommon-xdg-overrides";
   auto home = ScopedEnvironment("HOME", std::nullopt);
   auto config = ScopedEnvironment("XDG_CONFIG_HOME", (base / "config").string());
   auto data = ScopedEnvironment("XDG_DATA_HOME", (base / "data").string());
@@ -148,7 +148,7 @@ TEST_CASE("Paths resolves absolute XDG overrides without HOME", "[paths]")
 
 TEST_CASE("Paths rejects relative XDG homes and uses defaults", "[paths]")
 {
-  auto const home_path = std::filesystem::temp_directory_path() / "rcommon-xdg-home";
+  auto const home_path = std::filesystem::temp_directory_path() / "wcommon-xdg-home";
   auto home = ScopedEnvironment("HOME", home_path.string());
   auto config = ScopedEnvironment("XDG_CONFIG_HOME", "relative/config");
   auto data = ScopedEnvironment("XDG_DATA_HOME", "");
@@ -191,7 +191,7 @@ TEST_CASE("Paths requires an absolute XDG runtime directory", "[paths]")
 
   SECTION("absolute")
   {
-    auto const path = std::filesystem::temp_directory_path() / "rcommon-runtime";
+    auto const path = std::filesystem::temp_directory_path() / "wcommon-runtime";
     auto runtime = ScopedEnvironment("XDG_RUNTIME_DIR", path.string());
     auto ec = std::error_code();
     CHECK(nix_::xdg_runtime_dir_path(ec) == path);
@@ -206,7 +206,7 @@ TEST_CASE("Paths lays out the portable application directories", "[paths]")
   auto const path = [](ApplicationDirectory const directory) {
     return application_directory_path(
       directory,
-      "Radar MMS",
+      "WCommon",
       "Core Paths Test",
       ApplicationLayout::Portable
     );
@@ -254,14 +254,14 @@ TEST_CASE(
   "[paths]"
 )
 {
-  auto const base = std::filesystem::temp_directory_path() / "rcommon-application-directories";
+  auto const base = std::filesystem::temp_directory_path() / "wcommon-application-directories";
   auto config = ScopedEnvironment("XDG_CONFIG_HOME", (base / "config").string());
   auto data = ScopedEnvironment("XDG_DATA_HOME", (base / "data").string());
   auto state = ScopedEnvironment("XDG_STATE_HOME", (base / "state").string());
   auto cache = ScopedEnvironment("XDG_CACHE_HOME", (base / "cache").string());
   auto runtime = ScopedEnvironment("XDG_RUNTIME_DIR", (base / "runtime").string());
   auto const path = [](ApplicationDirectory const directory) {
-    return application_directory_path(directory, "Radar MMS", "product");
+    return application_directory_path(directory, "WCommon", "product");
   };
 
   CHECK(path(ApplicationDirectory::Root) == base / "data" / "product");
@@ -277,19 +277,19 @@ TEST_CASE("Paths has no fallback for the standard runtime application directory"
   auto runtime = ScopedEnvironment("XDG_RUNTIME_DIR", std::nullopt);
 
   CHECK_THROWS_AS(
-    application_directory_path(ApplicationDirectory::Runtime, "Radar MMS", "product"),
+    application_directory_path(ApplicationDirectory::Runtime, "WCommon", "product"),
     PathError
   );
   auto ec = std::error_code();
   CHECK(application_directory_path(
           ApplicationDirectory::Runtime,
-          "Radar MMS",
+          "WCommon",
           "product",
           ApplicationLayout::Standard,
           ec
   )
           .empty());
   CHECK(ec);
-  CHECK_NOTHROW(application_directory_path(ApplicationDirectory::Config, "Radar MMS", "product"));
+  CHECK_NOTHROW(application_directory_path(ApplicationDirectory::Config, "WCommon", "product"));
 }
 #endif

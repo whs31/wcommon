@@ -1,0 +1,24 @@
+include(CMakeFindDependencyMacro)
+
+find_dependency(Qt6 REQUIRED COMPONENTS Core Gui Network)
+target_link_libraries(@WCOMMON_TARGET_NAMESPACE@ INTERFACE Qt6::Core Qt6::Gui Qt6::Network)
+
+if(TARGET @WCOMMON_TARGET_NAMESPACE@::json OR TARGET @WCOMMON_TARGET_NAMESPACE@::glaze)
+  find_dependency(Qt6 REQUIRED COMPONENTS Positioning)
+endif()
+foreach(wcommon_adapter_target IN ITEMS @WCOMMON_TARGET_NAMESPACE@::json @WCOMMON_TARGET_NAMESPACE@::glaze)
+  if(TARGET ${wcommon_adapter_target})
+    target_link_libraries(${wcommon_adapter_target} INTERFACE Qt6::Positioning)
+  endif()
+endforeach()
+
+get_filename_component(WCommon_PACKAGE_DIR "${CMAKE_CURRENT_LIST_DIR}" DIRECTORY)
+set(WCommon_METATYPES_FILE
+  "${WCommon_PACKAGE_DIR}/lib/metatypes/qt6wcommon_metatypes.json"
+)
+if(NOT EXISTS "${WCommon_METATYPES_FILE}")
+  message(FATAL_ERROR "WCommon metatypes file does not exist: ${WCommon_METATYPES_FILE}")
+endif()
+target_sources(@WCOMMON_TARGET_NAMESPACE@ INTERFACE
+  "$<$<BOOL:$<TARGET_PROPERTY:QT_CONSUMES_METATYPES>>:${WCommon_METATYPES_FILE}>"
+)

@@ -1,5 +1,5 @@
-#include <radar/mms/common/glaze/frequency.h>
-#include <radar/mms/common/glaze/read.h>
+#include <whs31/common/glaze/frequency.h>
+#include <whs31/common/glaze/read.h>
 
 #include <filesystem>
 #include <fstream>
@@ -13,7 +13,7 @@
 #include <catch2/matchers/catch_matchers_exception.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 
-using namespace radar::mms;
+using namespace whs31;
 using Catch::Matchers::ContainsSubstring;
 using Catch::Matchers::MessageMatches;
 using Catch::Matchers::StartsWith;
@@ -65,7 +65,7 @@ TEST_CASE("Glaze documents are read strictly", "[glaze][document]")
 
 TEST_CASE("Glaze document files name the file in their errors", "[glaze][document]")
 {
-  auto const directory = std::filesystem::temp_directory_path() / "rcommon-glaze-documents";
+  auto const directory = std::filesystem::temp_directory_path() / "wcommon-glaze-documents";
   std::filesystem::create_directories(directory);
   auto const valid = directory / "valid.toml";
   auto const invalid = directory / "invalid.toml";

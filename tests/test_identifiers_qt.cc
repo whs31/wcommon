@@ -1,9 +1,9 @@
-#include <radar/mms/common/uuid.h>
-#include <radar/mms/common/version.h>
-#include <radar/mms/common/version_range.h>
+#include <whs31/common/uuid.h>
+#include <whs31/common/version.h>
+#include <whs31/common/version_range.h>
 
-#ifndef RCOMMON_WITH_QT
-#  error "Qt configuration must enable RCOMMON_WITH_QT"
+#ifndef WHS31_COMMON_WITH_QT
+#  error "Qt configuration must enable WHS31_COMMON_WITH_QT"
 #endif
 
 #include <qmetaobject.h>
@@ -15,7 +15,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-using namespace radar::mms;
+using namespace whs31;
 
 TEST_CASE("Uuid exposes Qt conversions metatype and properties", "[uuid][qt]")
 {

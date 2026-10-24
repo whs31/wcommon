@@ -1,4 +1,4 @@
-#include <radar/mms/common/uuid.h>
+#include <whs31/common/uuid.h>
 
 #include <algorithm>
 #include <array>
@@ -8,12 +8,12 @@
 #include <random>
 #include <vector>
 
-#ifdef RCOMMON_WITH_QT
+#ifdef WHS31_COMMON_WITH_QT
 #  include <qstring.h>
 #  include <qstringview.h>
 #endif
 
-RADAR_COMMON_NAMESPACE_BEGIN
+WHS31_COMMON_NAMESPACE_BEGIN
 
 // Digest rounds operate on fixed-size blocks with indices defined by MD5/SHA-1.
 // NOLINTBEGIN(cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,cppcoreguidelines-pro-bounds-constant-array-index)
@@ -406,7 +406,7 @@ Uuid Uuid::now_v7()
   );
 }
 
-#ifdef RCOMMON_WITH_QT
+#ifdef WHS31_COMMON_WITH_QT
 QString Uuid::to_qstring(Format const format) const
 {
   return QString::fromStdString(this->to_string(format));
@@ -444,4 +444,4 @@ std::ostream& operator<<(std::ostream& stream, Uuid const& uuid)
 
 // NOLINTEND(cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,cppcoreguidelines-pro-bounds-constant-array-index)
 
-RADAR_COMMON_NAMESPACE_END
+WHS31_COMMON_NAMESPACE_END

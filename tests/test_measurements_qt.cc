@@ -1,14 +1,14 @@
-#include <radar/mms/common/angle.h>
-#include <radar/mms/common/distance.h>
-#include <radar/mms/common/euler_angles.h>
-#include <radar/mms/common/velocity.h>
+#include <whs31/common/angle.h>
+#include <whs31/common/distance.h>
+#include <whs31/common/euler_angles.h>
+#include <whs31/common/velocity.h>
 
 #include <qmetatype.h>
 #include <qstring.h>
 
 #include <catch2/catch_test_macros.hpp>
 
-using namespace radar::mms::common;
+using namespace whs31::common;
 
 TEST_CASE(
   "Measurement Qt integration exposes strings, metatypes and properties",

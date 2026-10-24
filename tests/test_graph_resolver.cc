@@ -1,4 +1,4 @@
-#include <radar/mms/common/graph_resolver.h>
+#include <whs31/common/graph_resolver.h>
 
 #include <cstddef>
 #include <string>
@@ -8,7 +8,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-using namespace radar::mms::common;
+using namespace whs31::common;
 
 static_assert(std::is_default_constructible_v<GraphResolver>);
 static_assert(not std::is_copy_constructible_v<GraphResolver>);
